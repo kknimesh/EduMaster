@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  # Frontend Service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - gateway-service
+
+  # Gateway Service
+  gateway-service:
+    build:
+      context: ./backend/services/gateway-service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=development
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - USER_SERVICE_URL=http://user-service:3002
+      - COURSE_SERVICE_URL=http://course-service:3003
+    volumes:
+      - ./backend/services/gateway-service:/app
+      - /app/node_modules
+    depends_on:
+      - auth-service
+      - user-service
+      - course-service
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./backend/services/auth-service
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017/edumaster_auth
+      - JWT_SECRET=your-jwt-secret-key
+    volumes:
+      - ./backend/services/auth-service:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+      - redis
+
+  # User Service
+  user-service:
+    build:
+      context: ./backend/services/user-service
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017/edumaster_users
+    volumes:
+      - ./backend/services/user-service:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+
+  # Course Service
+  course-service:
+    build:
+      context: ./backend/services/course-service
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017/edumaster_courses
+    volumes:
+      - ./backend/services/course-service:/app
+      - /app/node_modules
+    depends_on:
+      - mongo
+
+  # MongoDB
+  mongo:
+    image: mongo:5.0
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=password
+    volumes:
+      - mongo_data:/data/db
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # PostgreSQL (for analytics and reporting)
+  postgres:
+    image: postgres:14
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=edumaster_analytics
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  mongo_data:
+  redis_data:
+  postgres_data:

@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# EduMaster Complete Setup Script
+echo "Starting EduMaster setup..."
+
+# Check if required tools are installed
+echo "Checking dependencies..."
+
+# Check for Node.js
+if command -v node &> /dev/null; then
+    echo "✓ Node.js is installed ($(node --version))"
+else
+    echo "✗ Node.js is not installed. Please install Node.js first."
+    exit 1
+fi
+
+# Check for npm
+if command -v npm &> /dev/null; then
+    echo "✓ npm is installed ($(npm --version))"
+else
+    echo "✗ npm is not installed. Please install npm first."
+    exit 1
+fi
+
+# Install root dependencies
+echo "Installing root dependencies..."
+npm install
+
+# Install frontend dependencies
+echo "Installing frontend dependencies..."
+cd frontend
+npm install
+cd ..
+
+# Install mobile dependencies
+echo "Installing mobile dependencies..."
+cd mobile
+npm install
+cd ..
+
+# Install backend service dependencies (for each service)
+echo "Installing gateway service dependencies..."
+cd backend/services/gateway-service
+npm install
+cd ../../..
+
+echo "Installing auth service dependencies..."
+cd backend/services/auth-service
+npm install
+cd ../../..
+
+echo "EduMaster setup completed successfully!"
+echo "All dependencies have been installed."
