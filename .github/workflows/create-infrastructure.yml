@@ -1,0 +1,56 @@
+name: Create AWS Infrastructure
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'infrastructure/**'
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  create-infrastructure:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Terraform Init
+        working-directory: ./infrastructure/terraform
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: ./infrastructure/terraform
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: ./infrastructure/terraform
+        run: terraform plan -var="db_username=admin" -var="db_password=${{ secrets.DB_PASSWORD }}" -var="aws_region=${{ env.AWS_REGION }}"
+
+      - name: Terraform Apply
+        working-directory: ./infrastructure/terraform
+        run: terraform apply -auto-approve -var="db_username=admin" -var="db_password=${{ secrets.DB_PASSWORD }}" -var="aws_region=${{ env.AWS_REGION }}"
+
+      - name: Create ECR Repository
+        run: |
+          aws ecr describe-repositories --repository-names edumaster || \
+          aws ecr create-repository --repository-name edumaster
+
+      - name: Output Infrastructure Info
+        run: |
+          echo "Infrastructure created successfully!"
+          echo "ECR Repository: $(aws ecr describe-repositories --repository-names edumaster --query 'repositories[0].repositoryUri' --output text)"
+          echo "Load Balancer DNS: $(aws elbv2 describe-load-balancers --names edumaster-alb --query 'LoadBalancers[0].DNSName' --output text)"
