@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.0"
+    }
   }
 }
 
@@ -118,7 +122,7 @@ resource "aws_ecs_cluster" "edumaster_cluster" {
 
 # Application Load Balancer
 resource "aws_lb" "edumaster_alb" {
-  name               = "edumaster-alb"
+  name               = "edumaster-alb-${random_id.lb_suffix.hex}"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_sg.id]
@@ -129,6 +133,11 @@ resource "aws_lb" "edumaster_alb" {
   tags = {
     Name = "EduMaster ALB"
   }
+}
+
+# Random suffix to avoid naming conflicts
+resource "random_id" "lb_suffix" {
+  byte_length = 4
 }
 
 # Security Group for ALB
@@ -167,7 +176,7 @@ resource "aws_security_group" "alb_sg" {
 
 # RDS Subnet Group
 resource "aws_db_subnet_group" "edumaster_db_subnet_group" {
-  name       = "edumaster-db-subnet-group"
+  name       = "edumaster-db-subnet-group-${random_id.lb_suffix.hex}"
   subnet_ids = [aws_subnet.private_subnet_1.id, aws_subnet.private_subnet_2.id]
 
   tags = {
@@ -177,7 +186,7 @@ resource "aws_db_subnet_group" "edumaster_db_subnet_group" {
 
 # RDS Instance (PostgreSQL)
 resource "aws_db_instance" "edumaster_db" {
-  identifier                = "edumaster-db"
+  identifier                = "edumaster-db-${random_id.lb_suffix.hex}"
   engine                   = "postgres"
   engine_version           = "14.9"
   instance_class           = "db.t3.micro"
@@ -204,11 +213,21 @@ resource "aws_db_instance" "edumaster_db" {
   }
 }
 
-# Output database host for Secrets Manager
+# Outputs
 output "db_host" {
   description = "Database hostname"
   value       = aws_db_instance.edumaster_db.address
   sensitive   = false
+}
+
+output "alb_dns_name" {
+  description = "Load balancer DNS name"
+  value       = aws_lb.edumaster_alb.dns_name
+}
+
+output "ecr_repository_url" {
+  description = "ECR repository URL"
+  value       = "AWS account will be provided at runtime"
 }
 
 # Security Group for RDS
