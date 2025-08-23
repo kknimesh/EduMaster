@@ -61,6 +61,49 @@ jobs:
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG
           echo "Frontend image pushed: $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG"
 
+      - name: Create ECS Task Execution Role
+        id: create-role
+        run: |
+          # Create trust policy document
+          cat > trust-policy.json << EOF
+          {
+            "Version": "2012-10-17",
+            "Statement": [
+              {
+                "Effect": "Allow",
+                "Principal": {
+                  "Service": "ecs-tasks.amazonaws.com"
+                },
+                "Action": "sts:AssumeRole"
+              }
+            ]
+          }
+          EOF
+          
+          # Create the role
+          ROLE_ARN=$(aws iam create-role \
+            --role-name ecsTaskExecutionRole \
+            --assume-role-policy-document file://trust-policy.json \
+            --query 'Role.Arn' \
+            --output text \
+            --region ${{ env.AWS_REGION }} 2>/dev/null || \
+            aws iam get-role \
+            --role-name ecsTaskExecutionRole \
+            --query 'Role.Arn' \
+            --output text)
+          
+          # Attach the required policy
+          aws iam attach-role-policy \
+            --role-name ecsTaskExecutionRole \
+            --policy-arn arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy || echo "Policy already attached"
+          
+          echo "role_arn=$ROLE_ARN" >> $GITHUB_OUTPUT
+          echo "ECS Task Execution Role: $ROLE_ARN"
+          
+          # Wait for role to propagate
+          echo "Waiting for IAM role to propagate..."
+          sleep 10
+
       - name: Create ECS Task Definition
         id: task-def
         run: |
@@ -71,7 +114,7 @@ jobs:
             "requiresCompatibilities": ["FARGATE"],
             "cpu": "256",
             "memory": "512",
-            "executionRoleArn": "arn:aws:iam::${{ steps.login-ecr.outputs.account-id }}:role/ecsTaskExecutionRole",
+            "executionRoleArn": "${{ steps.create-role.outputs.role_arn }}",
             "containerDefinitions": [
               {
                 "name": "edumaster-frontend",
