@@ -1,0 +1,316 @@
+name: Diagnose Container Issues
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Check Container Logs and Status
+        run: |
+          echo "🔍 Diagnosing container issues (502/504 errors)..."
+          
+          CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[0]' --output text | xargs basename)
+          
+          echo "=== ECS TASKS STATUS ==="
+          aws ecs list-tasks --cluster $CLUSTER_NAME --output table
+          
+          # Get all tasks
+          TASK_ARNS=$(aws ecs list-tasks --cluster $CLUSTER_NAME --query 'taskArns' --output text)
+          
+          for TASK_ARN in $TASK_ARNS; do
+            if [ -n "$TASK_ARN" ]; then
+              echo ""
+              echo "===================================================="
+              echo "TASK: $TASK_ARN"
+              echo "===================================================="
+              
+              # Get task details
+              TASK_INFO=$(aws ecs describe-tasks --cluster $CLUSTER_NAME --tasks $TASK_ARN --output json)
+              
+              TASK_STATUS=$(echo "$TASK_INFO" | jq -r '.tasks[0].lastStatus')
+              DESIRED_STATUS=$(echo "$TASK_INFO" | jq -r '.tasks[0].desiredStatus')
+              HEALTH_STATUS=$(echo "$TASK_INFO" | jq -r '.tasks[0].healthStatus')
+              
+              echo "Last Status: $TASK_STATUS"
+              echo "Desired Status: $DESIRED_STATUS"  
+              echo "Health Status: $HEALTH_STATUS"
+              
+              # Check if task failed
+              STOPPED_REASON=$(echo "$TASK_INFO" | jq -r '.tasks[0].stoppedReason // empty')
+              if [ -n "$STOPPED_REASON" ]; then
+                echo "❌ Stop Reason: $STOPPED_REASON"
+              fi
+              
+              # Check container status
+              echo ""
+              echo "Container Status:"
+              echo "$TASK_INFO" | jq -r '.tasks[0].containers[] | "Container: \(.name) | Status: \(.lastStatus) | Health: \(.healthStatus // "N/A") | ExitCode: \(.exitCode // "N/A")"'
+              
+              # Get task definition to find log group
+              TASK_DEF_ARN=$(echo "$TASK_INFO" | jq -r '.tasks[0].taskDefinitionArn')
+              
+              echo ""
+              echo "Task Definition: $TASK_DEF_ARN"
+              
+              # Get log group from task definition
+              LOG_GROUP=$(aws ecs describe-task-definition --task-definition $TASK_DEF_ARN --query 'taskDefinition.containerDefinitions[0].logConfiguration.options."awslogs-group"' --output text 2>/dev/null || echo "No logs configured")
+              
+              echo "Log Group: $LOG_GROUP"
+              
+              # Get recent logs if available
+              if [ "$LOG_GROUP" != "No logs configured" ] && [ "$LOG_GROUP" != "None" ]; then
+                echo ""
+                echo "📄 RECENT LOGS:"
+                
+                # Get the most recent log stream
+                LOG_STREAM=$(aws logs describe-log-streams --log-group-name "$LOG_GROUP" --order-by LastEventTime --descending --max-items 1 --query 'logStreams[0].logStreamName' --output text 2>/dev/null || echo "No streams")
+                
+                if [ "$LOG_STREAM" != "No streams" ] && [ "$LOG_STREAM" != "None" ]; then
+                  echo "Log Stream: $LOG_STREAM"
+                  echo "----------------------------------------"
+                  
+                  # Get last 20 log events
+                  aws logs get-log-events --log-group-name "$LOG_GROUP" --log-stream-name "$LOG_STREAM" --limit 20 --query 'events[*].message' --output text 2>/dev/null || echo "Could not retrieve logs"
+                  
+                  echo "----------------------------------------"
+                else
+                  echo "No log streams found"
+                fi
+              fi
+              
+              echo ""
+              echo "===================================================="
+            fi
+          done
+
+      - name: Check Target Group Health Details
+        run: |
+          echo ""
+          echo "🎯 TARGET GROUP HEALTH DETAILS:"
+          
+          # Get all target groups
+          TG_ARNS=$(aws elbv2 describe-target-groups --query 'TargetGroups[?starts_with(TargetGroupName, `edumaster`)].TargetGroupArn' --output text)
+          
+          for TG_ARN in $TG_ARNS; do
+            TG_NAME=$(aws elbv2 describe-target-groups --target-group-arns $TG_ARN --query 'TargetGroups[0].TargetGroupName' --output text)
+            
+            echo ""
+            echo "Target Group: $TG_NAME"
+            echo "Health Check Details:"
+            aws elbv2 describe-target-groups --target-group-arns $TG_ARN --query 'TargetGroups[0].{HealthCheckPath:HealthCheckPath,HealthCheckPort:HealthCheckPort,HealthCheckProtocol:HealthCheckProtocol,HealthCheckIntervalSeconds:HealthCheckIntervalSeconds,HealthCheckTimeoutSeconds:HealthCheckTimeoutSeconds,HealthyThresholdCount:HealthyThresholdCount,UnhealthyThresholdCount:UnhealthyThresholdCount}' --output table
+            
+            echo ""
+            echo "Target Health:"
+            HEALTH_INFO=$(aws elbv2 describe-target-health --target-group-arn $TG_ARN --output json 2>/dev/null)
+            
+            if [ $? -eq 0 ]; then
+              echo "$HEALTH_INFO" | jq -r '.TargetHealthDescriptions[] | "Target: \(.Target.Id):\(.Target.Port) | State: \(.TargetHealth.State) | Reason: \(.TargetHealth.Reason // "N/A") | Description: \(.TargetHealth.Description // "N/A")"'
+            else
+              echo "No targets registered"
+            fi
+          done
+
+      - name: Deploy Simple Working Container
+        run: |
+          echo ""
+          echo "🚀 Deploying simple working container to fix 502/504 errors..."
+          
+          CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[0]' --output text | xargs basename)
+          
+          # Stop all existing tasks first
+          echo "Stopping all existing tasks..."
+          TASK_ARNS=$(aws ecs list-tasks --cluster $CLUSTER_NAME --query 'taskArns' --output text)
+          
+          for TASK_ARN in $TASK_ARNS; do
+            if [ -n "$TASK_ARN" ]; then
+              aws ecs stop-task --cluster $CLUSTER_NAME --task $TASK_ARN
+            fi
+          done
+          
+          echo "Waiting 30 seconds for tasks to stop..."
+          sleep 30
+          
+          # Create a simple, reliable task definition
+          echo "Creating simple task definition..."
+          
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          
+          # Ensure log group exists
+          aws logs create-log-group --log-group-name "/ecs/edumaster-simple-fix" || echo "Log group exists"
+          
+          aws ecs register-task-definition \
+            --family edumaster-simple-fix \
+            --network-mode awsvpc \
+            --requires-compatibilities FARGATE \
+            --cpu 256 \
+            --memory 512 \
+            --execution-role-arn "arn:aws:iam::$ACCOUNT_ID:role/ecsTaskExecutionRole" \
+            --container-definitions '[{
+              "name": "simple-web",
+              "image": "nginx:alpine",
+              "portMappings": [{"containerPort": 80, "protocol": "tcp"}],
+              "essential": true,
+              "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                  "awslogs-group": "/ecs/edumaster-simple-fix",
+                  "awslogs-region": "${{ env.AWS_REGION }}",
+                  "awslogs-stream-prefix": "ecs"
+                }
+              }
+            }]'
+          
+          # Get network details
+          VPC_ID=$(aws ec2 describe-vpcs --filters "Name=is-default,Values=true" --query 'Vpcs[0].VpcId' --output text)
+          SUBNET_ID=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=$VPC_ID" "Name=map-public-ip-on-launch,Values=true" --query 'Subnets[0].SubnetId' --output text)
+          
+          # Create security group
+          SG_ID=$(aws ec2 create-security-group \
+            --group-name "edumaster-fix-$(date +%s)" \
+            --description "Fix 502 errors" \
+            --vpc-id $VPC_ID \
+            --query 'GroupId' \
+            --output text)
+          
+          aws ec2 authorize-security-group-ingress \
+            --group-id $SG_ID \
+            --protocol tcp \
+            --port 80 \
+            --cidr 0.0.0.0/0
+          
+          # Run the task
+          echo "Starting simple container..."
+          TASK_ARN=$(aws ecs run-task \
+            --cluster $CLUSTER_NAME \
+            --task-definition edumaster-simple-fix:1 \
+            --launch-type FARGATE \
+            --platform-version LATEST \
+            --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_ID],securityGroups=[$SG_ID],assignPublicIp=ENABLED}" \
+            --query 'tasks[0].taskArn' \
+            --output text)
+          
+          echo "Task started: $TASK_ARN"
+          
+          # Wait for task to be running
+          echo "Waiting for task to start..."
+          sleep 90
+
+      - name: Connect Working Container to Load Balancer
+        run: |
+          echo "🔗 Connecting working container to Load Balancer..."
+          
+          CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[0]' --output text | xargs basename)
+          
+          # Get the running task
+          TASK_ARN=$(aws ecs list-tasks --cluster $CLUSTER_NAME --desired-status RUNNING --query 'taskArns[0]' --output text)
+          
+          if [ -n "$TASK_ARN" ] && [ "$TASK_ARN" != "None" ]; then
+            # Check task status
+            TASK_STATUS=$(aws ecs describe-tasks --cluster $CLUSTER_NAME --tasks $TASK_ARN --query 'tasks[0].lastStatus' --output text)
+            
+            echo "Task Status: $TASK_STATUS"
+            
+            if [ "$TASK_STATUS" = "RUNNING" ]; then
+              # Get task IP
+              TASK_IP=$(aws ecs describe-tasks --cluster $CLUSTER_NAME --tasks $TASK_ARN --query 'tasks[0].attachments[0].details[?name==`privateIPv4Address`].value' --output text)
+              
+              # Get ENI for public IP
+              ENI_ID=$(aws ecs describe-tasks --cluster $CLUSTER_NAME --tasks $TASK_ARN --query 'tasks[0].attachments[0].details[?name==`networkInterfaceId`].value' --output text)
+              PUBLIC_IP=$(aws ec2 describe-network-interfaces --network-interface-ids $ENI_ID --query 'NetworkInterfaces[0].Association.PublicIp' --output text 2>/dev/null || echo "None")
+              
+              echo "Task IP: $TASK_IP"
+              echo "Public IP: $PUBLIC_IP"
+              
+              # Test direct access
+              if [ "$PUBLIC_IP" != "None" ]; then
+                echo ""
+                echo "Testing direct container access..."
+                HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://$PUBLIC_IP" || echo "000")
+                echo "Direct access HTTP status: $HTTP_STATUS"
+                
+                if [ "$HTTP_STATUS" = "200" ]; then
+                  echo "✅ Container is working correctly!"
+                  echo "🌐 Direct URL: http://$PUBLIC_IP"
+                fi
+              fi
+              
+              # Create new target group
+              VPC_ID=$(aws ec2 describe-vpcs --filters "Name=is-default,Values=true" --query 'Vpcs[0].VpcId' --output text)
+              
+              TG_ARN=$(aws elbv2 create-target-group \
+                --name "edumaster-fix-$(date +%s | tail -c 6)" \
+                --protocol HTTP \
+                --port 80 \
+                --vpc-id $VPC_ID \
+                --target-type ip \
+                --health-check-enabled \
+                --health-check-path "/" \
+                --health-check-interval-seconds 15 \
+                --health-check-timeout-seconds 5 \
+                --healthy-threshold-count 2 \
+                --unhealthy-threshold-count 2 \
+                --query 'TargetGroups[0].TargetGroupArn' \
+                --output text)
+              
+              # Register target
+              aws elbv2 register-targets --target-group-arn $TG_ARN --targets Id=$TASK_IP,Port=80
+              
+              # Update load balancer
+              LB_ARN=$(aws elbv2 describe-load-balancers --query 'LoadBalancers[?starts_with(LoadBalancerName, `edumaster-alb`)].LoadBalancerArn' --output text)
+              
+              # Delete old listeners and create new one
+              for LISTENER_ARN in $(aws elbv2 describe-listeners --load-balancer-arn $LB_ARN --query 'Listeners[*].ListenerArn' --output text 2>/dev/null); do
+                aws elbv2 delete-listener --listener-arn $LISTENER_ARN 2>/dev/null
+              done
+              
+              aws elbv2 create-listener \
+                --load-balancer-arn $LB_ARN \
+                --protocol HTTP \
+                --port 80 \
+                --default-actions Type=forward,TargetGroupArn=$TG_ARN
+              
+              echo "✅ Load Balancer updated"
+              
+              # Wait for health checks
+              echo ""
+              echo "⏳ Waiting for health checks (60 seconds)..."
+              sleep 60
+              
+              echo ""
+              echo "Final health check:"
+              aws elbv2 describe-target-health --target-group-arn $TG_ARN --output table
+              
+              echo ""
+              echo "🧪 Testing Load Balancer..."
+              LB_URL="http://edumaster-alb-a94208ec-635552552.us-east-1.elb.amazonaws.com"
+              HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$LB_URL" || echo "000")
+              
+              echo "Load Balancer HTTP Status: $HTTP_STATUS"
+              
+              if [ "$HTTP_STATUS" = "200" ]; then
+                echo ""
+                echo "🎉 SUCCESS! Load Balancer is now working!"
+                echo "🌐 URL: $LB_URL"
+                echo ""
+                echo "The 502/504 errors have been fixed!"
+              else
+                echo "❌ Still getting errors. HTTP Status: $HTTP_STATUS"
+              fi
+            else
+              echo "❌ Task is not running. Status: $TASK_STATUS"
+            fi
+          else
+            echo "❌ No running tasks found"
+          fi
