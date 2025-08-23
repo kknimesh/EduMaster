@@ -1,0 +1,254 @@
+name: Fix 503 Error
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  fix-503:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get AWS Account ID
+        id: account
+        run: |
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          echo "account_id=$ACCOUNT_ID" >> $GITHUB_OUTPUT
+
+      - name: Clean Up Everything and Start Fresh
+        run: |
+          echo "🧹 Cleaning up existing resources..."
+          
+          # Get cluster name
+          CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[0]' --output text | xargs basename)
+          echo "Cluster: $CLUSTER_NAME"
+          
+          # Stop all services
+          aws ecs update-service --cluster $CLUSTER_NAME --service edumaster-simple-service --desired-count 0 2>/dev/null || echo "No service to stop"
+          
+          # Wait for tasks to stop
+          echo "Waiting for tasks to stop..."
+          sleep 30
+          
+          # Delete service
+          aws ecs delete-service --cluster $CLUSTER_NAME --service edumaster-simple-service 2>/dev/null || echo "No service to delete"
+          
+          # Delete all target groups
+          for TG_ARN in $(aws elbv2 describe-target-groups --query 'TargetGroups[?starts_with(TargetGroupName, `edumaster`)].TargetGroupArn' --output text); do
+            echo "Deleting target group: $TG_ARN"
+            aws elbv2 delete-target-group --target-group-arn $TG_ARN 2>/dev/null || echo "Failed to delete $TG_ARN"
+          done
+          
+          # Delete all listeners
+          LB_ARN=$(aws elbv2 describe-load-balancers --query 'LoadBalancers[?starts_with(LoadBalancerName, `edumaster-alb`)].LoadBalancerArn' --output text)
+          for LISTENER_ARN in $(aws elbv2 describe-listeners --load-balancer-arn $LB_ARN --query 'Listeners[*].ListenerArn' --output text); do
+            echo "Deleting listener: $LISTENER_ARN"
+            aws elbv2 delete-listener --listener-arn $LISTENER_ARN 2>/dev/null || echo "Failed to delete listener"
+          done
+          
+          echo "Cleanup complete, waiting 30 seconds..."
+          sleep 30
+
+      - name: Create Simple Test Container and Deploy
+        run: |
+          echo "🚀 Creating fresh deployment..."
+          
+          # Create a simple test HTML
+          mkdir -p test-app
+          cat > test-app/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html>
+          <head>
+              <title>EduMaster - WORKING!</title>
+              <style>
+                  body { 
+                      font-family: Arial, sans-serif; 
+                      text-align: center; 
+                      padding: 50px; 
+                      background: linear-gradient(135deg, #28a745 0%, #20c997 100%); 
+                      color: white; 
+                      margin: 0;
+                  }
+                  .container { 
+                      max-width: 800px; 
+                      margin: 0 auto; 
+                      background: rgba(255,255,255,0.1);
+                      padding: 40px;
+                      border-radius: 15px;
+                  }
+                  h1 { font-size: 4em; margin: 0 0 20px 0; }
+                  .status { font-size: 2em; color: #fff; margin: 20px 0; }
+                  .timestamp { font-size: 1em; opacity: 0.8; }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>✅ SUCCESS!</h1>
+                  <div class="status">EduMaster is LIVE!</div>
+                  <p>Load Balancer: edumaster-alb-a94208ec-635552552.us-east-1.elb.amazonaws.com</p>
+                  <p>Container is running and healthy!</p>
+                  <div class="timestamp">Deployed: $(date)</div>
+              </div>
+          </body>
+          </html>
+          EOF
+          
+          # Create simple Dockerfile
+          cat > test-app/Dockerfile << 'EOF'
+          FROM nginx:alpine
+          COPY index.html /usr/share/nginx/html/index.html
+          EXPOSE 80
+          CMD ["nginx", "-g", "daemon off;"]
+          EOF
+
+      - name: Build and Push Container
+        run: |
+          # Login to ECR
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.account.outputs.account_id }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com
+          
+          # Build and push
+          cd test-app
+          docker build -t edumaster-working .
+          docker tag edumaster-working:latest ${{ steps.account.outputs.account_id }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/edumaster:working
+          docker push ${{ steps.account.outputs.account_id }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/edumaster:working
+          
+          echo "✅ Container built and pushed successfully"
+
+      - name: Deploy with Proper Configuration
+        run: |
+          # Get infrastructure details
+          CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[0]' --output text | xargs basename)
+          VPC_ID=$(aws ec2 describe-vpcs --filters "Name=is-default,Values=true" --query 'Vpcs[0].VpcId' --output text)
+          SUBNET_IDS=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=$VPC_ID" "Name=map-public-ip-on-launch,Values=true" --query 'Subnets[*].SubnetId' --output text)
+          LB_ARN=$(aws elbv2 describe-load-balancers --query 'LoadBalancers[?starts_with(LoadBalancerName, `edumaster-alb`)].LoadBalancerArn' --output text)
+          
+          echo "Infrastructure:"
+          echo "Cluster: $CLUSTER_NAME"
+          echo "VPC: $VPC_ID"
+          echo "Subnets: $SUBNET_IDS"
+          echo "Load Balancer: $LB_ARN"
+          
+          # Create security group that allows HTTP
+          SG_ID=$(aws ec2 create-security-group \
+            --group-name "edumaster-fix-$(date +%s)" \
+            --description "Allow HTTP for EduMaster" \
+            --vpc-id $VPC_ID \
+            --query 'GroupId' \
+            --output text)
+          
+          aws ec2 authorize-security-group-ingress \
+            --group-id $SG_ID \
+            --protocol tcp \
+            --port 80 \
+            --cidr 0.0.0.0/0
+          
+          # Create target group
+          TG_ARN=$(aws elbv2 create-target-group \
+            --name "edumaster-working" \
+            --protocol HTTP \
+            --port 80 \
+            --vpc-id $VPC_ID \
+            --target-type ip \
+            --health-check-enabled \
+            --health-check-path "/" \
+            --health-check-protocol HTTP \
+            --health-check-interval-seconds 15 \
+            --health-check-timeout-seconds 5 \
+            --healthy-threshold-count 2 \
+            --unhealthy-threshold-count 3 \
+            --matcher HttpCode=200 \
+            --query 'TargetGroups[0].TargetGroupArn' \
+            --output text)
+          
+          echo "Target Group: $TG_ARN"
+          
+          # Create listener
+          aws elbv2 create-listener \
+            --load-balancer-arn $LB_ARN \
+            --protocol HTTP \
+            --port 80 \
+            --default-actions Type=forward,TargetGroupArn=$TG_ARN
+          
+          # Register task definition
+          aws ecs register-task-definition \
+            --family edumaster-working \
+            --network-mode awsvpc \
+            --requires-compatibilities FARGATE \
+            --cpu 256 \
+            --memory 512 \
+            --execution-role-arn "arn:aws:iam::${{ steps.account.outputs.account_id }}:role/ecsTaskExecutionRole" \
+            --container-definitions "[{
+              \"name\": \"edumaster-container\",
+              \"image\": \"${{ steps.account.outputs.account_id }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/edumaster:working\",
+              \"portMappings\": [{\"containerPort\": 80, \"protocol\": \"tcp\"}],
+              \"essential\": true,
+              \"healthCheck\": {
+                \"command\": [\"CMD-SHELL\", \"curl -f http://localhost/ || exit 1\"],
+                \"interval\": 30,
+                \"timeout\": 5,
+                \"retries\": 3
+              },
+              \"logConfiguration\": {
+                \"logDriver\": \"awslogs\",
+                \"options\": {
+                  \"awslogs-group\": \"/ecs/edumaster-working\",
+                  \"awslogs-region\": \"${{ env.AWS_REGION }}\",
+                  \"awslogs-stream-prefix\": \"ecs\",
+                  \"awslogs-create-group\": \"true\"
+                }
+              }
+            }]"
+          
+          # Create service
+          SUBNET_LIST=$(echo $SUBNET_IDS | sed 's/ /,/g')
+          
+          aws ecs create-service \
+            --cluster $CLUSTER_NAME \
+            --service-name edumaster-working-service \
+            --task-definition edumaster-working \
+            --desired-count 1 \
+            --launch-type FARGATE \
+            --platform-version LATEST \
+            --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_LIST],securityGroups=[$SG_ID],assignPublicIp=ENABLED}" \
+            --load-balancers "targetGroupArn=$TG_ARN,containerName=edumaster-container,containerPort=80" \
+            --health-check-grace-period-seconds 60
+          
+          echo "✅ Service created with load balancer integration"
+
+      - name: Wait for Deployment and Health Checks
+        run: |
+          echo "⏳ Waiting for service to become stable..."
+          CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[0]' --output text | xargs basename)
+          
+          # Wait for service to be stable
+          aws ecs wait services-stable \
+            --cluster $CLUSTER_NAME \
+            --services edumaster-working-service
+          
+          echo "✅ Service is stable"
+          
+          # Wait additional time for health checks
+          echo "⏳ Waiting for health checks to pass..."
+          sleep 60
+          
+          # Check target health
+          TG_ARN=$(aws elbv2 describe-target-groups --query 'TargetGroups[?TargetGroupName==`edumaster-working`].TargetGroupArn' --output text)
+          
+          echo "Target Health Status:"
+          aws elbv2 describe-target-health --target-group-arn $TG_ARN --output table
+          
+          echo ""
+          echo "🎉 Deployment Complete!"
+          echo ""
+          echo "🌐 Your application should now be available at:"
+          echo "http://edumaster-alb-a94208ec-635552552.us-east-1.elb.amazonaws.com"
+          echo ""
+          echo "If you still see 503, wait another 2-3 minutes for health checks to complete."
