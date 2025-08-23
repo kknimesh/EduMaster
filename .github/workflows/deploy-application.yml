@@ -1,0 +1,201 @@
+name: Deploy Application to AWS
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY: edumaster
+
+jobs:
+  deploy-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get Infrastructure Details
+        id: infra
+        run: |
+          echo "Getting infrastructure details..."
+          
+          # Get Load Balancer ARN
+          LB_ARN=$(aws elbv2 describe-load-balancers --query 'LoadBalancers[?starts_with(LoadBalancerName, `edumaster-alb`)].LoadBalancerArn' --output text --region ${{ env.AWS_REGION }})
+          echo "lb_arn=$LB_ARN" >> $GITHUB_OUTPUT
+          
+          # Get ECS Cluster Name
+          CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[?contains(@, `edumaster-cluster`)]' --output text --region ${{ env.AWS_REGION }} | xargs -I {} basename {})
+          echo "cluster_name=$CLUSTER_NAME" >> $GITHUB_OUTPUT
+          
+          # Get VPC ID
+          VPC_ID=$(aws ec2 describe-vpcs --filters "Name=is-default,Values=true" --query 'Vpcs[0].VpcId' --output text --region ${{ env.AWS_REGION }})
+          echo "vpc_id=$VPC_ID" >> $GITHUB_OUTPUT
+          
+          # Get Subnets
+          SUBNET_IDS=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=$VPC_ID" --query 'Subnets[*].SubnetId' --output text --region ${{ env.AWS_REGION }})
+          echo "subnet_ids=$SUBNET_IDS" >> $GITHUB_OUTPUT
+          
+          echo "Infrastructure found:"
+          echo "Load Balancer ARN: $LB_ARN"
+          echo "ECS Cluster: $CLUSTER_NAME"
+          echo "VPC ID: $VPC_ID"
+
+      - name: Build and push Frontend image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: latest
+        run: |
+          echo "Building frontend Docker image..."
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG ./frontend
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG
+          echo "Frontend image pushed: $ECR_REGISTRY/$ECR_REPOSITORY:frontend-$IMAGE_TAG"
+
+      - name: Create ECS Task Definition
+        id: task-def
+        run: |
+          cat > task-definition.json << EOF
+          {
+            "family": "edumaster-frontend",
+            "networkMode": "awsvpc",
+            "requiresCompatibilities": ["FARGATE"],
+            "cpu": "256",
+            "memory": "512",
+            "executionRoleArn": "arn:aws:iam::${{ steps.login-ecr.outputs.account-id }}:role/ecsTaskExecutionRole",
+            "containerDefinitions": [
+              {
+                "name": "edumaster-frontend",
+                "image": "${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:frontend-latest",
+                "portMappings": [
+                  {
+                    "containerPort": 80,
+                    "protocol": "tcp"
+                  }
+                ],
+                "essential": true,
+                "logConfiguration": {
+                  "logDriver": "awslogs",
+                  "options": {
+                    "awslogs-group": "/ecs/edumaster-frontend",
+                    "awslogs-region": "${{ env.AWS_REGION }}",
+                    "awslogs-stream-prefix": "ecs"
+                  }
+                }
+              }
+            ]
+          }
+          EOF
+          
+          echo "Task definition created"
+          cat task-definition.json
+
+      - name: Create CloudWatch Log Group
+        run: |
+          aws logs create-log-group --log-group-name "/ecs/edumaster-frontend" --region ${{ env.AWS_REGION }} || echo "Log group already exists"
+
+      - name: Register ECS Task Definition
+        id: task-def-register
+        run: |
+          TASK_DEFINITION_ARN=$(aws ecs register-task-definition \
+            --cli-input-json file://task-definition.json \
+            --query 'taskDefinition.taskDefinitionArn' \
+            --output text \
+            --region ${{ env.AWS_REGION }})
+          echo "task_definition_arn=$TASK_DEFINITION_ARN" >> $GITHUB_OUTPUT
+          echo "Task Definition registered: $TASK_DEFINITION_ARN"
+
+      - name: Create Security Group for ECS
+        id: sg
+        run: |
+          SG_ID=$(aws ec2 create-security-group \
+            --group-name "edumaster-ecs-sg-$(date +%s)" \
+            --description "Security group for EduMaster ECS tasks" \
+            --vpc-id ${{ steps.infra.outputs.vpc_id }} \
+            --query 'GroupId' \
+            --output text \
+            --region ${{ env.AWS_REGION }})
+          
+          # Allow HTTP traffic from anywhere
+          aws ec2 authorize-security-group-ingress \
+            --group-id $SG_ID \
+            --protocol tcp \
+            --port 80 \
+            --cidr 0.0.0.0/0 \
+            --region ${{ env.AWS_REGION }}
+          
+          echo "security_group_id=$SG_ID" >> $GITHUB_OUTPUT
+          echo "Security Group created: $SG_ID"
+
+      - name: Create ECS Service
+        run: |
+          # Get first subnet ID
+          SUBNET_ID=$(echo "${{ steps.infra.outputs.subnet_ids }}" | cut -d' ' -f1)
+          
+          aws ecs create-service \
+            --cluster ${{ steps.infra.outputs.cluster_name }} \
+            --service-name edumaster-frontend-service \
+            --task-definition ${{ steps.task-def-register.outputs.task_definition_arn }} \
+            --desired-count 1 \
+            --launch-type FARGATE \
+            --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_ID],securityGroups=[${{ steps.sg.outputs.security_group_id }}],assignPublicIp=ENABLED}" \
+            --region ${{ env.AWS_REGION }} || echo "Service might already exist"
+
+      - name: Create Target Group
+        id: tg
+        run: |
+          TG_ARN=$(aws elbv2 create-target-group \
+            --name "edumaster-tg-$(date +%s)" \
+            --protocol HTTP \
+            --port 80 \
+            --vpc-id ${{ steps.infra.outputs.vpc_id }} \
+            --target-type ip \
+            --health-check-path "/" \
+            --health-check-interval-seconds 30 \
+            --health-check-timeout-seconds 5 \
+            --healthy-threshold-count 2 \
+            --unhealthy-threshold-count 5 \
+            --query 'TargetGroups[0].TargetGroupArn' \
+            --output text \
+            --region ${{ env.AWS_REGION }})
+          
+          echo "target_group_arn=$TG_ARN" >> $GITHUB_OUTPUT
+          echo "Target Group created: $TG_ARN"
+
+      - name: Create Load Balancer Listener
+        run: |
+          aws elbv2 create-listener \
+            --load-balancer-arn ${{ steps.infra.outputs.lb_arn }} \
+            --protocol HTTP \
+            --port 80 \
+            --default-actions Type=forward,TargetGroupArn=${{ steps.tg.outputs.target_group_arn }} \
+            --region ${{ env.AWS_REGION }} || echo "Listener might already exist"
+
+      - name: Wait for Service to be Running
+        run: |
+          echo "Waiting for ECS service to be running..."
+          aws ecs wait services-running \
+            --cluster ${{ steps.infra.outputs.cluster_name }} \
+            --services edumaster-frontend-service \
+            --region ${{ env.AWS_REGION }}
+
+      - name: Deployment Complete
+        run: |
+          echo "🎉 Deployment completed successfully!"
+          echo ""
+          echo "🌐 Application URL: http://edumaster-alb-a94208ec-635552552.us-east-1.elb.amazonaws.com"
+          echo ""
+          echo "📊 Monitor your deployment:"
+          echo "- ECS Console: https://console.aws.amazon.com/ecs/home?region=us-east-1#/clusters"
+          echo "- CloudWatch Logs: https://console.aws.amazon.com/cloudwatch/home?region=us-east-1#logsV2:log-groups"
+          echo ""
+          echo "⏳ Note: It may take 2-3 minutes for the application to be fully available"
