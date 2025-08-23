@@ -55,6 +55,13 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
 
+      - name: Get Database Credentials
+        id: db-creds
+        run: |
+          DB_SECRET=$(aws secretsmanager get-secret-value --secret-id "edumaster/database" --region ${{ env.AWS_REGION }} --query SecretString --output text)
+          echo "::add-mask::$DB_SECRET"
+          echo "db_secret=$DB_SECRET" >> $GITHUB_OUTPUT
+
       - name: Build and push Frontend image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -67,6 +74,7 @@ jobs:
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
+          DATABASE_URL: ${{ steps.db-creds.outputs.db_secret }}
         run: |
           docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG ./backend/services/gateway-service
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:backend-$IMAGE_TAG

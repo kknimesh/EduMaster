@@ -36,13 +36,29 @@ jobs:
         working-directory: ./infrastructure/terraform
         run: terraform validate
 
+      - name: Generate DB Password
+        id: db-password
+        run: echo "password=$(openssl rand -base64 32)" >> $GITHUB_OUTPUT
+
       - name: Terraform Plan
         working-directory: ./infrastructure/terraform
-        run: terraform plan -var="db_username=admin" -var="db_password=${{ secrets.DB_PASSWORD }}" -var="aws_region=${{ env.AWS_REGION }}"
+        run: terraform plan -var="db_username=edumaster_admin" -var="db_password=${{ steps.db-password.outputs.password }}" -var="aws_region=${{ env.AWS_REGION }}"
 
       - name: Terraform Apply
         working-directory: ./infrastructure/terraform
-        run: terraform apply -auto-approve -var="db_username=admin" -var="db_password=${{ secrets.DB_PASSWORD }}" -var="aws_region=${{ env.AWS_REGION }}"
+        run: terraform apply -auto-approve -var="db_username=edumaster_admin" -var="db_password=${{ steps.db-password.outputs.password }}" -var="aws_region=${{ env.AWS_REGION }}"
+
+      - name: Store DB Credentials in AWS Secrets Manager
+        run: |
+          aws secretsmanager create-secret \
+            --name "edumaster/database" \
+            --description "EduMaster Database Credentials" \
+            --secret-string "{\"username\":\"edumaster_admin\",\"password\":\"${{ steps.db-password.outputs.password }}\",\"host\":\"$(terraform -chdir=./infrastructure/terraform output -raw db_host)\",\"port\":\"5432\",\"database\":\"edumaster\"}" \
+            --region ${{ env.AWS_REGION }} || \
+          aws secretsmanager update-secret \
+            --secret-id "edumaster/database" \
+            --secret-string "{\"username\":\"edumaster_admin\",\"password\":\"${{ steps.db-password.outputs.password }}\",\"host\":\"$(terraform -chdir=./infrastructure/terraform output -raw db_host)\",\"port\":\"5432\",\"database\":\"edumaster\"}" \
+            --region ${{ env.AWS_REGION }}
 
       - name: Create ECR Repository
         run: |

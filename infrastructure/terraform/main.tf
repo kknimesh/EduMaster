@@ -204,6 +204,13 @@ resource "aws_db_instance" "edumaster_db" {
   }
 }
 
+# Output database host for Secrets Manager
+output "db_host" {
+  description = "Database hostname"
+  value       = aws_db_instance.edumaster_db.address
+  sensitive   = false
+}
+
 # Security Group for RDS
 resource "aws_security_group" "rds_sg" {
   name        = "edumaster-rds-sg"

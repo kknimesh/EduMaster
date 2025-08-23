@@ -6,8 +6,9 @@
 1. AWS account with appropriate permissions
 2. GitHub repository secrets configured:
    - `AWS_ACCESS_KEY_ID`
-   - `AWS_SECRET_ACCESS_KEY` 
-   - `DB_PASSWORD` (for RDS database)
+   - `AWS_SECRET_ACCESS_KEY`
+   
+**No database setup needed!** - Database credentials will be automatically generated and stored in AWS Secrets Manager.
 
 ### Step 1: Create AWS Infrastructure
 ```bash
