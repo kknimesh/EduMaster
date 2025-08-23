@@ -66,16 +66,16 @@ jobs:
         with:
           terraform_version: 1.7.0
 
-      - name: Backup original main.tf
+      - name: Backup and replace main.tf with simplified version
         run: |
           cd infrastructure/terraform
-          cp main.tf main.tf.backup || echo "No main.tf to backup"
-
-      - name: Use simplified Terraform config
-        run: |
-          cd infrastructure/terraform
-          cp main-simple.tf main.tf
+          # Backup original
+          mv main.tf main.tf.backup || echo "No main.tf to backup"
+          # Use simplified version
+          mv main-simple.tf main.tf
           echo "Using simplified config that reuses default VPC"
+          echo "Files in directory:"
+          ls -la
 
       - name: Terraform Init
         working-directory: ./infrastructure/terraform
