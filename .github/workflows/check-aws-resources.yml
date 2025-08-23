@@ -1,0 +1,71 @@
+name: Check AWS Resources
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  check-resources:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Check Available PostgreSQL Versions
+        run: |
+          echo "🔍 Available PostgreSQL versions in ${{ env.AWS_REGION }}:"
+          aws rds describe-db-engine-versions \
+            --engine postgres \
+            --query 'DBEngineVersions[*].EngineVersion' \
+            --output table \
+            --region ${{ env.AWS_REGION }} | head -20
+
+      - name: Check Available Instance Types
+        run: |
+          echo "🔍 Checking if db.t3.micro is available:"
+          aws rds describe-orderable-db-instance-options \
+            --engine postgres \
+            --db-instance-class db.t3.micro \
+            --query 'OrderableDBInstanceOptions[0].DBInstanceClass' \
+            --output text \
+            --region ${{ env.AWS_REGION }} || echo "db.t3.micro not available, trying db.t4g.micro"
+          
+          aws rds describe-orderable-db-instance-options \
+            --engine postgres \
+            --db-instance-class db.t4g.micro \
+            --query 'OrderableDBInstanceOptions[0].DBInstanceClass' \
+            --output text \
+            --region ${{ env.AWS_REGION }} || echo "db.t4g.micro also not available"
+
+      - name: Check Existing Resources
+        run: |
+          echo "🔍 Checking existing AWS resources:"
+          
+          echo "VPCs:"
+          aws ec2 describe-vpcs --query 'Vpcs[*].{ID:VpcId,CIDR:CidrBlock,Tags:Tags}' --output table --region ${{ env.AWS_REGION }}
+          
+          echo "Load Balancers:"
+          aws elbv2 describe-load-balancers --query 'LoadBalancers[*].{Name:LoadBalancerName,DNS:DNSName,State:State.Code}' --output table --region ${{ env.AWS_REGION }} || echo "No load balancers found"
+          
+          echo "RDS Instances:"
+          aws rds describe-db-instances --query 'DBInstances[*].{ID:DBInstanceIdentifier,Engine:Engine,Status:DBInstanceStatus}' --output table --region ${{ env.AWS_REGION }} || echo "No RDS instances found"
+          
+          echo "ECS Clusters:"
+          aws ecs list-clusters --region ${{ env.AWS_REGION }} || echo "No ECS clusters found"
+
+      - name: Recommendations
+        run: |
+          echo "📋 Recommendations for successful deployment:"
+          echo "✅ Use PostgreSQL version 15 (latest stable)"
+          echo "✅ Use db.t3.micro or db.t4g.micro instance class"
+          echo "✅ Ensure unique resource names with random suffixes"
+          echo "✅ Clean up any conflicting resources first"

@@ -188,7 +188,7 @@ resource "aws_db_subnet_group" "edumaster_db_subnet_group" {
 resource "aws_db_instance" "edumaster_db" {
   identifier                = "edumaster-db-${random_id.lb_suffix.hex}"
   engine                   = "postgres"
-  engine_version           = "14.9"
+  engine_version           = "15"
   instance_class           = "db.t3.micro"
   allocated_storage        = 20
   storage_type             = "gp2"
