@@ -49,6 +49,7 @@ const Header: React.FC<HeaderProps> = ({
   
   const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: Icons.BarChart3 },
+    { name: 'Math Learning', href: '/math', icon: Icons.Calculator },
     { name: 'Students', href: '/students', icon: Icons.Users },
     { name: 'Teachers', href: '/teachers', icon: Icons.GraduationCap },
     { name: 'Parents', href: '/parents', icon: Icons.Heart },

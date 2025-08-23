@@ -306,7 +306,13 @@ const Dashboard: React.FC = () => {
           <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
             Quick Actions
           </h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <Link to="/math" className="block">
+              <Button variant="primary" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
+                <Icons.Calculator className="w-6 h-6" />
+                <span className="text-sm">Practice Math</span>
+              </Button>
+            </Link>
             <Link to="/courses" className="block">
               <Button variant="outline" className="w-full h-20 flex flex-col items-center justify-center space-y-2">
                 <Icons.BookOpen className="w-6 h-6" />

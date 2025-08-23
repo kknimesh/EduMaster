@@ -9,6 +9,7 @@ import TeachersPage from './pages/TeachersPage';
 import ParentsPage from './pages/ParentsPage';
 import CoursesPage from './pages/CoursesPage';
 import AssignmentsPage from './pages/AssignmentsPage';
+import MathLearningPage from './pages/MathLearningPage';
 import UIShowcase from './pages/UIShowcase';
 import './App.css';
 
@@ -28,6 +29,7 @@ function App() {
                 <Route path="/parents" element={<ParentsPage />} />
                 <Route path="/courses" element={<CoursesPage />} />
                 <Route path="/assignments" element={<AssignmentsPage />} />
+                <Route path="/math" element={<MathLearningPage />} />
                 <Route path="/showcase" element={<UIShowcase />} />
               </Routes>
             </main>
