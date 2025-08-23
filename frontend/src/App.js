@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import UIShowcase from './pages/UIShowcase.tsx';
+import SimpleDemo from './pages/SimpleDemo.tsx';
 import SimpleShowcase from './pages/SimpleShowcase.tsx';
 import './App.css';
 
@@ -9,7 +9,7 @@ function App() {
     <Router>
       <div className="App">
         <Routes>
-          <Route path="/" element={<UIShowcase />} />
+          <Route path="/" element={<SimpleDemo />} />
           <Route path="/simple" element={<SimpleShowcase />} />
         </Routes>
       </div>
