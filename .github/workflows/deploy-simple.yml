@@ -1,0 +1,108 @@
+name: Deploy Simple (No VPC Creation)
+
+on:
+  workflow_dispatch:
+    inputs:
+      cleanup_first:
+        description: 'Clean up existing resources first'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+        - 'true'
+        - 'false'
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy-simple:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Check AWS Account Limits
+        run: |
+          echo "🔍 Checking AWS account limits and usage..."
+          echo "VPCs in region:"
+          aws ec2 describe-vpcs --query 'Vpcs[*].{ID:VpcId,CIDR:CidrBlock,Default:IsDefault}' --output table --region ${{ env.AWS_REGION }}
+          echo "VPC Count: $(aws ec2 describe-vpcs --query 'Vpcs | length(@)' --output text --region ${{ env.AWS_REGION }})"
+
+      - name: Cleanup Existing Resources (if requested)
+        if: github.event.inputs.cleanup_first == 'true'
+        run: |
+          echo "🧹 Cleaning up existing resources..."
+          
+          # Delete Load Balancers
+          for lb_arn in $(aws elbv2 describe-load-balancers --query 'LoadBalancers[?starts_with(LoadBalancerName, `edumaster-alb`)].LoadBalancerArn' --output text --region ${{ env.AWS_REGION }}); do
+            if [ "$lb_arn" != "None" ] && [ -n "$lb_arn" ]; then
+              echo "Deleting Load Balancer: $lb_arn"
+              aws elbv2 delete-load-balancer --load-balancer-arn $lb_arn --region ${{ env.AWS_REGION }} || echo "Failed to delete LB"
+            fi
+          done
+          
+          # Delete RDS instances
+          for db_id in $(aws rds describe-db-instances --query 'DBInstances[?starts_with(DBInstanceIdentifier, `edumaster-db`)].DBInstanceIdentifier' --output text --region ${{ env.AWS_REGION }}); do
+            if [ "$db_id" != "None" ] && [ -n "$db_id" ]; then
+              echo "Deleting RDS instance: $db_id"
+              aws rds delete-db-instance --db-instance-identifier $db_id --skip-final-snapshot --region ${{ env.AWS_REGION }} || echo "Failed to delete RDS"
+            fi
+          done
+          
+          # Wait for deletions
+          echo "⏳ Waiting for resources to be deleted..."
+          sleep 90
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Backup original main.tf
+        run: |
+          cd infrastructure/terraform
+          cp main.tf main.tf.backup || echo "No main.tf to backup"
+
+      - name: Use simplified Terraform config
+        run: |
+          cd infrastructure/terraform
+          cp main-simple.tf main.tf
+          echo "Using simplified config that reuses default VPC"
+
+      - name: Terraform Init
+        working-directory: ./infrastructure/terraform
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: ./infrastructure/terraform
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: ./infrastructure/terraform
+        run: terraform plan -var="db_username=edumaster_admin" -var="db_password=TempPassword123!" -var="aws_region=${{ env.AWS_REGION }}"
+
+      - name: Terraform Apply
+        working-directory: ./infrastructure/terraform
+        run: terraform apply -auto-approve -var="db_username=edumaster_admin" -var="db_password=TempPassword123!" -var="aws_region=${{ env.AWS_REGION }}"
+
+      - name: Create ECR Repository
+        run: |
+          aws ecr describe-repositories --repository-names edumaster --region ${{ env.AWS_REGION }} 2>/dev/null || \
+          aws ecr create-repository --repository-name edumaster --region ${{ env.AWS_REGION }}
+
+      - name: Output Infrastructure Info
+        run: |
+          echo "🎉 Infrastructure created successfully!"
+          echo "Using Default VPC: $(terraform -chdir=./infrastructure/terraform output -raw vpc_id)"
+          echo "Load Balancer DNS: $(terraform -chdir=./infrastructure/terraform output -raw alb_dns_name)"
+          echo "ECR Repository: $(aws ecr describe-repositories --repository-names edumaster --query 'repositories[0].repositoryUri' --output text --region ${{ env.AWS_REGION }})"
+          echo ""
+          echo "🌐 Access your application at: http://$(terraform -chdir=./infrastructure/terraform output -raw alb_dns_name)"
