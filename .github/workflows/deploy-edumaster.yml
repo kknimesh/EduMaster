@@ -1,0 +1,209 @@
+name: Deploy EduMaster Showcase
+
+on:
+  workflow_dispatch:
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy-edumaster:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        run: |
+          echo "🏗️ Building EduMaster showcase application..."
+          
+          ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY=edumaster-app
+          IMAGE_TAG=showcase-$(date +%s)
+          
+          # Ensure ECR repository exists
+          aws ecr describe-repositories --repository-names $ECR_REPOSITORY 2>/dev/null || \
+          aws ecr create-repository --repository-name $ECR_REPOSITORY
+          
+          # Build and push the image
+          docker build -f frontend/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG frontend/
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          
+          echo "IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Deploy EduMaster to ECS
+        run: |
+          echo "🚀 Deploying EduMaster showcase to ECS..."
+          
+          CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[0]' --output text | xargs basename)
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          
+          # Stop current nginx task
+          echo "Stopping current container..."
+          TASK_ARNS=$(aws ecs list-tasks --cluster $CLUSTER_NAME --query 'taskArns' --output text)
+          for TASK_ARN in $TASK_ARNS; do
+            if [ -n "$TASK_ARN" ]; then
+              aws ecs stop-task --cluster $CLUSTER_NAME --task $TASK_ARN
+            fi
+          done
+          
+          sleep 30
+          
+          # Create EduMaster task definition
+          aws logs create-log-group --log-group-name "/ecs/edumaster-showcase" || echo "Log group exists"
+          
+          aws ecs register-task-definition \
+            --family edumaster-showcase \
+            --network-mode awsvpc \
+            --requires-compatibilities FARGATE \
+            --cpu 512 \
+            --memory 1024 \
+            --execution-role-arn "arn:aws:iam::$ACCOUNT_ID:role/ecsTaskExecutionRole" \
+            --container-definitions "[{
+              \"name\": \"edumaster-showcase\",
+              \"image\": \"$IMAGE_URI\",
+              \"portMappings\": [{\"containerPort\": 80, \"protocol\": \"tcp\"}],
+              \"essential\": true,
+              \"logConfiguration\": {
+                \"logDriver\": \"awslogs\",
+                \"options\": {
+                  \"awslogs-group\": \"/ecs/edumaster-showcase\",
+                  \"awslogs-region\": \"${{ env.AWS_REGION }}\",
+                  \"awslogs-stream-prefix\": \"ecs\"
+                }
+              },
+              \"environment\": [
+                {\"name\": \"NODE_ENV\", \"value\": \"production\"},
+                {\"name\": \"REACT_APP_API_URL\", \"value\": \"https://api.edumaster.com\"}
+              ]
+            }]"
+          
+          # Get network configuration
+          VPC_ID=$(aws ec2 describe-vpcs --filters "Name=is-default,Values=true" --query 'Vpcs[0].VpcId' --output text)
+          SUBNET_ID=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=$VPC_ID" "Name=map-public-ip-on-launch,Values=true" --query 'Subnets[0].SubnetId' --output text)
+          SG_ID=$(aws ec2 describe-security-groups --filters "Name=vpc-id,Values=$VPC_ID" "Name=group-name,Values=edumaster-*" --query 'SecurityGroups[0].GroupId' --output text)
+          
+          # Deploy the EduMaster container
+          TASK_ARN=$(aws ecs run-task \
+            --cluster $CLUSTER_NAME \
+            --task-definition edumaster-showcase:1 \
+            --launch-type FARGATE \
+            --platform-version LATEST \
+            --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_ID],securityGroups=[$SG_ID],assignPublicIp=ENABLED}" \
+            --query 'tasks[0].taskArn' \
+            --output text)
+          
+          echo "EduMaster container started: $TASK_ARN"
+          
+          # Wait for container to be running
+          echo "⏳ Waiting for EduMaster to start (2 minutes)..."
+          sleep 120
+
+      - name: Connect to Load Balancer
+        run: |
+          echo "🔗 Connecting EduMaster to Load Balancer..."
+          
+          CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[0]' --output text | xargs basename)
+          
+          # Get running EduMaster task
+          TASK_ARN=$(aws ecs list-tasks --cluster $CLUSTER_NAME --desired-status RUNNING --query 'taskArns[0]' --output text)
+          
+          if [ -n "$TASK_ARN" ] && [ "$TASK_ARN" != "None" ]; then
+            TASK_STATUS=$(aws ecs describe-tasks --cluster $CLUSTER_NAME --tasks $TASK_ARN --query 'tasks[0].lastStatus' --output text)
+            echo "EduMaster Task Status: $TASK_STATUS"
+            
+            if [ "$TASK_STATUS" = "RUNNING" ]; then
+              TASK_IP=$(aws ecs describe-tasks --cluster $CLUSTER_NAME --tasks $TASK_ARN --query 'tasks[0].attachments[0].details[?name==`privateIPv4Address`].value' --output text)
+              echo "EduMaster Task IP: $TASK_IP"
+              
+              # Get the latest target group (from the reset)
+              LATEST_TG_ARN=$(aws elbv2 describe-target-groups --query 'TargetGroups[?starts_with(TargetGroupName, `edumaster`)].{ARN:TargetGroupArn,Created:CreationTime}' --output json | jq -r 'sort_by(.Created) | reverse | .[0].ARN')
+              
+              # Clear old targets and register EduMaster
+              OLD_TARGETS=$(aws elbv2 describe-target-health --target-group-arn $LATEST_TG_ARN --query 'TargetHealthDescriptions[*].Target.Id' --output text 2>/dev/null || echo "")
+              for OLD_TARGET in $OLD_TARGETS; do
+                if [ -n "$OLD_TARGET" ] && [ "$OLD_TARGET" != "None" ]; then
+                  aws elbv2 deregister-targets --target-group-arn $LATEST_TG_ARN --targets Id=$OLD_TARGET,Port=80
+                fi
+              done
+              
+              # Register EduMaster container
+              aws elbv2 register-targets --target-group-arn $LATEST_TG_ARN --targets Id=$TASK_IP,Port=80
+              
+              echo "✅ EduMaster connected to Load Balancer"
+              
+              # Wait for health checks
+              echo "⏳ Waiting for health checks (2 minutes)..."
+              sleep 120
+              
+            else
+              echo "❌ EduMaster container not running. Status: $TASK_STATUS"
+              exit 1
+            fi
+          else
+            echo "❌ No EduMaster tasks found"
+            exit 1
+          fi
+
+      - name: Verify EduMaster Deployment
+        run: |
+          echo "🧪 Testing EduMaster deployment..."
+          
+          LB_DNS="edumaster-alb-a94208ec-635552552.us-east-1.elb.amazonaws.com"
+          
+          # Test the EduMaster application
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://$LB_DNS" -m 15 || echo "TIMEOUT")
+          echo "EduMaster HTTP Status: $HTTP_STATUS"
+          
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo ""
+            echo "🎉 SUCCESS! EduMaster showcase deployed!"
+            echo "🎓 EduMaster URL: http://$LB_DNS"
+            echo ""
+            echo "✅ Your education management system is now live!"
+            echo "✅ Features available: UI components, forms, dashboards, mobile views"
+            
+            # Get a preview of the content
+            echo ""
+            echo "📄 Content preview:"
+            curl -s "http://$LB_DNS" -m 10 | grep -o '<title>[^<]*</title>' || echo "React app loading..."
+            
+          else
+            echo ""
+            echo "❌ EduMaster deployment issue. HTTP Status: $HTTP_STATUS"
+            
+            # Show diagnostics
+            LATEST_TG_ARN=$(aws elbv2 describe-target-groups --query 'TargetGroups[?starts_with(TargetGroupName, `edumaster`)].{ARN:TargetGroupArn,Created:CreationTime}' --output json | jq -r 'sort_by(.Created) | reverse | .[0].ARN')
+            
+            echo ""
+            echo "Target Health Status:"
+            aws elbv2 describe-target-health --target-group-arn $LATEST_TG_ARN --output table
+            
+            echo ""
+            echo "EduMaster Container Logs (last 10 lines):"
+            CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[0]' --output text | xargs basename)
+            TASK_ARN=$(aws ecs list-tasks --cluster $CLUSTER_NAME --desired-status RUNNING --query 'taskArns[0]' --output text)
+            
+            if [ -n "$TASK_ARN" ] && [ "$TASK_ARN" != "None" ]; then
+              LOG_GROUP="/ecs/edumaster-showcase"
+              LOG_STREAM=$(aws logs describe-log-streams --log-group-name "$LOG_GROUP" --order-by LastEventTime --descending --max-items 1 --query 'logStreams[0].logStreamName' --output text 2>/dev/null || echo "No streams")
+              
+              if [ "$LOG_STREAM" != "No streams" ] && [ "$LOG_STREAM" != "None" ]; then
+                aws logs get-log-events --log-group-name "$LOG_GROUP" --log-stream-name "$LOG_STREAM" --limit 10 --query 'events[*].message' --output text 2>/dev/null | tail -5 || echo "No logs available"
+              fi
+            fi
+          fi
