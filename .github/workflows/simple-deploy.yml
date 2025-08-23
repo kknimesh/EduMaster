@@ -1,0 +1,68 @@
+name: Simple AWS Deploy
+
+on:
+  workflow_dispatch:
+  
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Test AWS Connection
+        run: |
+          echo "Testing AWS connection..."
+          aws sts get-caller-identity
+          echo "AWS CLI version:"
+          aws --version
+
+      - name: Create ECR Repository
+        run: |
+          echo "Creating ECR repository..."
+          aws ecr describe-repositories --repository-names edumaster 2>/dev/null || \
+          aws ecr create-repository --repository-name edumaster --image-scanning-configuration scanOnPush=true
+
+      - name: Create S3 Bucket for Static Files (if needed)
+        run: |
+          echo "Creating S3 bucket for static files..."
+          aws s3 mb s3://edumaster-static-files-$(date +%s) --region ${{ env.AWS_REGION }} || echo "Bucket creation skipped"
+
+      - name: List Available Resources
+        run: |
+          echo "Available ECR repositories:"
+          aws ecr describe-repositories --region ${{ env.AWS_REGION }} || echo "No ECR repos found"
+          echo "Available ECS clusters:"
+          aws ecs list-clusters --region ${{ env.AWS_REGION }} || echo "No ECS clusters found"
+          echo "Available Load Balancers:"
+          aws elbv2 describe-load-balancers --region ${{ env.AWS_REGION }} || echo "No load balancers found"
+
+      - name: Setup Basic Infrastructure Check
+        run: |
+          echo "Checking if basic infrastructure exists..."
+          # Check if VPC exists
+          aws ec2 describe-vpcs --filters "Name=tag:Name,Values=EduMaster VPC" --region ${{ env.AWS_REGION }} || echo "VPC not found - will need Terraform"
+          
+          # Check if ECS cluster exists
+          aws ecs describe-clusters --clusters edumaster-cluster --region ${{ env.AWS_REGION }} || echo "ECS cluster not found - will need Terraform"
+
+      - name: Deploy Status
+        run: |
+          echo "🎉 AWS Connection Successful!"
+          echo "✅ ECR Repository: Ready"
+          echo "⚠️  Infrastructure: Run Terraform first"
+          echo ""
+          echo "Next steps:"
+          echo "1. Run Terraform to create infrastructure"
+          echo "2. Build and push Docker images"
+          echo "3. Deploy to ECS"
