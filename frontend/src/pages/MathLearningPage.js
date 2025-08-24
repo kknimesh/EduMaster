@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const MathLearningPage = () => {
   const [selectedGrade, setSelectedGrade] = useState(null);
@@ -10,6 +10,19 @@ const MathLearningPage = () => {
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [questions, setQuestions] = useState([]);
+
+  // Reset to main page when component mounts (when navigating to /math)
+  useEffect(() => {
+    setSelectedGrade(null);
+    setShowQuiz(false);
+    setSelectedSkill(null);
+    setCurrentQuestion(0);
+    setScore(0);
+    setUserAnswer('');
+    setShowFeedback(false);
+    setIsCorrect(false);
+    setQuestions([]);
+  }, []);
 
   // Math skills organized by grade (IXL-inspired)
   const mathSkills = {
