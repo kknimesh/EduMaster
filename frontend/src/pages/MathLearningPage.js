@@ -212,15 +212,33 @@ const MathLearningPage = () => {
           type: 'quadratic'
         };
       } else if (skill.id.includes('polynomials')) {
-        const coeff = Math.floor(Math.random() * 5) + 2;
-        const power = Math.floor(Math.random() * 3) + 2;
-        const x = 2;
-        const answer = Math.pow(x, power) * coeff;
-        question = {
-          question: `If x = 2, what is ${coeff}x^${power}?`,
-          answer: answer,
-          type: 'polynomials'
-        };
+        // Check if it's advanced (Grade 11) polynomials
+        if (skill.id.includes('g11')) {
+          const polys = [
+            { q: 'Factor: x² - 5x + 6, smaller root', a: 2 },
+            { q: 'Factor: x² - 9, find one root', a: 3 },
+            { q: 'Expand: (x+2)(x+3), coefficient of x', a: 5 },
+            { q: 'Degree of: 3x⁴ + 2x² - 1', a: 4 },
+            { q: 'Leading coefficient of: 5x³ + 2x - 1', a: 5 },
+            { q: 'Zeros of x² - 4, positive root', a: 2 }
+          ];
+          const poly = polys[Math.floor(Math.random() * polys.length)];
+          question = {
+            question: poly.q,
+            answer: poly.a,
+            type: 'polynomials'
+          };
+        } else {
+          const coeff = Math.floor(Math.random() * 5) + 2;
+          const power = Math.floor(Math.random() * 3) + 2;
+          const x = 2;
+          const answer = Math.pow(x, power) * coeff;
+          question = {
+            question: `If x = 2, what is ${coeff}x^${power}?`,
+            answer: answer,
+            type: 'polynomials'
+          };
+        }
       }
       // Geometry
       else if (skill.id.includes('shapes')) {
@@ -357,13 +375,216 @@ const MathLearningPage = () => {
           type: 'logarithms'
         };
       } else if (skill.id.includes('trigonometry')) {
-        const angles = [30, 45, 60];
-        const angle = angles[Math.floor(Math.random() * angles.length)];
-        const answers = {30: 0.5, 45: 0.71, 60: 0.87};
+        // Check if it's advanced (Grade 11) trigonometry
+        if (skill.id.includes('g11')) {
+          const trig = [
+            { q: 'sin(π/6)', a: 0.5 },
+            { q: 'cos(π/3)', a: 0.5 },
+            { q: 'tan(π/4)', a: 1 },
+            { q: 'sin(π/2)', a: 1 },
+            { q: 'cos(0)', a: 1 },
+            { q: 'Period of y = sin(2x) in π units', a: 1 },
+            { q: 'Amplitude of y = 3sin(x)', a: 3 },
+            { q: 'sin²(45°) + cos²(45°)', a: 1 }
+          ];
+          const problem = trig[Math.floor(Math.random() * trig.length)];
+          question = {
+            question: problem.q,
+            answer: problem.a,
+            type: 'trigonometry'
+          };
+        } else {
+          const angles = [30, 45, 60];
+          const angle = angles[Math.floor(Math.random() * angles.length)];
+          const answers = {30: 0.5, 45: 0.71, 60: 0.87};
+          question = {
+            question: `sin(${angle}°) ≈ ? (round to 2 decimal places as whole number)`,
+            answer: Math.round(answers[angle] * 100),
+            type: 'trigonometry'
+          };
+        }
+      }
+      // Grade 11: Sequences and Series
+      else if (skill.id.includes('sequences')) {
+        const sequences = [
+          { q: 'Arithmetic: a₁=2, d=3. Find a₅', a: 14 },
+          { q: 'Geometric: a₁=3, r=2. Find a₄', a: 24 },
+          { q: 'Sum of first 5 terms: 2,4,6,8,10', a: 30 },
+          { q: 'Next term: 1,1,2,3,5,?', a: 8 },
+          { q: 'Sum of arithmetic series: 1+3+5+7+9', a: 25 },
+          { q: '10th term of: 1,4,7,10,...', a: 28 }
+        ];
+        const seq = sequences[Math.floor(Math.random() * sequences.length)];
         question = {
-          question: `sin(${angle}°) ≈ ? (round to 2 decimal places as whole number)`,
-          answer: Math.round(answers[angle] * 100),
-          type: 'trigonometry'
+          question: seq.q,
+          answer: seq.a,
+          type: 'sequences'
+        };
+      }
+      // Grade 11: Rational Functions
+      else if (skill.id.includes('rational')) {
+        const rationals = [
+          { q: 'f(x) = 2/(x+1), find f(1)', a: 1 },
+          { q: 'Vertical asymptote of y = 1/(x-3)', a: 3 },
+          { q: 'Horizontal asymptote of y = (2x+1)/(x+1) as x→∞', a: 2 },
+          { q: 'f(x) = x/(x-2), find f(4)', a: 2 },
+          { q: 'Zeros of f(x) = (x-3)/(x+1)', a: 3 }
+        ];
+        const rat = rationals[Math.floor(Math.random() * rationals.length)];
+        question = {
+          question: rat.q,
+          answer: rat.a,
+          type: 'rational'
+        };
+      }
+      // Grade 12: Pre-Calculus Functions
+      else if (skill.id.includes('calculus') || skill.id.includes('g12-calculus')) {
+        const calc = [
+          { q: 'f(x) = x³, find f(2)', a: 8 },
+          { q: 'f(x) = 2x² + 3x - 1, find f(2)', a: 13 },
+          { q: 'Domain of f(x) = √(x-4): x ≥ ?', a: 4 },
+          { q: 'If f(x) = x² and g(x) = 2x, find (f∘g)(2)', a: 16 },
+          { q: 'Inverse of f(x) = 2x + 3, find f⁻¹(7)', a: 2 },
+          { q: 'Rate of change of f(x) = x² from x=1 to x=3', a: 4 }
+        ];
+        const prob = calc[Math.floor(Math.random() * calc.length)];
+        question = {
+          question: prob.q,
+          answer: prob.a,
+          type: 'calculus'
+        };
+      }
+      // Grade 12: Introduction to Limits
+      else if (skill.id.includes('limits')) {
+        const limits = [
+          { q: 'lim(x→2) of (x²-4)/(x-2)', a: 4 },
+          { q: 'lim(x→3) of (x²-9)/(x-3)', a: 6 },
+          { q: 'lim(x→0) of (sin x)/x', a: 1 },
+          { q: 'lim(x→∞) of 1/x', a: 0 },
+          { q: 'lim(x→1) of (x³-1)/(x-1)', a: 3 },
+          { q: 'lim(x→4) of √x', a: 2 }
+        ];
+        const lim = limits[Math.floor(Math.random() * limits.length)];
+        question = {
+          question: lim.q,
+          answer: lim.a,
+          type: 'limits'
+        };
+      }
+      // Grade 12: Matrices and Vectors
+      else if (skill.id.includes('matrices')) {
+        const matrices = [
+          { q: 'Det([[2,3],[1,4]])', a: 5 },
+          { q: 'Det([[3,2],[6,4]])', a: 0 },
+          { q: '[[1,2],[3,4]] + [[2,1],[1,2]], find element (1,1)', a: 3 },
+          { q: 'Trace of [[5,2],[3,7]]', a: 12 },
+          { q: '2×[[1,3],[2,1]], find element (2,1)', a: 4 },
+          { q: 'Rank of 2×2 identity matrix', a: 2 }
+        ];
+        const mat = matrices[Math.floor(Math.random() * matrices.length)];
+        question = {
+          question: mat.q,
+          answer: mat.a,
+          type: 'matrices'
+        };
+      }
+      // Grade 12: Vectors
+      else if (skill.id.includes('vectors')) {
+        const vectors = [
+          { q: 'Magnitude of vector (3,4)', a: 5 },
+          { q: 'Dot product: (2,3)·(4,1)', a: 11 },
+          { q: 'Unit vector of (3,4): denominator', a: 5 },
+          { q: '(2,5) + (3,-2), y-component', a: 3 },
+          { q: 'Angle between i and j in degrees', a: 90 },
+          { q: '||2i + 3j||² (squared magnitude)', a: 13 }
+        ];
+        const vec = vectors[Math.floor(Math.random() * vectors.length)];
+        question = {
+          question: vec.q,
+          answer: vec.a,
+          type: 'vectors'
+        };
+      }
+      // Grade 12: Advanced Statistics
+      else if (skill.id.includes('statistics') && skill.id.includes('g12')) {
+        const stats = [
+          { q: 'Mean of: 10,20,30,40,50', a: 30 },
+          { q: 'Median of: 3,7,9,12,15', a: 9 },
+          { q: 'Mode of: 2,3,3,4,5,3,6', a: 3 },
+          { q: 'Range of: 5,10,15,20,25', a: 20 },
+          { q: 'Standard deviation of: 2,2,2,2', a: 0 },
+          { q: 'Variance of: 1,3,5 (simplified)', a: 4 }
+        ];
+        const stat = stats[Math.floor(Math.random() * stats.length)];
+        question = {
+          question: stat.q,
+          answer: stat.a,
+          type: 'statistics'
+        };
+      }
+      // Grade 8: Systems of Equations
+      else if (skill.id.includes('systems')) {
+        const systems = [
+          { q: 'x + y = 5, x - y = 1. Find x', a: 3 },
+          { q: '2x + y = 7, x + y = 4. Find x', a: 3 },
+          { q: 'x + 2y = 8, x - y = 2. Find y', a: 2 },
+          { q: '3x + y = 10, x - y = 2. Find x', a: 3 },
+          { q: '2x + 3y = 12, x + y = 5. Find y', a: 2 }
+        ];
+        const sys = systems[Math.floor(Math.random() * systems.length)];
+        question = {
+          question: sys.q,
+          answer: sys.a,
+          type: 'systems'
+        };
+      }
+      // Grade 8: Transformations
+      else if (skill.id.includes('transformations')) {
+        const transforms = [
+          { q: 'Reflect (3,4) over y-axis, x-coordinate', a: -3 },
+          { q: 'Rotate (1,0) 90° counterclockwise, y-coordinate', a: 1 },
+          { q: 'Translate (2,3) by vector (1,-2), y-coordinate', a: 1 },
+          { q: 'Scale (2,4) by factor 3, x-coordinate', a: 6 },
+          { q: 'Distance from (0,0) to (3,4)', a: 5 }
+        ];
+        const trans = transforms[Math.floor(Math.random() * transforms.length)];
+        question = {
+          question: trans.q,
+          answer: trans.a,
+          type: 'transformations'
+        };
+      }
+      // Grade 9: Radicals and Square Roots
+      else if (skill.id.includes('radicals')) {
+        const radicals = [
+          { q: '√49', a: 7 },
+          { q: '√(64)', a: 8 },
+          { q: '√(3² + 4²)', a: 5 },
+          { q: 'Simplify: √12 (coefficient of √3)', a: 2 },
+          { q: '√18 = a√2, find a', a: 3 },
+          { q: '√100', a: 10 }
+        ];
+        const rad = radicals[Math.floor(Math.random() * radicals.length)];
+        question = {
+          question: rad.q,
+          answer: rad.a,
+          type: 'radicals'
+        };
+      }
+      // Grade 9: Similarity and Congruence
+      else if (skill.id.includes('similarity')) {
+        const similar = [
+          { q: 'Triangles similar 2:3. Side = 6, corresponding side?', a: 9 },
+          { q: 'Similar triangles: sides 4,6,8 and 6,9,?', a: 12 },
+          { q: 'Scale factor 1:2, area ratio numerator', a: 1 },
+          { q: 'Similar polygons: perimeter ratio 3:4, side 6 maps to?', a: 8 },
+          { q: 'Congruent triangles: angle sum', a: 180 }
+        ];
+        const sim = similar[Math.floor(Math.random() * similar.length)];
+        question = {
+          question: sim.q,
+          answer: sim.a,
+          type: 'similarity'
         };
       }
       // Default fallback for any unmatched skills
