@@ -4,11 +4,11 @@ const ParentsPage = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
   const parents = [
-    { id: 1, name: 'Robert Johnson', children: ['Alice Johnson'], email: 'robert.j@email.com', phone: '(555) 123-4567', lastLogin: '2 hours ago' },
-    { id: 2, name: 'Mary Smith', children: ['Bob Smith'], email: 'mary.s@email.com', phone: '(555) 234-5678', lastLogin: '1 day ago' },
-    { id: 3, name: 'Patricia Davis', children: ['Carol Davis'], email: 'patricia.d@email.com', phone: '(555) 345-6789', lastLogin: '3 hours ago' },
-    { id: 4, name: 'James Wilson', children: ['David Wilson'], email: 'james.w@email.com', phone: '(555) 456-7890', lastLogin: '5 hours ago' },
-    { id: 5, name: 'Linda Brown', children: ['Emma Brown'], email: 'linda.b@email.com', phone: '(555) 567-8901', lastLogin: '1 week ago' },
+    { id: 1, name: 'Rajesh Karn', children: ['Vaani Karn', 'Viaan Karn'], email: 'rajesh.karn@email.com', phone: '(977) 123-4567', lastLogin: '2 hours ago' },
+    { id: 2, name: 'Kamala Acharya', children: ['Ram Acharya'], email: 'kamala.acharya@email.com', phone: '(977) 234-5678', lastLogin: '1 day ago' },
+    { id: 3, name: 'Krishna Gurung', children: ['Sita Gurung'], email: 'krishna.gurung@email.com', phone: '(977) 345-6789', lastLogin: '3 hours ago' },
+    { id: 4, name: 'Bishnu Rai', children: ['Hari Rai'], email: 'bishnu.rai@email.com', phone: '(977) 456-7890', lastLogin: '5 hours ago' },
+    { id: 5, name: 'Saraswati Majhi', children: ['Geeta Majhi'], email: 'saraswati.majhi@email.com', phone: '(977) 567-8901', lastLogin: '1 week ago' },
   ];
 
   const announcements = [
@@ -49,7 +49,7 @@ const ParentsPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Registered Parents</p>
-                <p className="text-2xl font-bold text-gray-900">892</p>
+                <p className="text-2xl font-bold text-gray-900">5</p>
               </div>
               <div className="p-3 bg-blue-100 rounded-full">
                 <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -62,7 +62,7 @@ const ParentsPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Active This Week</p>
-                <p className="text-2xl font-bold text-green-600">567</p>
+                <p className="text-2xl font-bold text-green-600">4</p>
               </div>
               <div className="p-3 bg-green-100 rounded-full">
                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

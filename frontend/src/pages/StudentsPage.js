@@ -5,14 +5,14 @@ const StudentsPage = () => {
   const [selectedGrade, setSelectedGrade] = useState('all');
 
   const students = [
-    { id: 1, name: 'Alice Johnson', grade: 10, email: 'alice@school.com', gpa: 3.8, attendance: '95%', status: 'active' },
-    { id: 2, name: 'Bob Smith', grade: 11, email: 'bob@school.com', gpa: 3.5, attendance: '92%', status: 'active' },
-    { id: 3, name: 'Carol Davis', grade: 9, email: 'carol@school.com', gpa: 3.9, attendance: '98%', status: 'active' },
-    { id: 4, name: 'David Wilson', grade: 12, email: 'david@school.com', gpa: 3.7, attendance: '90%', status: 'active' },
-    { id: 5, name: 'Emma Brown', grade: 10, email: 'emma@school.com', gpa: 4.0, attendance: '99%', status: 'active' },
-    { id: 6, name: 'Frank Miller', grade: 11, email: 'frank@school.com', gpa: 3.3, attendance: '88%', status: 'active' },
-    { id: 7, name: 'Grace Lee', grade: 9, email: 'grace@school.com', gpa: 3.6, attendance: '94%', status: 'active' },
-    { id: 8, name: 'Henry Zhang', grade: 12, email: 'henry@school.com', gpa: 3.9, attendance: '96%', status: 'active' },
+    { id: 1, name: 'Vaani Karn', grade: 10, email: 'vaani.karn@edumaster.com', gpa: 3.8, attendance: '95%', status: 'active' },
+    { id: 2, name: 'Viaan Karn', grade: 11, email: 'viaan.karn@edumaster.com', gpa: 3.5, attendance: '92%', status: 'active' },
+    { id: 3, name: 'Ram Acharya', grade: 9, email: 'ram.acharya@edumaster.com', gpa: 3.9, attendance: '98%', status: 'active' },
+    { id: 4, name: 'Sita Gurung', grade: 12, email: 'sita.gurung@edumaster.com', gpa: 3.7, attendance: '90%', status: 'active' },
+    { id: 5, name: 'Hari Rai', grade: 10, email: 'hari.rai@edumaster.com', gpa: 4.0, attendance: '99%', status: 'active' },
+    { id: 6, name: 'Geeta Majhi', grade: 11, email: 'geeta.majhi@edumaster.com', gpa: 3.3, attendance: '88%', status: 'active' },
+    { id: 7, name: 'Mohan Shrestha', grade: 9, email: 'mohan.shrestha@edumaster.com', gpa: 3.6, attendance: '94%', status: 'active' },
+    { id: 8, name: 'Laxmi Pandey', grade: 12, email: 'laxmi.pandey@edumaster.com', gpa: 3.9, attendance: '96%', status: 'active' },
   ];
 
   const filteredStudents = students.filter(student => {
@@ -52,7 +52,7 @@ const StudentsPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Students</p>
-                <p className="text-2xl font-bold text-gray-900">1,247</p>
+                <p className="text-2xl font-bold text-gray-900">8</p>
               </div>
               <div className="p-3 bg-blue-100 rounded-full">
                 <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

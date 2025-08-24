@@ -44,17 +44,17 @@ const SimpleDashboard = () => (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-blue-200">
             <div className="text-5xl mb-4">👨‍👩‍👧‍👦</div>
-            <div className="text-3xl font-bold text-blue-600">25,000+</div>
+            <div className="text-3xl font-bold text-blue-600">12</div>
             <div className="text-gray-600 font-semibold">Happy Families</div>
           </div>
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-purple-200">
             <div className="text-5xl mb-4">🧠</div>
-            <div className="text-3xl font-bold text-purple-600">1M+</div>
+            <div className="text-3xl font-bold text-purple-600">247</div>
             <div className="text-gray-600 font-semibold">Problems Solved</div>
           </div>
           <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-pink-200">
             <div className="text-5xl mb-4">🏆</div>
-            <div className="text-3xl font-bold text-pink-600">500K+</div>
+            <div className="text-3xl font-bold text-pink-600">89</div>
             <div className="text-gray-600 font-semibold">Achievements Earned</div>
           </div>
         </div>
@@ -240,8 +240,8 @@ const SimpleMathLearning = () => (
   </div>
 );
 
-// Enhanced header with mobile navigation
-const SimpleHeader = () => {
+// Enhanced header with mobile navigation and login
+const SimpleHeader = ({ showLogin, setShowLogin, isLoggedIn, user, handleLogout }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
 
   return (
@@ -259,7 +259,36 @@ const SimpleHeader = () => {
             </nav>
           </div>
           
-          {/* Mobile menu button */}
+          <div className="flex items-center space-x-4">
+            {/* User Login/Profile Section */}
+            {isLoggedIn ? (
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                    <span className="text-white text-sm font-bold">{user.username.charAt(0).toUpperCase()}</span>
+                  </div>
+                  <div className="hidden md:block">
+                    <span className="text-sm font-semibold text-gray-700">{user.username}</span>
+                    <div className="text-xs text-gray-500">{user.type}</div>
+                  </div>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="text-sm text-gray-600 hover:text-red-600 px-3 py-1 rounded-full hover:bg-red-50 transition-all"
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowLogin(true)}
+                className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full text-sm font-semibold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-md"
+              >
+                Login
+              </button>
+            )}
+
+            {/* Mobile menu button */}
           <button
             className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -321,11 +350,97 @@ const SimpleHeader = () => {
   );
 };
 
+// Login Modal Component
+const LoginModal = ({ showLogin, setShowLogin, handleLogin, loginData, setLoginData }) => (
+  showLogin && (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome to EduMaster! 🎓</h2>
+          <p className="text-gray-600">Sign in to continue your learning journey</p>
+        </div>
+        
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Username</label>
+            <input
+              type="text"
+              value={loginData.username}
+              onChange={(e) => setLoginData({...loginData, username: e.target.value})}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
+              placeholder="Enter your username"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
+            <input
+              type="password"
+              value={loginData.password}
+              onChange={(e) => setLoginData({...loginData, password: e.target.value})}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+          
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={() => setShowLogin(false)}
+              className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-md"
+            >
+              Sign In
+            </button>
+          </div>
+        </form>
+        
+        <div className="mt-6 text-center text-sm text-gray-500">
+          <p>Demo: Use any username and password to login</p>
+        </div>
+      </div>
+    </div>
+  )
+);
+
 function App() {
+  const [showLogin, setShowLogin] = React.useState(false);
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+  const [user, setUser] = React.useState(null);
+  const [loginData, setLoginData] = React.useState({ username: '', password: '' });
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (loginData.username && loginData.password) {
+      setUser({ username: loginData.username, type: 'Student' });
+      setIsLoggedIn(true);
+      setShowLogin(false);
+      setLoginData({ username: '', password: '' });
+    }
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setIsLoggedIn(false);
+  };
+
   return (
     <Router>
       <div className="App min-h-screen bg-gray-50">
-        <SimpleHeader />
+        <SimpleHeader 
+          showLogin={showLogin}
+          setShowLogin={setShowLogin}
+          isLoggedIn={isLoggedIn}
+          user={user}
+          handleLogout={handleLogout}
+        />
         <main className="pt-16">
           <Routes>
             <Route path="/" element={<SimpleDashboard />} />
@@ -338,6 +453,14 @@ function App() {
             <Route path="/assignments" element={<AssignmentsPage />} />
           </Routes>
         </main>
+        
+        <LoginModal 
+          showLogin={showLogin}
+          setShowLogin={setShowLogin}
+          handleLogin={handleLogin}
+          loginData={loginData}
+          setLoginData={setLoginData}
+        />
       </div>
     </Router>
   );

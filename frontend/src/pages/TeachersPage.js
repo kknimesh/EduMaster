@@ -5,12 +5,14 @@ const TeachersPage = () => {
   const [selectedDepartment, setSelectedDepartment] = useState('all');
 
   const teachers = [
-    { id: 1, name: 'Dr. Sarah Williams', department: 'Mathematics', email: 'sarah.w@school.com', subjects: ['Algebra', 'Calculus'], students: 125, rating: 4.8 },
-    { id: 2, name: 'Prof. John Anderson', department: 'Science', email: 'john.a@school.com', subjects: ['Physics', 'Chemistry'], students: 98, rating: 4.6 },
-    { id: 3, name: 'Ms. Emily Chen', department: 'English', email: 'emily.c@school.com', subjects: ['Literature', 'Writing'], students: 110, rating: 4.9 },
-    { id: 4, name: 'Mr. Michael Brown', department: 'History', email: 'michael.b@school.com', subjects: ['World History', 'Geography'], students: 87, rating: 4.5 },
-    { id: 5, name: 'Dr. Lisa Martinez', department: 'Mathematics', email: 'lisa.m@school.com', subjects: ['Geometry', 'Statistics'], students: 92, rating: 4.7 },
-    { id: 6, name: 'Prof. David Kim', department: 'Science', email: 'david.k@school.com', subjects: ['Biology', 'Environmental Science'], students: 105, rating: 4.8 },
+    { id: 1, name: 'Dr. Deepak Rayamajhi', department: 'Mathematics', email: 'deepak.rayamajhi@edumaster.com', subjects: ['Algebra', 'Calculus'], students: 25, rating: 4.8 },
+    { id: 2, name: 'Dr. Akshay Niraula', department: 'Science', email: 'akshay.niraula@edumaster.com', subjects: ['Physics', 'Chemistry'], students: 18, rating: 4.6 },
+    { id: 3, name: 'Dr. Rajesh Rajchal', department: 'English', email: 'rajesh.rajchal@edumaster.com', subjects: ['Literature', 'Writing'], students: 22, rating: 4.9 },
+    { id: 4, name: 'Dr. Baburam Aryal', department: 'History', email: 'baburam.aryal@edumaster.com', subjects: ['World History', 'Geography'], students: 15, rating: 4.5 },
+    { id: 5, name: 'Dr. Rabindra', department: 'Mathematics', email: 'rabindra@edumaster.com', subjects: ['Geometry', 'Statistics'], students: 20, rating: 4.7 },
+    { id: 6, name: 'Dr. Satish Raj Upadhyaya', department: 'Science', email: 'satish.upadhyaya@edumaster.com', subjects: ['Biology', 'Environmental Science'], students: 19, rating: 4.8 },
+    { id: 7, name: 'Dr. Uttam Adhikari', department: 'Computer Science', email: 'uttam.adhikari@edumaster.com', subjects: ['Programming', 'Data Structures'], students: 16, rating: 4.9 },
+    { id: 8, name: 'Nimesh Kumar', department: 'Mathematics', email: 'nimesh.kumar@edumaster.com', subjects: ['Trigonometry', 'Pre-Calculus'], students: 21, rating: 4.7 },
   ];
 
   const filteredTeachers = teachers.filter(teacher => {
@@ -51,7 +53,7 @@ const TeachersPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Teachers</p>
-                <p className="text-2xl font-bold text-gray-900">89</p>
+                <p className="text-2xl font-bold text-gray-900">8</p>
               </div>
               <div className="p-3 bg-blue-100 rounded-full">
                 <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -77,7 +79,7 @@ const TeachersPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Student-Teacher Ratio</p>
-                <p className="text-2xl font-bold text-yellow-600">14:1</p>
+                <p className="text-2xl font-bold text-yellow-600">1:1</p>
               </div>
               <div className="p-3 bg-yellow-100 rounded-full">
                 <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,7 +92,7 @@ const TeachersPage = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Departments</p>
-                <p className="text-2xl font-bold text-purple-600">12</p>
+                <p className="text-2xl font-bold text-purple-600">5</p>
               </div>
               <div className="p-3 bg-purple-100 rounded-full">
                 <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -123,6 +125,7 @@ const TeachersPage = () => {
               <option value="Science">Science</option>
               <option value="English">English</option>
               <option value="History">History</option>
+              <option value="Computer Science">Computer Science</option>
             </select>
             <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
               + Add Teacher
