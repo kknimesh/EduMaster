@@ -6,6 +6,7 @@ import ParentsPage from './pages/ParentsPage';
 import CoursesPage from './pages/CoursesPage';
 import AssignmentsPage from './pages/AssignmentsPage';
 import MathLearningPage from './pages/MathLearningPage';
+import AdaptiveLearningPage from './pages/AdaptiveLearningPage';
 import './App.css';
 
 // EduMaster Landing Page
@@ -83,6 +84,17 @@ const SimpleDashboard = () => (
           </span>
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <Link to="/adaptive" className="group block">
+            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-3 border-pink-300 hover:border-pink-500 transform hover:scale-110 transition-all duration-300 hover:rotate-1">
+              <div className="text-7xl mb-4 text-center group-hover:animate-bounce">🎯</div>
+              <h3 className="text-2xl font-black text-pink-600 text-center mb-3">Smart Learning</h3>
+              <p className="text-gray-700 text-center mb-4 font-semibold">AI-powered assessment finds your level and creates a personalized path!</p>
+              <div className="text-center">
+                <span className="bg-gradient-to-r from-pink-400 to-pink-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg">🚀 Adaptive</span>
+              </div>
+            </div>
+          </Link>
+          
           <Link to="/math" className="group block">
             <div className="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-3 border-blue-300 hover:border-blue-500 transform hover:scale-110 transition-all duration-300 hover:rotate-1">
               <div className="text-7xl mb-4 text-center group-hover:animate-bounce">🧮</div>
@@ -169,6 +181,7 @@ const SimpleHeader = ({ showLogin, setShowLogin, isLoggedIn, user, handleLogout 
             <nav className="hidden md:flex space-x-6 ml-10">
               <Link to="/dashboard" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-blue-50 transition-all">🏠 Home</Link>
               <Link to="/math" className="text-gray-600 hover:text-purple-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-purple-50 transition-all">🧮 Math Fun</Link>
+              <Link to="/adaptive" className="text-gray-600 hover:text-pink-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-pink-50 transition-all">🎯 Smart Learning</Link>
               <Link to="/students" className="text-gray-600 hover:text-green-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-green-50 transition-all">👥 Students</Link>
               <Link to="/teachers" className="text-gray-600 hover:text-yellow-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-yellow-50 transition-all">👩‍🏫 Teachers</Link>
               <Link to="/parents" className="text-gray-600 hover:text-pink-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-pink-50 transition-all">👨‍👩‍👧‍👦 Parents</Link>
@@ -237,6 +250,13 @@ const SimpleHeader = ({ showLogin, setShowLogin, isLoggedIn, user, handleLogout 
                 onClick={() => setMobileMenuOpen(false)}
               >
                 🧮 Math Fun
+              </Link>
+              <Link 
+                to="/adaptive" 
+                className="block text-gray-600 hover:text-pink-600 px-3 py-2 text-base font-semibold rounded-md hover:bg-pink-50 transition-all"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                🎯 Smart Learning
               </Link>
               <Link 
                 to="/students" 
@@ -363,6 +383,7 @@ function App() {
             <Route path="/" element={<SimpleDashboard />} />
             <Route path="/dashboard" element={<SimpleDashboard />} />
             <Route path="/math" element={<MathLearningPage />} />
+            <Route path="/adaptive" element={<AdaptiveLearningPage />} />
             <Route path="/students" element={<StudentsPage />} />
             <Route path="/teachers" element={<TeachersPage />} />
             <Route path="/parents" element={<ParentsPage />} />
