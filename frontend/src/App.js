@@ -1,5 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import StudentsPage from './pages/StudentsPage';
+import TeachersPage from './pages/TeachersPage';
+import ParentsPage from './pages/ParentsPage';
+import CoursesPage from './pages/CoursesPage';
+import AssignmentsPage from './pages/AssignmentsPage';
 import './App.css';
 
 // Simple dashboard component for deployment
@@ -167,16 +172,21 @@ const SimpleMathLearning = () => (
   </div>
 );
 
-// Simple header
+// Enhanced header with all navigation
 const SimpleHeader = () => (
   <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200">
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-center h-16">
         <div className="flex items-center">
-          <h1 className="text-xl font-bold text-blue-600">🎓 EduMaster</h1>
-          <nav className="hidden md:flex space-x-8 ml-10">
-            <a href="/dashboard" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Dashboard</a>
-            <a href="/math" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">🧮 Math Learning</a>
+          <Link to="/" className="text-xl font-bold text-blue-600">🎓 EduMaster v2.0</Link>
+          <nav className="hidden md:flex space-x-6 ml-10">
+            <Link to="/dashboard" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Dashboard</Link>
+            <Link to="/math" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Math Learning</Link>
+            <Link to="/students" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Students</Link>
+            <Link to="/teachers" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Teachers</Link>
+            <Link to="/parents" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Parents</Link>
+            <Link to="/courses" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Courses</Link>
+            <Link to="/assignments" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Assignments</Link>
           </nav>
         </div>
       </div>
@@ -194,6 +204,11 @@ function App() {
             <Route path="/" element={<SimpleDashboard />} />
             <Route path="/dashboard" element={<SimpleDashboard />} />
             <Route path="/math" element={<SimpleMathLearning />} />
+            <Route path="/students" element={<StudentsPage />} />
+            <Route path="/teachers" element={<TeachersPage />} />
+            <Route path="/parents" element={<ParentsPage />} />
+            <Route path="/courses" element={<CoursesPage />} />
+            <Route path="/assignments" element={<AssignmentsPage />} />
           </Routes>
         </main>
       </div>
