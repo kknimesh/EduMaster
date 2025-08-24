@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import AdaptiveActivity from '../components/AdaptiveActivity';
+import { gradeAssessments } from '../utils/gradeAssessments';
 
 const AdaptiveLearningPage = () => {
   const [currentStep, setCurrentStep] = useState('welcome'); // welcome, assessment, learning, results
   const [activeActivity, setActiveActivity] = useState(null);
+  const [currentGrade, setCurrentGrade] = useState('K-1');
   const [studentProfile, setStudentProfile] = useState(null);
   const [assessmentProgress, setAssessmentProgress] = useState(0);
   const [currentAssessmentQuestion, setCurrentAssessmentQuestion] = useState(0);
@@ -141,13 +143,16 @@ const AdaptiveLearningPage = () => {
   // Assessment Logic
   const startAssessment = (profile) => {
     setStudentProfile(profile);
+    setCurrentGrade(profile.grade);
     setCurrentStep('assessment');
     setCurrentAssessmentQuestion(0);
     setAssessmentAnswers([]);
+    setAssessmentProgress(0);
   };
 
   const submitAssessmentAnswer = () => {
-    const currentQ = assessmentQuestions[currentAssessmentQuestion];
+    const questions = gradeAssessments[currentGrade] || gradeAssessments['K-1'];
+    const currentQ = questions[currentAssessmentQuestion];
     const isCorrect = parseFloat(userAnswer) === currentQ.answer;
     
     const newAnswer = {
@@ -162,11 +167,12 @@ const AdaptiveLearningPage = () => {
     setShowFeedback(true);
     
     setTimeout(() => {
-      if (currentAssessmentQuestion < assessmentQuestions.length - 1) {
+      const questions = gradeAssessments[currentGrade] || gradeAssessments['K-1'];
+      if (currentAssessmentQuestion < questions.length - 1) {
         setCurrentAssessmentQuestion(currentAssessmentQuestion + 1);
         setUserAnswer('');
         setShowFeedback(false);
-        setAssessmentProgress(((currentAssessmentQuestion + 1) / assessmentQuestions.length) * 100);
+        setAssessmentProgress(((currentAssessmentQuestion + 2) / questions.length) * 100);
       } else {
         completeAssessment([...assessmentAnswers, newAnswer]);
       }
@@ -250,6 +256,12 @@ const AdaptiveLearningPage = () => {
                 <div className="text-4xl mb-2">{level.emoji}</div>
                 <div>Grade {level.grade}</div>
                 <div className="text-sm opacity-90">{level.age}</div>
+                <div className="text-xs mt-1 opacity-75">
+                  {level.grade === 'K-1' && 'Counting, shapes, +/-'}
+                  {level.grade === '2-3' && 'Times tables, place value'}
+                  {level.grade === '4-5' && 'Fractions, decimals'}
+                  {level.grade === '6+' && 'Algebra, percentages'}
+                </div>
               </button>
             ))}
           </div>
@@ -260,7 +272,15 @@ const AdaptiveLearningPage = () => {
 
   // Assessment Component  
   const AssessmentScreen = () => {
-    const currentQ = assessmentQuestions[currentAssessmentQuestion];
+    const questions = gradeAssessments[currentGrade] || gradeAssessments['K-1'];
+    if (questions.length === 0) {
+      return (
+        <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 flex items-center justify-center">
+          <div className="text-white text-2xl">Loading assessment...</div>
+        </div>
+      );
+    }
+    const currentQ = questions[currentAssessmentQuestion];
     
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-400 to-pink-400 p-8">
@@ -270,7 +290,7 @@ const AdaptiveLearningPage = () => {
             <div className="flex justify-between items-center mb-2">
               <span className="text-lg font-bold text-gray-700">Math Assessment</span>
               <span className="text-sm text-gray-600">
-                Question {currentAssessmentQuestion + 1} of {assessmentQuestions.length}
+                Question {currentAssessmentQuestion + 1} of {questions.length}
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-4">
