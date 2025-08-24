@@ -46,7 +46,8 @@ jobs:
           
           # Build and push the React app image
           echo "Building React app from frontend directory..."
-          docker build -f frontend/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG frontend/
+          # Use simple Dockerfile that we know works
+          docker build -f frontend/Dockerfile.simple -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG frontend/
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           
           echo "IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
@@ -97,8 +98,8 @@ jobs:
             --family edumaster-react-v2 \
             --network-mode awsvpc \
             --requires-compatibilities FARGATE \
-            --cpu 512 \
-            --memory 1024 \
+            --cpu 256 \
+            --memory 512 \
             --execution-role-arn "arn:aws:iam::$ACCOUNT_ID:role/ecsTaskExecutionRole" \
             --container-definitions "[{
               \"name\": \"edumaster-react-app\",
@@ -128,7 +129,7 @@ jobs:
           # Run the React app container
           TASK_ARN=$(aws ecs run-task \
             --cluster $CLUSTER_NAME \
-            --task-definition edumaster-react-v2:1 \
+            --task-definition edumaster-react-v2 \
             --launch-type FARGATE \
             --platform-version LATEST \
             --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_ID],securityGroups=[$SG_ID],assignPublicIp=ENABLED}" \
