@@ -23,8 +23,23 @@ const StudentsPage = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
+    <div 
+      className="min-h-screen relative p-8"
+      style={{
+        background: `
+          linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%),
+          url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxwYXR0ZXJuIGlkPSJzdHVkZW50cyIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSIgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiPgogICAgICA8Y2lyY2xlIGN4PSIyNSIgY3k9IjI1IiByPSI0IiBmaWxsPSJyZ2JhKDM0LCAxOTcsIDk0LCAwLjEpIi8+CiAgICAgIDxjaXJjbGUgY3g9Ijc1IiBjeT0iNzUiIHI9IjMiIGZpbGw9InJnYmEoNTksIDEzMCwgMjQ2LCAwLjEpIi8+CiAgICA8L3BhdHRlcm4+CiAgPC9kZWZzPgogIDxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjc3R1ZGVudHMpIi8+Cjwvc3ZnPg==') repeat
+        `
+      }}
+    >
+      {/* Floating student-themed icons */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-20 text-4xl opacity-10 animate-pulse">📚</div>
+        <div className="absolute top-40 left-10 text-5xl opacity-10 animate-bounce">🎒</div>
+        <div className="absolute bottom-40 right-10 text-4xl opacity-10 animate-pulse">✏️</div>
+        <div className="absolute top-60 right-40 text-3xl opacity-10 animate-bounce">📝</div>
+      </div>
+      <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Students Management</h1>
