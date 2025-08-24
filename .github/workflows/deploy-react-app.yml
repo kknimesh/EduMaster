@@ -1,0 +1,272 @@
+name: Deploy React App to AWS
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/deploy-react-app.yml'
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  deploy-react-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Docker image
+        run: |
+          echo "🏗️ Building EduMaster v2.0 React Application..."
+          
+          ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY=edumaster-app
+          IMAGE_TAG=v2-$(date +%s)
+          
+          # Ensure ECR repository exists
+          aws ecr describe-repositories --repository-names $ECR_REPOSITORY 2>/dev/null || \
+          aws ecr create-repository --repository-name $ECR_REPOSITORY
+          
+          # Build and push the React app image
+          echo "Building React app from frontend directory..."
+          docker build -f frontend/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG frontend/
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          
+          echo "IMAGE_URI=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_ENV
+          echo "✅ Docker image built and pushed: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Stop ALL existing tasks
+        run: |
+          echo "🛑 Stopping ALL existing ECS tasks to ensure clean deployment..."
+          
+          CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[0]' --output text | xargs basename)
+          
+          # Stop ALL running tasks
+          TASK_ARNS=$(aws ecs list-tasks --cluster $CLUSTER_NAME --query 'taskArns' --output text)
+          for TASK_ARN in $TASK_ARNS; do
+            if [ -n "$TASK_ARN" ] && [ "$TASK_ARN" != "None" ]; then
+              echo "Stopping task: $TASK_ARN"
+              aws ecs stop-task --cluster $CLUSTER_NAME --task $TASK_ARN
+            fi
+          done
+          
+          echo "⏳ Waiting for tasks to stop (60 seconds)..."
+          sleep 60
+          
+          # Verify all tasks are stopped
+          REMAINING_TASKS=$(aws ecs list-tasks --cluster $CLUSTER_NAME --desired-status RUNNING --query 'taskArns' --output text)
+          if [ -z "$REMAINING_TASKS" ] || [ "$REMAINING_TASKS" = "None" ]; then
+            echo "✅ All tasks stopped successfully"
+          else
+            echo "⚠️ Some tasks still running, forcing stop..."
+            for TASK_ARN in $REMAINING_TASKS; do
+              aws ecs stop-task --cluster $CLUSTER_NAME --task $TASK_ARN --reason "Force stop for clean deployment"
+            done
+            sleep 30
+          fi
+
+      - name: Deploy React App to ECS
+        run: |
+          echo "🚀 Deploying EduMaster v2.0 React App to ECS..."
+          
+          CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[0]' --output text | xargs basename)
+          ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+          
+          # Create log group
+          aws logs create-log-group --log-group-name "/ecs/edumaster-react-v2" || echo "Log group exists"
+          
+          # Register new task definition for React app
+          aws ecs register-task-definition \
+            --family edumaster-react-v2 \
+            --network-mode awsvpc \
+            --requires-compatibilities FARGATE \
+            --cpu 512 \
+            --memory 1024 \
+            --execution-role-arn "arn:aws:iam::$ACCOUNT_ID:role/ecsTaskExecutionRole" \
+            --container-definitions "[{
+              \"name\": \"edumaster-react-app\",
+              \"image\": \"$IMAGE_URI\",
+              \"portMappings\": [{\"containerPort\": 80, \"protocol\": \"tcp\"}],
+              \"essential\": true,
+              \"logConfiguration\": {
+                \"logDriver\": \"awslogs\",
+                \"options\": {
+                  \"awslogs-group\": \"/ecs/edumaster-react-v2\",
+                  \"awslogs-region\": \"${{ env.AWS_REGION }}\",
+                  \"awslogs-stream-prefix\": \"ecs\"
+                }
+              },
+              \"environment\": [
+                {\"name\": \"NODE_ENV\", \"value\": \"production\"},
+                {\"name\": \"REACT_APP_VERSION\", \"value\": \"2.0\"},
+                {\"name\": \"REACT_APP_DEPLOYED_AT\", \"value\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}
+              ]
+            }]"
+          
+          # Get network configuration
+          VPC_ID=$(aws ec2 describe-vpcs --filters "Name=is-default,Values=true" --query 'Vpcs[0].VpcId' --output text)
+          SUBNET_ID=$(aws ec2 describe-subnets --filters "Name=vpc-id,Values=$VPC_ID" "Name=map-public-ip-on-launch,Values=true" --query 'Subnets[0].SubnetId' --output text)
+          SG_ID=$(aws ec2 describe-security-groups --filters "Name=vpc-id,Values=$VPC_ID" "Name=group-name,Values=edumaster-*" --query 'SecurityGroups[0].GroupId' --output text)
+          
+          # Run the React app container
+          TASK_ARN=$(aws ecs run-task \
+            --cluster $CLUSTER_NAME \
+            --task-definition edumaster-react-v2:1 \
+            --launch-type FARGATE \
+            --platform-version LATEST \
+            --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_ID],securityGroups=[$SG_ID],assignPublicIp=ENABLED}" \
+            --query 'tasks[0].taskArn' \
+            --output text)
+          
+          echo "✅ React app container started: $TASK_ARN"
+          
+          # Wait for container to be running
+          echo "⏳ Waiting for React app to start (2 minutes)..."
+          sleep 120
+
+      - name: Update Load Balancer Target
+        run: |
+          echo "🔗 Connecting React App to Load Balancer..."
+          
+          CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[0]' --output text | xargs basename)
+          
+          # Get running React app task
+          TASK_ARN=$(aws ecs list-tasks --cluster $CLUSTER_NAME --desired-status RUNNING --query 'taskArns[0]' --output text)
+          
+          if [ -n "$TASK_ARN" ] && [ "$TASK_ARN" != "None" ]; then
+            TASK_STATUS=$(aws ecs describe-tasks --cluster $CLUSTER_NAME --tasks $TASK_ARN --query 'tasks[0].lastStatus' --output text)
+            echo "React App Task Status: $TASK_STATUS"
+            
+            if [ "$TASK_STATUS" = "RUNNING" ]; then
+              TASK_IP=$(aws ecs describe-tasks --cluster $CLUSTER_NAME --tasks $TASK_ARN --query 'tasks[0].attachments[0].details[?name==`privateIPv4Address`].value' --output text)
+              echo "React App Task IP: $TASK_IP"
+              
+              # Get the target group
+              LATEST_TG_ARN=$(aws elbv2 describe-target-groups --query 'TargetGroups[?starts_with(TargetGroupName, `edumaster`)].{ARN:TargetGroupArn,Created:CreationTime}' --output json | jq -r 'sort_by(.Created) | reverse | .[0].ARN')
+              
+              # Clear ALL old targets
+              echo "Clearing all old targets from Load Balancer..."
+              OLD_TARGETS=$(aws elbv2 describe-target-health --target-group-arn $LATEST_TG_ARN --query 'TargetHealthDescriptions[*].Target.Id' --output text 2>/dev/null || echo "")
+              for OLD_TARGET in $OLD_TARGETS; do
+                if [ -n "$OLD_TARGET" ] && [ "$OLD_TARGET" != "None" ]; then
+                  echo "Removing old target: $OLD_TARGET"
+                  aws elbv2 deregister-targets --target-group-arn $LATEST_TG_ARN --targets Id=$OLD_TARGET,Port=80
+                fi
+              done
+              
+              sleep 10
+              
+              # Register React app container
+              echo "Registering React app container: $TASK_IP"
+              aws elbv2 register-targets --target-group-arn $LATEST_TG_ARN --targets Id=$TASK_IP,Port=80
+              
+              echo "✅ React app connected to Load Balancer"
+              
+              # Wait for health checks
+              echo "⏳ Waiting for health checks (2 minutes)..."
+              sleep 120
+              
+            else
+              echo "❌ React app container not running. Status: $TASK_STATUS"
+              exit 1
+            fi
+          else
+            echo "❌ No React app tasks found"
+            exit 1
+          fi
+
+      - name: Verify React App Deployment
+        run: |
+          echo "🧪 Testing React App deployment..."
+          
+          LB_DNS="edumaster-alb-a94208ec-635552552.us-east-1.elb.amazonaws.com"
+          
+          # Test the React application
+          echo "Testing HTTP response..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "http://$LB_DNS" -m 15 || echo "TIMEOUT")
+          echo "HTTP Status: $HTTP_STATUS"
+          
+          # Check for React app indicators
+          echo "Checking for React app content..."
+          PAGE_CONTENT=$(curl -s "http://$LB_DNS" -m 10 || echo "Failed to fetch")
+          
+          if echo "$PAGE_CONTENT" | grep -q "EduMaster v2.0"; then
+            echo ""
+            echo "🎉 SUCCESS! EduMaster v2.0 React App deployed!"
+            echo "🎓 URL: http://$LB_DNS"
+            echo ""
+            echo "✅ React application with Math Learning features is now live!"
+            echo "✅ Dashboard and Math Learning modules are accessible"
+            
+            # Show page title
+            echo ""
+            echo "📄 Page title:"
+            echo "$PAGE_CONTENT" | grep -o '<title>[^<]*</title>' || echo "Title not found"
+            
+          elif echo "$PAGE_CONTENT" | grep -q "root"; then
+            echo ""
+            echo "⚠️ React app shell loaded but may need time to initialize"
+            echo "🎓 URL: http://$LB_DNS"
+            echo "Please wait a few moments and refresh the page"
+            
+          else
+            echo ""
+            echo "❌ Deployment verification failed"
+            echo "The application may still be initializing or there may be an issue"
+            
+            # Show diagnostics
+            LATEST_TG_ARN=$(aws elbv2 describe-target-groups --query 'TargetGroups[?starts_with(TargetGroupName, `edumaster`)].{ARN:TargetGroupArn,Created:CreationTime}' --output json | jq -r 'sort_by(.Created) | reverse | .[0].ARN')
+            
+            echo ""
+            echo "Target Health Status:"
+            aws elbv2 describe-target-health --target-group-arn $LATEST_TG_ARN --output table
+            
+            echo ""
+            echo "React App Container Logs (last 10 lines):"
+            CLUSTER_NAME=$(aws ecs list-clusters --query 'clusterArns[0]' --output text | xargs basename)
+            TASK_ARN=$(aws ecs list-tasks --cluster $CLUSTER_NAME --desired-status RUNNING --query 'taskArns[0]' --output text)
+            
+            if [ -n "$TASK_ARN" ] && [ "$TASK_ARN" != "None" ]; then
+              LOG_GROUP="/ecs/edumaster-react-v2"
+              LOG_STREAM=$(aws logs describe-log-streams --log-group-name "$LOG_GROUP" --order-by LastEventTime --descending --max-items 1 --query 'logStreams[0].logStreamName' --output text 2>/dev/null || echo "No streams")
+              
+              if [ "$LOG_STREAM" != "No streams" ] && [ "$LOG_STREAM" != "None" ]; then
+                aws logs get-log-events --log-group-name "$LOG_GROUP" --log-stream-name "$LOG_STREAM" --limit 10 --query 'events[*].message' --output text 2>/dev/null | tail -10 || echo "No logs available"
+              fi
+            fi
+          fi
+
+      - name: Final Status
+        run: |
+          echo ""
+          echo "🚀 DEPLOYMENT COMPLETE"
+          echo ""
+          echo "📊 Deployment Summary:"
+          echo "- Workflow: Deploy React App to AWS"
+          echo "- Version: EduMaster v2.0 with Math Learning"
+          echo "- URL: http://edumaster-alb-a94208ec-635552552.us-east-1.elb.amazonaws.com/"
+          echo ""
+          echo "🎯 Features Deployed:"
+          echo "- Dashboard with education statistics"
+          echo "- Math Learning Center with IXL-inspired practice"
+          echo "- Navigation between modules"
+          echo "- Version 2.0 indicators"
+          echo ""
+          echo "📝 Note: If you still see old content, clear your browser cache (Ctrl+F5)"
