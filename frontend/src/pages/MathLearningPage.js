@@ -108,6 +108,7 @@ const MathLearningPage = () => {
     for (let i = 0; i < questionCount; i++) {
       let question;
       
+      // Basic arithmetic
       if (skill.id.includes('addition')) {
         const a = Math.floor(Math.random() * 20) + 1;
         const b = Math.floor(Math.random() * 20) + 1;
@@ -141,16 +142,224 @@ const MathLearningPage = () => {
           answer: answer,
           type: 'division'
         };
-      } else if (skill.id.includes('counting')) {
+      }
+      // Counting and Place Value
+      else if (skill.id.includes('counting')) {
         const start = Math.floor(Math.random() * 10) + 1;
-        const count = Math.floor(Math.random() * 5) + 3;
         question = {
           question: `Count from ${start}: ${start}, ${start + 1}, ${start + 2}, __, ?`,
           answer: start + 3,
           type: 'counting'
         };
-      } else {
-        // Default to simple addition
+      } else if (skill.id.includes('place-value')) {
+        const num = Math.floor(Math.random() * 900) + 100;
+        const digit = Math.floor(num / 100);
+        question = {
+          question: `What is the hundreds digit in ${num}?`,
+          answer: digit,
+          type: 'place-value'
+        };
+      }
+      // Fractions
+      else if (skill.id.includes('fractions')) {
+        const numerator = Math.floor(Math.random() * 5) + 1;
+        const denominator = Math.floor(Math.random() * 5) + numerator + 1;
+        const simplifiedNum = Math.floor(numerator / 2) || 1;
+        const simplifiedDen = Math.floor(denominator / 2) || 2;
+        question = {
+          question: `Simplify: ${numerator * 2}/${denominator * 2} = ?/${simplifiedDen * 2}`,
+          answer: simplifiedNum * 2,
+          type: 'fractions'
+        };
+      }
+      // Decimals
+      else if (skill.id.includes('decimals')) {
+        const a = (Math.floor(Math.random() * 50) + 10) / 10;
+        const b = (Math.floor(Math.random() * 50) + 10) / 10;
+        const result = Math.round((a + b) * 10) / 10;
+        question = {
+          question: `${a} + ${b} = ?`,
+          answer: result,
+          type: 'decimals'
+        };
+      }
+      // Algebra
+      else if (skill.id.includes('algebraic') || skill.id.includes('equations')) {
+        const a = Math.floor(Math.random() * 10) + 1;
+        const b = Math.floor(Math.random() * 20) + 5;
+        const answer = b - a;
+        question = {
+          question: `Solve for x: x + ${a} = ${b}`,
+          answer: answer,
+          type: 'algebra'
+        };
+      } else if (skill.id.includes('quadratic')) {
+        const a = Math.floor(Math.random() * 5) + 1;
+        const roots = [-2, -1, 1, 2, 3, 4];
+        const root = roots[Math.floor(Math.random() * roots.length)];
+        const c = -a * root;
+        question = {
+          question: `If ${a}x + ${c} = 0, what is x?`,
+          answer: root,
+          type: 'quadratic'
+        };
+      } else if (skill.id.includes('polynomials')) {
+        const coeff = Math.floor(Math.random() * 5) + 2;
+        const power = Math.floor(Math.random() * 3) + 2;
+        const x = 2;
+        const answer = Math.pow(x, power) * coeff;
+        question = {
+          question: `If x = 2, what is ${coeff}x^${power}?`,
+          answer: answer,
+          type: 'polynomials'
+        };
+      }
+      // Geometry
+      else if (skill.id.includes('shapes')) {
+        const sides = [3, 4, 5, 6];
+        const shape = sides[Math.floor(Math.random() * sides.length)];
+        const names = {3: 'triangle', 4: 'rectangle', 5: 'pentagon', 6: 'hexagon'};
+        question = {
+          question: `How many sides does a ${names[shape]} have?`,
+          answer: shape,
+          type: 'shapes'
+        };
+      } else if (skill.id.includes('area')) {
+        const length = Math.floor(Math.random() * 8) + 2;
+        const width = Math.floor(Math.random() * 8) + 2;
+        question = {
+          question: `Area of rectangle: ${length} × ${width} = ?`,
+          answer: length * width,
+          type: 'area'
+        };
+      } else if (skill.id.includes('perimeter')) {
+        const side = Math.floor(Math.random() * 6) + 2;
+        question = {
+          question: `Perimeter of square with side ${side} = ?`,
+          answer: side * 4,
+          type: 'perimeter'
+        };
+      } else if (skill.id.includes('angle') || skill.id.includes('geometry')) {
+        const angle1 = Math.floor(Math.random() * 60) + 30;
+        const angle2 = 180 - angle1;
+        question = {
+          question: `Two angles are supplementary. One is ${angle1}°. What is the other?`,
+          answer: angle2,
+          type: 'angles'
+        };
+      } else if (skill.id.includes('pythagorean')) {
+        const a = 3, b = 4; // Simple Pythagorean triple
+        const c = 5;
+        question = {
+          question: `In a right triangle, if a = ${a} and b = ${b}, what is c?`,
+          answer: c,
+          type: 'pythagorean'
+        };
+      } else if (skill.id.includes('circles')) {
+        const radius = Math.floor(Math.random() * 5) + 2;
+        const diameter = radius * 2;
+        question = {
+          question: `If radius = ${radius}, what is the diameter?`,
+          answer: diameter,
+          type: 'circles'
+        };
+      } else if (skill.id.includes('volume')) {
+        const side = Math.floor(Math.random() * 4) + 2;
+        const volume = side * side * side;
+        question = {
+          question: `Volume of cube with side ${side} = ?`,
+          answer: volume,
+          type: 'volume'
+        };
+      }
+      // Advanced topics
+      else if (skill.id.includes('ratios') || skill.id.includes('proportions')) {
+        const a = Math.floor(Math.random() * 5) + 2;
+        const b = Math.floor(Math.random() * 5) + 2;
+        const c = a * 2;
+        const answer = b * 2;
+        question = {
+          question: `If ${a}:${b} = ${c}:?, what is the missing number?`,
+          answer: answer,
+          type: 'ratios'
+        };
+      } else if (skill.id.includes('percents')) {
+        const percent = [25, 50, 75][Math.floor(Math.random() * 3)];
+        const number = Math.floor(Math.random() * 8 + 2) * 4;
+        const answer = (number * percent) / 100;
+        question = {
+          question: `${percent}% of ${number} = ?`,
+          answer: answer,
+          type: 'percents'
+        };
+      } else if (skill.id.includes('integers')) {
+        const a = Math.floor(Math.random() * 10) + 1;
+        const b = Math.floor(Math.random() * 5) + 1;
+        const answer = a - b;
+        question = {
+          question: `${a} + (-${b}) = ?`,
+          answer: answer,
+          type: 'integers'
+        };
+      } else if (skill.id.includes('probability')) {
+        const favorable = Math.floor(Math.random() * 3) + 1;
+        const total = favorable + Math.floor(Math.random() * 4) + 1;
+        const probability = Math.round((favorable / total) * 100);
+        question = {
+          question: `Probability = ${favorable}/${total}. What is this as a percentage?`,
+          answer: probability,
+          type: 'probability'
+        };
+      } else if (skill.id.includes('statistics')) {
+        const numbers = [10, 15, 20];
+        const sum = numbers.reduce((a, b) => a + b, 0);
+        const mean = sum / numbers.length;
+        question = {
+          question: `Mean of ${numbers.join(', ')} = ?`,
+          answer: mean,
+          type: 'statistics'
+        };
+      }
+      // Functions and advanced algebra
+      else if (skill.id.includes('linear') || skill.id.includes('functions')) {
+        const slope = Math.floor(Math.random() * 5) + 1;
+        const x = Math.floor(Math.random() * 5) + 1;
+        const answer = slope * x;
+        question = {
+          question: `If y = ${slope}x, what is y when x = ${x}?`,
+          answer: answer,
+          type: 'linear'
+        };
+      } else if (skill.id.includes('exponential')) {
+        const base = Math.floor(Math.random() * 3) + 2;
+        const exponent = Math.floor(Math.random() * 3) + 2;
+        const answer = Math.pow(base, exponent);
+        question = {
+          question: `${base}^${exponent} = ?`,
+          answer: answer,
+          type: 'exponential'
+        };
+      } else if (skill.id.includes('logarithms')) {
+        const answer = Math.floor(Math.random() * 3) + 2;
+        const base = 2;
+        const number = Math.pow(base, answer);
+        question = {
+          question: `log₂(${number}) = ?`,
+          answer: answer,
+          type: 'logarithms'
+        };
+      } else if (skill.id.includes('trigonometry')) {
+        const angles = [30, 45, 60];
+        const angle = angles[Math.floor(Math.random() * angles.length)];
+        const answers = {30: 0.5, 45: 0.71, 60: 0.87};
+        question = {
+          question: `sin(${angle}°) ≈ ? (round to 2 decimal places as whole number)`,
+          answer: Math.round(answers[angle] * 100),
+          type: 'trigonometry'
+        };
+      }
+      // Default fallback for any unmatched skills
+      else {
         const a = Math.floor(Math.random() * 10) + 1;
         const b = Math.floor(Math.random() * 10) + 1;
         question = {
