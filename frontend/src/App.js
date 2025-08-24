@@ -18,62 +18,77 @@ const SimpleDashboard = () => (
         <p className="mt-2 text-gray-600">
           Your comprehensive education management platform is now live!
         </p>
-        <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
-          <strong>✅ Version 2.0 - Math Learning Update</strong> | Deployed: {new Date().toISOString()}
+        <div className="mt-4 p-4 bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 border-2 border-blue-300 text-blue-800 rounded-2xl">
+          <strong>🌟 Math Adventure Zone v2.0</strong> | Focus on Math Skills for Grades 1-12!
         </div>
       </div>
       
-      {/* Quick Stats */}
+      {/* Math Learning Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900">Total Students</h3>
+        <div className="bg-white p-6 rounded-2xl shadow-lg border-2 border-blue-200">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-gray-800">Math Students</h3>
+            <span className="text-3xl">👥</span>
+          </div>
           <p className="text-3xl font-bold text-blue-600">1,247</p>
-          <p className="text-sm text-green-600">↗ 12% this month</p>
+          <p className="text-sm text-green-600 font-medium">🌟 Growing every day!</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900">Active Courses</h3>
-          <p className="text-3xl font-bold text-green-600">89</p>
-          <p className="text-sm text-green-600">↗ 8% this week</p>
+        <div className="bg-white p-6 rounded-2xl shadow-lg border-2 border-green-200">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-gray-800">Math Skills</h3>
+            <span className="text-3xl">🧮</span>
+          </div>
+          <p className="text-3xl font-bold text-green-600">1,089</p>
+          <p className="text-sm text-green-600 font-medium">📚 Across all grades!</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900">Assignments Due</h3>
-          <p className="text-3xl font-bold text-yellow-600">23</p>
-          <p className="text-sm text-red-600">↓ 5% today</p>
+        <div className="bg-white p-6 rounded-2xl shadow-lg border-2 border-yellow-200">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-gray-800">Problems Solved</h3>
+            <span className="text-3xl">🎯</span>
+          </div>
+          <p className="text-3xl font-bold text-yellow-600">45,823</p>
+          <p className="text-sm text-yellow-600 font-medium">🚀 This week!</p>
         </div>
-        <div className="bg-white p-6 rounded-lg shadow">
-          <h3 className="text-lg font-medium text-gray-900">Average Grade</h3>
-          <p className="text-3xl font-bold text-purple-600">87.5%</p>
-          <p className="text-sm text-green-600">↗ 3% this term</p>
+        <div className="bg-white p-6 rounded-2xl shadow-lg border-2 border-purple-200">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-gray-800">Success Rate</h3>
+            <span className="text-3xl">⭐</span>
+          </div>
+          <p className="text-3xl font-bold text-purple-600">92%</p>
+          <p className="text-sm text-purple-600 font-medium">🏆 Amazing work!</p>
         </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-bold text-gray-900 mb-6">Quick Actions</h2>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      {/* Math Adventure Actions */}
+      <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 p-8 rounded-3xl shadow-lg border-2 border-blue-200">
+        <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">🌟 Start Your Math Adventure! 🌟</h2>
+        <p className="text-center text-gray-600 mb-8">Choose what you want to explore today!</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <button 
             onClick={() => window.location.href = '/math'}
-            className="bg-blue-600 text-white p-4 rounded-lg hover:bg-blue-700 text-center"
+            className="bg-gradient-to-r from-blue-400 to-blue-600 text-white p-6 rounded-2xl hover:from-blue-500 hover:to-blue-700 text-center transform hover:scale-105 transition-all shadow-lg"
           >
-            <div className="text-2xl mb-2">🧮</div>
-            <div className="text-sm">Practice Math</div>
+            <div className="text-4xl mb-3">🎯</div>
+            <div className="text-xl font-bold mb-2">Practice Math</div>
+            <div className="text-sm opacity-90">Jump into fun math problems!</div>
           </button>
-          <div className="bg-gray-100 text-gray-600 p-4 rounded-lg text-center">
-            <div className="text-2xl mb-2">📚</div>
-            <div className="text-sm">Create Course</div>
-          </div>
-          <div className="bg-gray-100 text-gray-600 p-4 rounded-lg text-center">
-            <div className="text-2xl mb-2">📋</div>
-            <div className="text-sm">New Assignment</div>
-          </div>
-          <div className="bg-gray-100 text-gray-600 p-4 rounded-lg text-center">
-            <div className="text-2xl mb-2">👥</div>
-            <div className="text-sm">Add Student</div>
-          </div>
-          <div className="bg-gray-100 text-gray-600 p-4 rounded-lg text-center">
-            <div className="text-2xl mb-2">🎓</div>
-            <div className="text-sm">Invite Teacher</div>
-          </div>
+          <button className="bg-gradient-to-r from-green-400 to-green-600 text-white p-6 rounded-2xl hover:from-green-500 hover:to-green-700 text-center transform hover:scale-105 transition-all shadow-lg">
+            <div className="text-4xl mb-3">📊</div>
+            <div className="text-xl font-bold mb-2">My Progress</div>
+            <div className="text-sm opacity-90">See how awesome you're doing!</div>
+          </button>
+          <button className="bg-gradient-to-r from-purple-400 to-purple-600 text-white p-6 rounded-2xl hover:from-purple-500 hover:to-purple-700 text-center transform hover:scale-105 transition-all shadow-lg">
+            <div className="text-4xl mb-3">🏆</div>
+            <div className="text-xl font-bold mb-2">Achievements</div>
+            <div className="text-sm opacity-90">Collect stars and trophies!</div>
+          </button>
+        </div>
+        
+        {/* Fun math fact */}
+        <div className="mt-8 text-center bg-white rounded-2xl p-6 shadow-md border-2 border-yellow-200">
+          <div className="text-3xl mb-2">🤓</div>
+          <h3 className="text-lg font-bold text-gray-800 mb-2">Fun Math Fact!</h3>
+          <p className="text-gray-600">Did you know? The word "mathematics" comes from the Greek word "mathema," which means "knowledge" or "learning"! 🧠✨</p>
         </div>
       </div>
     </div>
@@ -178,15 +193,13 @@ const SimpleHeader = () => (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex justify-between items-center h-16">
         <div className="flex items-center">
-          <Link to="/" className="text-xl font-bold text-blue-600">🎓 EduMaster v2.0</Link>
+          <Link to="/" className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">🌟 Math Adventure Zone</Link>
           <nav className="hidden md:flex space-x-6 ml-10">
-            <Link to="/dashboard" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Dashboard</Link>
-            <Link to="/math" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Math Learning</Link>
-            <Link to="/students" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Students</Link>
-            <Link to="/teachers" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Teachers</Link>
-            <Link to="/parents" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Parents</Link>
-            <Link to="/courses" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Courses</Link>
-            <Link to="/assignments" className="text-gray-500 hover:text-gray-700 px-3 py-2 text-sm font-medium">Assignments</Link>
+            <Link to="/dashboard" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-blue-50 transition-all">🏠 Home</Link>
+            <Link to="/math" className="text-gray-600 hover:text-purple-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-purple-50 transition-all">🧮 Math Fun</Link>
+            <Link to="/students" className="text-gray-600 hover:text-green-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-green-50 transition-all">👥 Students</Link>
+            <Link to="/teachers" className="text-gray-600 hover:text-yellow-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-yellow-50 transition-all">👩‍🏫 Teachers</Link>
+            <Link to="/parents" className="text-gray-600 hover:text-pink-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-pink-50 transition-all">👨‍👩‍👧‍👦 Parents</Link>
           </nav>
         </div>
       </div>
