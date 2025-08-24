@@ -13,6 +13,9 @@ const SimpleDashboard = () => (
         <p className="mt-2 text-gray-600">
           Your comprehensive education management platform is now live!
         </p>
+        <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded">
+          <strong>✅ Version 2.0 - Math Learning Update</strong> | Deployed: {new Date().toISOString()}
+        </div>
       </div>
       
       {/* Quick Stats */}
