@@ -133,113 +133,6 @@ const SimpleDashboard = () => (
   </div>
 );
 
-// Simple math learning component
-const SimpleMathLearning = () => (
-  <div 
-    className="min-h-screen relative p-8"
-    style={{
-      background: `
-        linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 50%, rgba(236, 72, 153, 0.1) 100%),
-        url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxwYXR0ZXJuIGlkPSJtYXRoU2ltcGxlIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCI+CiAgICAgIDx0ZXh0IHg9IjIwIiB5PSIzMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2IiBmaWxsPSJyZ2JhKDU5LCAxMzAsIDI0NiwgMC4xKSI+KzwvdGV4dD4KICAgICAgPHRleHQgeD0iNzAiIHk9IjcwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9InJnYmEoMjM2LCA3MiwgMTUzLCAwLjEpIj7DlzwvdGV4dD4KICAgICAgPGNpcmNsZSBjeD0iNDAiIGN5PSI2MCIgcj0iMiIgZmlsbD0icmdiYSgxNDcsIDUxLCAyMzQsIDAuMSkiLz4KICAgIDwvcGF0dGVybj4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNtYXRoU2ltcGxlKSIvPgo8L3N2Zz4=') repeat
-      `
-    }}
-  >
-    {/* Floating math elements */}
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div className="absolute top-20 left-10 text-4xl opacity-15 animate-bounce">🧮</div>
-      <div className="absolute top-40 right-20 text-3xl opacity-15 animate-pulse">📏</div>
-      <div className="absolute bottom-40 left-20 text-5xl opacity-15 animate-bounce">➕</div>
-      <div className="absolute bottom-20 right-10 text-4xl opacity-15 animate-pulse">📐</div>
-    </div>
-    <div className="relative z-10 max-w-4xl mx-auto">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Math Learning Center 🧮
-        </h1>
-        <p className="mt-2 text-gray-600">
-          IXL-inspired adaptive math practice system
-        </p>
-      </div>
-
-      {/* Skills Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
-          <h3 className="font-bold text-lg text-gray-900 mb-2">Addition</h3>
-          <p className="text-gray-600 mb-4">Basic addition problems</p>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-blue-600 bg-blue-100 px-2 py-1 rounded">Grade 1-3</span>
-            <button className="text-blue-600 hover:text-blue-800">Start Practice →</button>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
-          <h3 className="font-bold text-lg text-gray-900 mb-2">Subtraction</h3>
-          <p className="text-gray-600 mb-4">Subtraction with regrouping</p>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-green-600 bg-green-100 px-2 py-1 rounded">Grade 2-4</span>
-            <button className="text-blue-600 hover:text-blue-800">Start Practice →</button>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
-          <h3 className="font-bold text-lg text-gray-900 mb-2">Multiplication</h3>
-          <p className="text-gray-600 mb-4">Times tables and beyond</p>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-purple-600 bg-purple-100 px-2 py-1 rounded">Grade 3-6</span>
-            <button className="text-blue-600 hover:text-blue-800">Start Practice →</button>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
-          <h3 className="font-bold text-lg text-gray-900 mb-2">Fractions</h3>
-          <p className="text-gray-600 mb-4">Understanding fractions</p>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-yellow-600 bg-yellow-100 px-2 py-1 rounded">Grade 4-7</span>
-            <button className="text-blue-600 hover:text-blue-800">Start Practice →</button>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
-          <h3 className="font-bold text-lg text-gray-900 mb-2">Decimals</h3>
-          <p className="text-gray-600 mb-4">Decimal operations</p>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-red-600 bg-red-100 px-2 py-1 rounded">Grade 5-8</span>
-            <button className="text-blue-600 hover:text-blue-800">Start Practice →</button>
-          </div>
-        </div>
-
-        <div className="bg-white p-6 rounded-lg shadow hover:shadow-md transition">
-          <h3 className="font-bold text-lg text-gray-900 mb-2">Algebra</h3>
-          <p className="text-gray-600 mb-4">Solving equations</p>
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-indigo-600 bg-indigo-100 px-2 py-1 rounded">Grade 6-12</span>
-            <button className="text-blue-600 hover:text-blue-800">Start Practice →</button>
-          </div>
-        </div>
-      </div>
-
-      {/* Progress Section */}
-      <div className="mt-8 bg-white p-6 rounded-lg shadow">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Your Progress</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600">Level 12</div>
-            <div className="text-sm text-gray-600">Current Level</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-green-600">245 XP</div>
-            <div className="text-sm text-gray-600">Total Experience</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600">7 days</div>
-            <div className="text-sm text-gray-600">Current Streak</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
 // Enhanced header with mobile navigation and login
 const SimpleHeader = ({ showLogin, setShowLogin, isLoggedIn, user, handleLogout }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -265,11 +158,11 @@ const SimpleHeader = ({ showLogin, setShowLogin, isLoggedIn, user, handleLogout 
               <div className="flex items-center space-x-3">
                 <div className="flex items-center space-x-2">
                   <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">{user.username.charAt(0).toUpperCase()}</span>
+                    <span className="text-white text-sm font-bold">{user?.username?.charAt(0).toUpperCase()}</span>
                   </div>
                   <div className="hidden md:block">
-                    <span className="text-sm font-semibold text-gray-700">{user.username}</span>
-                    <div className="text-xs text-gray-500">{user.type}</div>
+                    <span className="text-sm font-semibold text-gray-700">{user?.username}</span>
+                    <div className="text-xs text-gray-500">{user?.type}</div>
                   </div>
                 </div>
                 <button
@@ -289,18 +182,19 @@ const SimpleHeader = ({ showLogin, setShowLogin, isLoggedIn, user, handleLogout 
             )}
 
             {/* Mobile menu button */}
-          <button
-            className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              {mobileMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              )}
-            </svg>
-          </button>
+            <button
+              className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                {mobileMenuOpen ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                )}
+              </svg>
+            </button>
+          </div>
         </div>
         
         {/* Mobile menu */}
