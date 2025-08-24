@@ -7,7 +7,7 @@ import { BarChart, LineChart } from '../components/charts/AdvancedChart';
 import ProgressIndicator from '../components/education/ProgressIndicator';
 import MathQuizEngine from '../components/math/MathQuizEngine';
 import MathAchievements, { sampleAchievements, sampleMathStats } from '../components/math/MathAchievements';
-import { Icons } from '../assets/icons';
+import { Icons } from '../assets/icons/index';
 
 interface MathSkill {
   id: string;

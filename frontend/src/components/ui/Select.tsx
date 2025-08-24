@@ -1,5 +1,5 @@
 import React, { forwardRef, SelectHTMLAttributes } from 'react';
-import { Icons } from '../../assets/icons';
+import { Icons } from '../../assets/icons/index';
 
 interface Option {
   value: string;

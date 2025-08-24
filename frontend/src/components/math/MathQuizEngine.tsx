@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
-import { Icons } from '../../assets/icons';
+import { Icons } from '../../assets/icons/index';
 
 interface MathProblem {
   id: string;

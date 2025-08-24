@@ -2,7 +2,7 @@ import React from 'react';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
 import ProgressIndicator from '../education/ProgressIndicator';
-import { Icons } from '../../assets/icons';
+import { Icons } from '../../assets/icons/index';
 
 interface Achievement {
   id: string;

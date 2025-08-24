@@ -1,5 +1,5 @@
 import React, { forwardRef, InputHTMLAttributes } from 'react';
-import { Icons } from '../../assets/icons';
+import { Icons } from '../../assets/icons/index';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;

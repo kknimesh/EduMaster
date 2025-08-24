@@ -5,7 +5,7 @@ import StatCard from '../components/charts/StatCard';
 import { LineChart, BarChart, DonutChart } from '../components/charts/AdvancedChart';
 import Button from '../components/ui/Button';
 import Avatar from '../components/ui/Avatar';
-import { Icons } from '../assets/icons';
+import { Icons } from '../assets/icons/index';
 
 const Dashboard: React.FC = () => {
   // Sample data
