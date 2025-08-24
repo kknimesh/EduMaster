@@ -32,24 +32,26 @@ const TeachersPage = () => {
         `
       }}
     >
-      {/* Floating teacher-themed icons */}
+      {/* Floating teacher-themed icons with CSS animations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 right-20 text-6xl opacity-25 animate-pulse">👩‍🏫</div>
-        <div className="absolute top-40 left-10 text-7xl opacity-25 animate-bounce">📚</div>
-        <div className="absolute bottom-40 right-10 text-6xl opacity-25 animate-pulse">🍎</div>
-        <div className="absolute top-60 right-40 text-5xl opacity-25 animate-bounce">📝</div>
-        <div className="absolute bottom-20 left-20 text-6xl opacity-25 animate-pulse">🏫</div>
-        <div className="absolute top-80 left-1/3 text-7xl opacity-25 animate-bounce">🎓</div>
-        <div className="absolute bottom-60 right-1/4 text-5xl opacity-25 animate-pulse">✨</div>
-        <div className="absolute top-32 left-1/2 text-6xl opacity-25 animate-bounce">🎆</div>
+        <div className="absolute top-20 right-20 text-6xl opacity-30" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>👩‍🏫</div>
+        <div className="absolute top-40 left-10 text-7xl opacity-30" style={{animation: 'bounce 1s infinite'}}>📚</div>
+        <div className="absolute bottom-40 right-10 text-6xl opacity-30" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🍎</div>
+        <div className="absolute top-60 right-40 text-5xl opacity-30" style={{animation: 'bounce 1s infinite'}}>📝</div>
+        <div className="absolute bottom-20 left-20 text-6xl opacity-30" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🏫</div>
+        <div className="absolute top-80 left-1/3 text-7xl opacity-30" style={{animation: 'bounce 1s infinite'}}>🎓</div>
+        <div className="absolute bottom-60 right-1/4 text-5xl opacity-30" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>✨</div>
+        <div className="absolute top-32 left-1/2 text-6xl opacity-30" style={{animation: 'bounce 1s infinite'}}>🎆</div>
       </div>
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent mb-3">
-            🎆 Amazing Teachers! 🎓
+          <h1 className="text-6xl font-black mb-3">
+            <span className="inline-block bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-transparent bg-clip-text animate-pulse">
+              🎆 Amazing Teachers! 🎓
+            </span>
           </h1>
-          <p className="text-xl text-gray-700">Our superhero educators making learning magical every day!</p>
+          <p className="text-xl text-gray-700 font-semibold">Our superhero educators making learning magical every day!</p>
         </div>
 
         {/* Stats Cards */}

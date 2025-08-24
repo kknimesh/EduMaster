@@ -32,24 +32,26 @@ const StudentsPage = () => {
         `
       }}
     >
-      {/* Floating student-themed icons */}
+      {/* Floating student-themed icons with CSS animations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 right-20 text-6xl opacity-20 animate-pulse">📚</div>
-        <div className="absolute top-40 left-10 text-7xl opacity-20 animate-bounce">🎒</div>
-        <div className="absolute bottom-40 right-10 text-6xl opacity-20 animate-pulse">✏️</div>
-        <div className="absolute top-60 right-40 text-5xl opacity-20 animate-bounce">📝</div>
-        <div className="absolute bottom-20 left-40 text-6xl opacity-20 animate-pulse">🎨</div>
-        <div className="absolute top-32 left-1/2 text-5xl opacity-20 animate-bounce">🌟</div>
-        <div className="absolute bottom-60 right-1/3 text-7xl opacity-20 animate-pulse">🚀</div>
-        <div className="absolute top-80 left-20 text-5xl opacity-20 animate-bounce">🎯</div>
+        <div className="absolute top-20 right-20 text-6xl opacity-30" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>📚</div>
+        <div className="absolute top-40 left-10 text-7xl opacity-30" style={{animation: 'bounce 1s infinite'}}>🎒</div>
+        <div className="absolute bottom-40 right-10 text-6xl opacity-30" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>✏️</div>
+        <div className="absolute top-60 right-40 text-5xl opacity-30" style={{animation: 'bounce 1s infinite'}}>📝</div>
+        <div className="absolute bottom-20 left-40 text-6xl opacity-30" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🎨</div>
+        <div className="absolute top-32 left-1/2 text-5xl opacity-30" style={{animation: 'bounce 1s infinite'}}>🌟</div>
+        <div className="absolute bottom-60 right-1/3 text-7xl opacity-30" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🚀</div>
+        <div className="absolute top-80 left-20 text-5xl opacity-30" style={{animation: 'bounce 1s infinite'}}>🎯</div>
       </div>
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 text-center">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-green-600 via-blue-600 to-purple-600 bg-clip-text text-transparent mb-3">
-            🌈 Student Superstars! 🌟
+          <h1 className="text-6xl font-black mb-3">
+            <span className="inline-block bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-transparent bg-clip-text animate-pulse">
+              🌈 Student Superstars! 🌟
+            </span>
           </h1>
-          <p className="text-xl text-gray-700">Track progress, celebrate achievements, and watch students shine!</p>
+          <p className="text-xl text-gray-700 font-semibold">Track progress, celebrate achievements, and watch students shine!</p>
         </div>
 
         {/* Stats Cards */}

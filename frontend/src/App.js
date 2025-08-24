@@ -19,113 +19,136 @@ const SimpleDashboard = () => (
       `
     }}
   >
-    {/* Floating Elements */}
+    {/* Floating Elements with Enhanced Animations */}
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div className="absolute top-20 left-10 text-6xl opacity-20 animate-bounce">📚</div>
-      <div className="absolute top-40 right-20 text-5xl opacity-20 animate-pulse">✨</div>
-      <div className="absolute bottom-40 left-20 text-7xl opacity-20 animate-bounce">🎯</div>
-      <div className="absolute top-60 left-1/2 text-5xl opacity-20 animate-pulse">🌟</div>
-      <div className="absolute bottom-20 right-10 text-6xl opacity-20 animate-bounce">🎉</div>
+      <div className="absolute top-20 left-10 text-7xl opacity-30" style={{animation: 'bounce 2s infinite'}}>📚</div>
+      <div className="absolute top-40 right-20 text-6xl opacity-30" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>✨</div>
+      <div className="absolute bottom-40 left-20 text-8xl opacity-30" style={{animation: 'bounce 2.5s infinite'}}>🎯</div>
+      <div className="absolute top-60 left-1/2 text-6xl opacity-30" style={{animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🌟</div>
+      <div className="absolute bottom-20 right-10 text-7xl opacity-30" style={{animation: 'bounce 1.8s infinite'}}>🎉</div>
+      <div className="absolute top-32 right-1/3 text-6xl opacity-30" style={{animation: 'pulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🤖</div>
+      <div className="absolute bottom-60 left-1/4 text-7xl opacity-30" style={{animation: 'bounce 2.3s infinite'}}>🌈</div>
+      <div className="absolute top-80 right-1/2 text-5xl opacity-30" style={{animation: 'pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🎨</div>
+      <div className="absolute bottom-32 right-1/4 text-8xl opacity-30" style={{animation: 'bounce 2.1s infinite'}}>🚀</div>
+      <div className="absolute top-48 left-1/3 text-6xl opacity-30" style={{animation: 'pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🎢</div>
     </div>
 
     <div className="relative z-10 max-w-7xl mx-auto px-4 py-12">
       {/* Hero Section */}
       <div className="text-center mb-16">
         <div className="mb-8">
-          <h1 className="text-6xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-            Welcome to EduMaster! 🎓
+          <h1 className="text-7xl font-black mb-4">
+            <span className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text animate-pulse">
+              Welcome to EduMaster!
+            </span>
+            <span className="inline-block text-6xl ml-3">🎓🎆</span>
           </h1>
-          <p className="text-2xl text-gray-700 mb-6 max-w-3xl mx-auto">
-            Where learning becomes an adventure! Join thousands of students on their educational journey.
+          <p className="text-2xl text-gray-700 font-bold mb-6 max-w-3xl mx-auto">
+            🌈 Where learning becomes a magical adventure! 🚀
           </p>
+          <div className="flex justify-center gap-4 mb-6">
+            <span className="text-4xl animate-bounce" style={{animationDelay: '0s'}}>🏆</span>
+            <span className="text-4xl animate-bounce" style={{animationDelay: '0.1s'}}>🌟</span>
+            <span className="text-4xl animate-bounce" style={{animationDelay: '0.2s'}}>🎉</span>
+            <span className="text-4xl animate-bounce" style={{animationDelay: '0.3s'}}>🎯</span>
+            <span className="text-4xl animate-bounce" style={{animationDelay: '0.4s'}}>🎨</span>
+          </div>
         </div>
 
         {/* Fun Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-blue-200">
-            <div className="text-5xl mb-4">👨‍👩‍👧‍👦</div>
-            <div className="text-3xl font-bold text-blue-600">12</div>
-            <div className="text-gray-600 font-semibold">Happy Families</div>
+          <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border-2 border-blue-300 hover:scale-110 transition-transform cursor-pointer">
+            <div className="text-6xl mb-4 animate-pulse">👨‍👩‍👧‍👦</div>
+            <div className="text-4xl font-black text-blue-600">12</div>
+            <div className="text-lg text-gray-700 font-bold">Happy Families</div>
           </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-purple-200">
-            <div className="text-5xl mb-4">🧠</div>
-            <div className="text-3xl font-bold text-purple-600">247</div>
-            <div className="text-gray-600 font-semibold">Problems Solved</div>
+          <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border-2 border-purple-300 hover:scale-110 transition-transform cursor-pointer">
+            <div className="text-6xl mb-4 animate-pulse">🧠</div>
+            <div className="text-4xl font-black text-purple-600">247</div>
+            <div className="text-lg text-gray-700 font-bold">Problems Solved</div>
           </div>
-          <div className="bg-white/80 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-pink-200">
-            <div className="text-5xl mb-4">🏆</div>
-            <div className="text-3xl font-bold text-pink-600">89</div>
-            <div className="text-gray-600 font-semibold">Achievements Earned</div>
+          <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border-2 border-pink-300 hover:scale-110 transition-transform cursor-pointer">
+            <div className="text-6xl mb-4 animate-pulse">🏆</div>
+            <div className="text-4xl font-black text-pink-600">89</div>
+            <div className="text-lg text-gray-700 font-bold">Achievements Earned</div>
           </div>
         </div>
       </div>
       
       {/* Learning Areas */}
       <div className="mb-16">
-        <h2 className="text-4xl font-bold text-center text-gray-800 mb-12">Explore Learning Adventures!</h2>
+        <h2 className="text-5xl font-black text-center mb-12">
+          <span className="bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-transparent bg-clip-text">
+            🎆 Explore Learning Adventures! 🎮
+          </span>
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <Link to="/math" className="group block">
-            <div className="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border-2 border-blue-200 hover:border-blue-400 transform hover:scale-105 transition-all duration-300">
-              <div className="text-6xl mb-4 text-center group-hover:animate-bounce">🧮</div>
-              <h3 className="text-2xl font-bold text-blue-600 text-center mb-3">Math Adventure</h3>
-              <p className="text-gray-600 text-center mb-4">Explore numbers, solve puzzles, and discover the magic of mathematics!</p>
+            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-3 border-blue-300 hover:border-blue-500 transform hover:scale-110 transition-all duration-300 hover:rotate-1">
+              <div className="text-7xl mb-4 text-center group-hover:animate-bounce">🧮</div>
+              <h3 className="text-2xl font-black text-blue-600 text-center mb-3">Math Adventure</h3>
+              <p className="text-gray-700 text-center mb-4 font-semibold">Explore numbers, solve puzzles, and discover the magic of mathematics!</p>
               <div className="text-center">
-                <span className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm font-semibold">1,089+ Skills</span>
+                <span className="bg-gradient-to-r from-blue-400 to-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg">1,089+ Skills</span>
               </div>
             </div>
           </Link>
           
-          <div className="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border-2 border-green-200 hover:border-green-400 transform hover:scale-105 transition-all duration-300 cursor-pointer">
-            <div className="text-6xl mb-4 text-center">📖</div>
-            <h3 className="text-2xl font-bold text-green-600 text-center mb-3">Reading Quest</h3>
-            <p className="text-gray-600 text-center mb-4">Dive into stories, build vocabulary, and master language arts!</p>
+          <div className="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-3 border-green-300 hover:border-green-500 transform hover:scale-110 transition-all duration-300 cursor-pointer hover:rotate-1">
+            <div className="text-7xl mb-4 text-center animate-pulse">📖</div>
+            <h3 className="text-2xl font-black text-green-600 text-center mb-3">Reading Quest</h3>
+            <p className="text-gray-700 text-center mb-4 font-semibold">Dive into stories, build vocabulary, and master language arts!</p>
             <div className="text-center">
-              <span className="bg-green-100 text-green-800 px-4 py-2 rounded-full text-sm font-semibold">Coming Soon</span>
+              <span className="bg-gradient-to-r from-green-400 to-green-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg">Coming Soon 🌟</span>
             </div>
           </div>
           
-          <div className="bg-white/90 backdrop-blur-sm p-8 rounded-3xl shadow-xl border-2 border-purple-200 hover:border-purple-400 transform hover:scale-105 transition-all duration-300 cursor-pointer">
-            <div className="text-6xl mb-4 text-center">🔬</div>
-            <h3 className="text-2xl font-bold text-purple-600 text-center mb-3">Science Lab</h3>
-            <p className="text-gray-600 text-center mb-4">Experiment, discover, and explore the wonders of science!</p>
+          <div className="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-3 border-purple-300 hover:border-purple-500 transform hover:scale-110 transition-all duration-300 cursor-pointer hover:rotate-1">
+            <div className="text-7xl mb-4 text-center animate-pulse">🔬</div>
+            <h3 className="text-2xl font-black text-purple-600 text-center mb-3">Science Lab</h3>
+            <p className="text-gray-700 text-center mb-4 font-semibold">Experiment, discover, and explore the wonders of science!</p>
             <div className="text-center">
-              <span className="bg-purple-100 text-purple-800 px-4 py-2 rounded-full text-sm font-semibold">Coming Soon</span>
+              <span className="bg-gradient-to-r from-purple-400 to-purple-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg">Coming Soon 🚀</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Get Started Section */}
-      <div className="bg-white/90 backdrop-blur-sm p-10 rounded-3xl shadow-2xl border-2 border-yellow-200">
+      <div className="bg-white/95 backdrop-blur-sm p-10 rounded-3xl shadow-2xl border-3 border-yellow-300">
         <div className="text-center">
-          <h2 className="text-4xl font-bold text-gray-800 mb-4">Ready to Start Learning?</h2>
-          <p className="text-xl text-gray-600 mb-8">Choose your path and begin your educational adventure today!</p>
+          <h2 className="text-5xl font-black mb-4">
+            <span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-transparent bg-clip-text">
+              🎆 Ready to Start Learning? 🎯
+            </span>
+          </h2>
+          <p className="text-2xl text-gray-700 font-bold mb-8">Choose your path and begin your magical educational adventure today!</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            <div className="text-center">
-              <div className="text-8xl mb-4">🎓</div>
-              <h3 className="text-2xl font-bold text-blue-600 mb-3">For Students</h3>
-              <p className="text-gray-600 mb-4">Jump into interactive lessons, practice problems, and track your progress!</p>
-              <Link to="/math" className="bg-blue-500 text-white px-8 py-3 rounded-full font-bold hover:bg-blue-600 transition-colors inline-block">
-                Start Learning →
+            <div className="text-center bg-blue-50 rounded-2xl p-6 border-2 border-blue-200 hover:scale-105 transition-transform">
+              <div className="text-8xl mb-4 animate-bounce">🎓</div>
+              <h3 className="text-3xl font-black text-blue-600 mb-3">For Students</h3>
+              <p className="text-gray-700 font-semibold mb-4">Jump into interactive lessons, practice problems, and track your progress!</p>
+              <Link to="/math" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-4 rounded-full font-bold hover:from-blue-600 hover:to-purple-600 transition-all inline-block transform hover:scale-110 shadow-lg">
+                🚀 Start Learning
               </Link>
             </div>
             
-            <div className="text-center">
-              <div className="text-8xl mb-4">👩‍🏫</div>
-              <h3 className="text-2xl font-bold text-purple-600 mb-3">For Educators</h3>
-              <p className="text-gray-600 mb-4">Access teaching tools, track student progress, and manage your classroom!</p>
-              <Link to="/teachers" className="bg-purple-500 text-white px-8 py-3 rounded-full font-bold hover:bg-purple-600 transition-colors inline-block">
-                Get Started →
+            <div className="text-center bg-purple-50 rounded-2xl p-6 border-2 border-purple-200 hover:scale-105 transition-transform">
+              <div className="text-8xl mb-4 animate-bounce">👩‍🏫</div>
+              <h3 className="text-3xl font-black text-purple-600 mb-3">For Educators</h3>
+              <p className="text-gray-700 font-semibold mb-4">Access teaching tools, track student progress, and manage your classroom!</p>
+              <Link to="/teachers" className="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-8 py-4 rounded-full font-bold hover:from-purple-600 hover:to-pink-600 transition-all inline-block transform hover:scale-110 shadow-lg">
+                ✨ Get Started
               </Link>
             </div>
           </div>
           
           {/* Fun fact */}
-          <div className="bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-6 border-2 border-yellow-300">
-            <div className="text-4xl mb-2">💡</div>
-            <h3 className="text-xl font-bold text-gray-800 mb-2">Did You Know?</h3>
-            <p className="text-gray-700">Students who practice regularly improve their skills 3x faster than traditional methods!</p>
+          <div className="bg-gradient-to-r from-yellow-100 via-orange-100 to-pink-100 rounded-2xl p-6 border-3 border-yellow-400 hover:scale-105 transition-transform">
+            <div className="text-5xl mb-2 animate-pulse">💡</div>
+            <h3 className="text-2xl font-black text-gray-800 mb-2">Did You Know?</h3>
+            <p className="text-gray-700 font-bold text-lg">Students who practice regularly improve their skills 3x faster than traditional methods! 🏆</p>
           </div>
         </div>
       </div>
