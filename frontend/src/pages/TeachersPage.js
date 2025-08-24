@@ -34,77 +34,66 @@ const TeachersPage = () => {
     >
       {/* Floating teacher-themed icons */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 right-20 text-4xl opacity-15 animate-pulse">👩‍🏫</div>
-        <div className="absolute top-40 left-10 text-5xl opacity-15 animate-bounce">📚</div>
-        <div className="absolute bottom-40 right-10 text-4xl opacity-15 animate-pulse">🍎</div>
-        <div className="absolute top-60 right-40 text-3xl opacity-15 animate-bounce">📝</div>
-        <div className="absolute bottom-20 left-20 text-4xl opacity-15 animate-pulse">🏫</div>
+        <div className="absolute top-20 right-20 text-6xl opacity-25 animate-pulse">👩‍🏫</div>
+        <div className="absolute top-40 left-10 text-7xl opacity-25 animate-bounce">📚</div>
+        <div className="absolute bottom-40 right-10 text-6xl opacity-25 animate-pulse">🍎</div>
+        <div className="absolute top-60 right-40 text-5xl opacity-25 animate-bounce">📝</div>
+        <div className="absolute bottom-20 left-20 text-6xl opacity-25 animate-pulse">🏫</div>
+        <div className="absolute top-80 left-1/3 text-7xl opacity-25 animate-bounce">🎓</div>
+        <div className="absolute bottom-60 right-1/4 text-5xl opacity-25 animate-pulse">✨</div>
+        <div className="absolute top-32 left-1/2 text-6xl opacity-25 animate-bounce">🎆</div>
       </div>
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Teachers Management</h1>
-          <p className="mt-2 text-gray-600">Manage faculty members, assignments, and performance metrics</p>
+        <div className="mb-8 text-center">
+          <h1 className="text-5xl font-bold bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent mb-3">
+            🎆 Amazing Teachers! 🎓
+          </h1>
+          <p className="text-xl text-gray-700">Our superhero educators making learning magical every day!</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border-2 border-blue-200 hover:scale-105 transition-transform">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Teachers</p>
-                <p className="text-2xl font-bold text-gray-900">8</p>
+                <p className="text-3xl font-bold text-blue-600">8</p>
               </div>
-              <div className="p-3 bg-blue-100 rounded-full">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
+              <div className="text-5xl">👩‍🏫</div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border-2 border-green-200 hover:scale-105 transition-transform">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Avg Rating</p>
-                <p className="text-2xl font-bold text-green-600">4.7/5.0</p>
+                <p className="text-3xl font-bold text-green-600">4.7 ⭐</p>
               </div>
-              <div className="p-3 bg-green-100 rounded-full">
-                <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                </svg>
-              </div>
+              <div className="text-5xl">🌟</div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border-2 border-yellow-200 hover:scale-105 transition-transform">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Student-Teacher Ratio</p>
-                <p className="text-2xl font-bold text-yellow-600">1:1</p>
+                <p className="text-3xl font-bold text-yellow-600">1:1</p>
               </div>
-              <div className="p-3 bg-yellow-100 rounded-full">
-                <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
+              <div className="text-5xl">🤝</div>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-lg shadow">
+          <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border-2 border-purple-200 hover:scale-105 transition-transform">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Departments</p>
-                <p className="text-2xl font-bold text-purple-600">5</p>
+                <p className="text-3xl font-bold text-purple-600">5</p>
               </div>
-              <div className="p-3 bg-purple-100 rounded-full">
-                <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
+              <div className="text-5xl">🏫</div>
             </div>
           </div>
         </div>
 
         {/* Search and Filters */}
-        <div className="bg-white p-6 rounded-lg shadow mb-8">
+        <div className="bg-white/90 backdrop-blur-sm p-6 rounded-2xl shadow-xl border-2 border-orange-200 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <div className="flex-1">
               <input
@@ -127,8 +116,8 @@ const TeachersPage = () => {
               <option value="History">History</option>
               <option value="Computer Science">Computer Science</option>
             </select>
-            <button className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-              + Add Teacher
+            <button className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full font-bold hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-lg">
+              🎆 Add Teacher
             </button>
           </div>
         </div>
@@ -136,11 +125,11 @@ const TeachersPage = () => {
         {/* Teachers Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTeachers.map((teacher) => (
-            <div key={teacher.id} className="bg-white rounded-lg shadow hover:shadow-lg transition-shadow">
+            <div key={teacher.id} className="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:scale-105 border-2 border-purple-100">
               <div className="p-6">
                 <div className="flex items-center mb-4">
-                  <div className="h-12 w-12 rounded-full bg-gray-300 flex items-center justify-center">
-                    <span className="text-lg font-medium text-gray-600">
+                  <div className="h-12 w-12 rounded-full bg-gradient-to-r from-orange-400 to-red-400 flex items-center justify-center shadow-lg">
+                    <span className="text-lg font-bold text-white">
                       {teacher.name.split(' ').map(n => n[0]).join('')}
                     </span>
                   </div>
@@ -161,7 +150,7 @@ const TeachersPage = () => {
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Rating:</span>
-                    <span className="text-yellow-600 font-medium">★ {teacher.rating}</span>
+                    <span className="text-yellow-500 font-bold text-lg">⭐ {teacher.rating}</span>
                   </div>
                 </div>
 
@@ -169,7 +158,7 @@ const TeachersPage = () => {
                   <p className="text-sm text-gray-600 mb-1">Subjects:</p>
                   <div className="flex flex-wrap gap-1">
                     {teacher.subjects.map((subject, index) => (
-                      <span key={index} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                      <span key={index} className="px-3 py-1 text-xs bg-gradient-to-r from-blue-400 to-purple-400 text-white rounded-full font-bold shadow-md">
                         {subject}
                       </span>
                     ))}
@@ -177,11 +166,11 @@ const TeachersPage = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <button className="flex-1 px-3 py-2 bg-blue-600 text-white text-sm rounded hover:bg-blue-700">
-                    View Profile
+                  <button className="flex-1 px-3 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white text-sm rounded-full font-bold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-md">
+                    👁️ Profile
                   </button>
-                  <button className="flex-1 px-3 py-2 bg-gray-200 text-gray-700 text-sm rounded hover:bg-gray-300">
-                    Schedule
+                  <button className="flex-1 px-3 py-2 bg-gradient-to-r from-green-400 to-blue-400 text-white text-sm rounded-full font-bold hover:from-green-500 hover:to-blue-500 transition-all transform hover:scale-105 shadow-md">
+                    📅 Schedule
                   </button>
                 </div>
               </div>

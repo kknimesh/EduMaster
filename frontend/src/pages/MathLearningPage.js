@@ -110,24 +110,30 @@ const MathLearningPage = () => {
       
       // Basic arithmetic
       if (skill.id.includes('addition')) {
-        const a = Math.floor(Math.random() * 20) + 1;
-        const b = Math.floor(Math.random() * 20) + 1;
+        const gradeLevel = parseInt(skill.id.match(/g(\d+)/)[1]);
+        const maxNum = gradeLevel <= 2 ? 20 : gradeLevel <= 4 ? 100 : 1000;
+        const a = Math.floor(Math.random() * maxNum/2) + 1;
+        const b = Math.floor(Math.random() * maxNum/2) + 1;
         question = {
           question: `${a} + ${b} = ?`,
           answer: a + b,
           type: 'addition'
         };
       } else if (skill.id.includes('subtraction')) {
-        const a = Math.floor(Math.random() * 20) + 10;
-        const b = Math.floor(Math.random() * 10) + 1;
+        const gradeLevel = parseInt(skill.id.match(/g(\d+)/)[1]);
+        const maxNum = gradeLevel <= 2 ? 20 : gradeLevel <= 4 ? 100 : 1000;
+        const a = Math.floor(Math.random() * maxNum) + Math.floor(maxNum/2);
+        const b = Math.floor(Math.random() * Math.floor(maxNum/2)) + 1;
         question = {
           question: `${a} - ${b} = ?`,
           answer: a - b,
           type: 'subtraction'
         };
       } else if (skill.id.includes('multiplication')) {
-        const a = Math.floor(Math.random() * 10) + 1;
-        const b = Math.floor(Math.random() * 10) + 1;
+        const gradeLevel = parseInt(skill.id.match(/g(\d+)/)[1]);
+        const maxFactor = gradeLevel <= 3 ? 10 : gradeLevel <= 5 ? 12 : 20;
+        const a = Math.floor(Math.random() * maxFactor) + 1;
+        const b = Math.floor(Math.random() * maxFactor) + 1;
         question = {
           question: `${a} × ${b} = ?`,
           answer: a * b,
@@ -135,11 +141,11 @@ const MathLearningPage = () => {
         };
       } else if (skill.id.includes('division')) {
         const b = Math.floor(Math.random() * 9) + 2;
-        const answer = Math.floor(Math.random() * 10) + 1;
-        const a = b * answer;
+        const quotient = Math.floor(Math.random() * 10) + 1;
+        const a = b * quotient;
         question = {
           question: `${a} ÷ ${b} = ?`,
-          answer: answer,
+          answer: quotient,
           type: 'division'
         };
       }
@@ -162,31 +168,33 @@ const MathLearningPage = () => {
       }
       // Fractions
       else if (skill.id.includes('fractions')) {
-        const numerator = Math.floor(Math.random() * 5) + 1;
-        const denominator = Math.floor(Math.random() * 5) + numerator + 1;
-        const simplifiedNum = Math.floor(numerator / 2) || 1;
-        const simplifiedDen = Math.floor(denominator / 2) || 2;
+        const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+        const numerator = Math.floor(Math.random() * 8) + 2;
+        const denominator = Math.floor(Math.random() * 8) + numerator + 1;
+        const divisor = gcd(numerator, denominator);
+        const simplifiedNum = numerator / divisor;
+        const simplifiedDen = denominator / divisor;
         question = {
-          question: `Simplify: ${numerator * 2}/${denominator * 2} = ?/${simplifiedDen * 2}`,
-          answer: simplifiedNum * 2,
+          question: `Simplify: ${numerator}/${denominator} = ?/${simplifiedDen}`,
+          answer: simplifiedNum,
           type: 'fractions'
         };
       }
       // Decimals
       else if (skill.id.includes('decimals')) {
-        const a = (Math.floor(Math.random() * 50) + 10) / 10;
-        const b = (Math.floor(Math.random() * 50) + 10) / 10;
+        const a = Math.floor(Math.random() * 50 + 10) / 10;
+        const b = Math.floor(Math.random() * 50 + 10) / 10;
         const result = Math.round((a + b) * 10) / 10;
         question = {
-          question: `${a} + ${b} = ?`,
-          answer: result,
+          question: `${a.toFixed(1)} + ${b.toFixed(1)} = ?`,
+          answer: result.toFixed(1),
           type: 'decimals'
         };
       }
       // Algebra
       else if (skill.id.includes('algebraic') || skill.id.includes('equations')) {
         const a = Math.floor(Math.random() * 10) + 1;
-        const b = Math.floor(Math.random() * 20) + 5;
+        const b = Math.floor(Math.random() * 20) + a + 1;
         const answer = b - a;
         question = {
           question: `Solve for x: x + ${a} = ${b}`,
@@ -387,7 +395,14 @@ const MathLearningPage = () => {
   };
 
   const checkAnswer = () => {
-    const correct = parseInt(userAnswer) === questions[currentQuestion].answer;
+    const userAnswerNum = parseFloat(userAnswer.trim());
+    const correctAnswer = questions[currentQuestion].answer;
+    
+    // Handle both numeric and string answers
+    const correct = typeof correctAnswer === 'string' 
+      ? userAnswer.trim() === correctAnswer 
+      : Math.abs(userAnswerNum - correctAnswer) < 0.01;
+    
     setIsCorrect(correct);
     setShowFeedback(true);
     if (correct) {
@@ -452,11 +467,12 @@ const MathLearningPage = () => {
             {!showFeedback ? (
               <div className="space-y-4">
                 <input
-                  type="number"
+                  type="text"
                   value={userAnswer}
                   onChange={(e) => setUserAnswer(e.target.value)}
-                  className="text-2xl text-center border-2 border-blue-300 rounded-xl p-4 w-32 focus:border-purple-500 focus:outline-none"
-                  placeholder="?"
+                  className="text-3xl text-center border-4 border-blue-400 rounded-2xl p-5 w-48 focus:border-purple-500 focus:outline-none shadow-lg font-bold bg-yellow-50"
+                  placeholder="???"
+                  autoFocus
                   onKeyPress={(e) => e.key === 'Enter' && userAnswer && checkAnswer()}
                 />
                 <br />
