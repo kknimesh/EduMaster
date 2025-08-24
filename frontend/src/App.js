@@ -5,6 +5,7 @@ import TeachersPage from './pages/TeachersPage';
 import ParentsPage from './pages/ParentsPage';
 import CoursesPage from './pages/CoursesPage';
 import AssignmentsPage from './pages/AssignmentsPage';
+import MathLearningPage from './pages/MathLearningPage';
 import './App.css';
 
 // EduMaster Landing Page
@@ -134,8 +135,23 @@ const SimpleDashboard = () => (
 
 // Simple math learning component
 const SimpleMathLearning = () => (
-  <div className="min-h-screen bg-gray-50 p-8">
-    <div className="max-w-4xl mx-auto">
+  <div 
+    className="min-h-screen relative p-8"
+    style={{
+      background: `
+        linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 51, 234, 0.1) 50%, rgba(236, 72, 153, 0.1) 100%),
+        url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxwYXR0ZXJuIGlkPSJtYXRoU2ltcGxlIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCI+CiAgICAgIDx0ZXh0IHg9IjIwIiB5PSIzMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE2IiBmaWxsPSJyZ2JhKDU5LCAxMzAsIDI0NiwgMC4xKSI+KzwvdGV4dD4KICAgICAgPHRleHQgeD0iNzAiIHk9IjcwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTYiIGZpbGw9InJnYmEoMjM2LCA3MiwgMTUzLCAwLjEpIj7DlzwvdGV4dD4KICAgICAgPGNpcmNsZSBjeD0iNDAiIGN5PSI2MCIgcj0iMiIgZmlsbD0icmdiYSgxNDcsIDUxLCAyMzQsIDAuMSkiLz4KICAgIDwvcGF0dGVybj4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNtYXRoU2ltcGxlKSIvPgo8L3N2Zz4=') repeat
+      `
+    }}
+  >
+    {/* Floating math elements */}
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute top-20 left-10 text-4xl opacity-15 animate-bounce">🧮</div>
+      <div className="absolute top-40 right-20 text-3xl opacity-15 animate-pulse">📏</div>
+      <div className="absolute bottom-40 left-20 text-5xl opacity-15 animate-bounce">➕</div>
+      <div className="absolute bottom-20 right-10 text-4xl opacity-15 animate-pulse">📐</div>
+    </div>
+    <div className="relative z-10 max-w-4xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
           Math Learning Center 🧮
@@ -224,25 +240,86 @@ const SimpleMathLearning = () => (
   </div>
 );
 
-// Enhanced header with all navigation
-const SimpleHeader = () => (
-  <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200">
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div className="flex justify-between items-center h-16">
-        <div className="flex items-center">
-          <Link to="/" className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">🎓 EduMaster</Link>
-          <nav className="hidden md:flex space-x-6 ml-10">
-            <Link to="/dashboard" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-blue-50 transition-all">🏠 Home</Link>
-            <Link to="/math" className="text-gray-600 hover:text-purple-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-purple-50 transition-all">🧮 Math Fun</Link>
-            <Link to="/students" className="text-gray-600 hover:text-green-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-green-50 transition-all">👥 Students</Link>
-            <Link to="/teachers" className="text-gray-600 hover:text-yellow-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-yellow-50 transition-all">👩‍🏫 Teachers</Link>
-            <Link to="/parents" className="text-gray-600 hover:text-pink-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-pink-50 transition-all">👨‍👩‍👧‍👦 Parents</Link>
-          </nav>
+// Enhanced header with mobile navigation
+const SimpleHeader = () => {
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center">
+            <Link to="/" className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">🎓 EduMaster</Link>
+            <nav className="hidden md:flex space-x-6 ml-10">
+              <Link to="/dashboard" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-blue-50 transition-all">🏠 Home</Link>
+              <Link to="/math" className="text-gray-600 hover:text-purple-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-purple-50 transition-all">🧮 Math Fun</Link>
+              <Link to="/students" className="text-gray-600 hover:text-green-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-green-50 transition-all">👥 Students</Link>
+              <Link to="/teachers" className="text-gray-600 hover:text-yellow-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-yellow-50 transition-all">👩‍🏫 Teachers</Link>
+              <Link to="/parents" className="text-gray-600 hover:text-pink-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-pink-50 transition-all">👨‍👩‍👧‍👦 Parents</Link>
+            </nav>
+          </div>
+          
+          {/* Mobile menu button */}
+          <button
+            className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {mobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
+        
+        {/* Mobile menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white border-t border-gray-200 shadow-lg">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <Link 
+                to="/dashboard" 
+                className="block text-gray-600 hover:text-blue-600 px-3 py-2 text-base font-semibold rounded-md hover:bg-blue-50 transition-all"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                🏠 Home
+              </Link>
+              <Link 
+                to="/math" 
+                className="block text-gray-600 hover:text-purple-600 px-3 py-2 text-base font-semibold rounded-md hover:bg-purple-50 transition-all"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                🧮 Math Fun
+              </Link>
+              <Link 
+                to="/students" 
+                className="block text-gray-600 hover:text-green-600 px-3 py-2 text-base font-semibold rounded-md hover:bg-green-50 transition-all"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                👥 Students
+              </Link>
+              <Link 
+                to="/teachers" 
+                className="block text-gray-600 hover:text-yellow-600 px-3 py-2 text-base font-semibold rounded-md hover:bg-yellow-50 transition-all"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                👩‍🏫 Teachers
+              </Link>
+              <Link 
+                to="/parents" 
+                className="block text-gray-600 hover:text-pink-600 px-3 py-2 text-base font-semibold rounded-md hover:bg-pink-50 transition-all"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                👨‍👩‍👧‍👦 Parents
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
-  </header>
-);
+    </header>
+  );
+};
 
 function App() {
   return (
@@ -253,7 +330,7 @@ function App() {
           <Routes>
             <Route path="/" element={<SimpleDashboard />} />
             <Route path="/dashboard" element={<SimpleDashboard />} />
-            <Route path="/math" element={<SimpleMathLearning />} />
+            <Route path="/math" element={<MathLearningPage />} />
             <Route path="/students" element={<StudentsPage />} />
             <Route path="/teachers" element={<TeachersPage />} />
             <Route path="/parents" element={<ParentsPage />} />

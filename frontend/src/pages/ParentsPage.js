@@ -19,8 +19,24 @@ const ParentsPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-7xl mx-auto">
+    <div 
+      className="min-h-screen relative p-8"
+      style={{
+        background: `
+          linear-gradient(135deg, rgba(236, 72, 153, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%),
+          url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxwYXR0ZXJuIGlkPSJwYXJlbnRzIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCI+CiAgICAgIDxjaXJjbGUgY3g9IjI1IiBjeT0iMjUiIHI9IjQiIGZpbGw9InJnYmEoMjM2LCA3MiwgMTUzLCAwLjE1KSIvPgogICAgICA8Y2lyY2xlIGN4PSI3NSIgY3k9Ijc1IiByPSIzIiBmaWxsPSJyZ2JhKDU5LCAxMzAsIDI0NiwgMC4xNSkiLz4KICAgICAgPHRleHQgeD0iNDAiIHk9IjYwIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9InJnYmEoMjM2LCA3MiwgMTUzLCAwLjEpIj7wn5G68J+RqfCfkafwn5Go8J+QpDwvdGV4dD4KICAgIDwvcGF0dGVybj4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNwYXJlbnRzKSIvPgo8L3N2Zz4=') repeat
+        `
+      }}
+    >
+      {/* Floating parent/family-themed icons */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 right-20 text-4xl opacity-15 animate-pulse">👨‍👩‍👧‍👦</div>
+        <div className="absolute top-40 left-10 text-5xl opacity-15 animate-bounce">💕</div>
+        <div className="absolute bottom-40 right-10 text-4xl opacity-15 animate-pulse">🏠</div>
+        <div className="absolute top-60 right-40 text-3xl opacity-15 animate-bounce">📱</div>
+        <div className="absolute bottom-20 left-20 text-4xl opacity-15 animate-pulse">👪</div>
+      </div>
+      <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Parent Portal</h1>

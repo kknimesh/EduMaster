@@ -4,6 +4,12 @@ const MathLearningPage = () => {
   const [selectedGrade, setSelectedGrade] = useState(null);
   const [showQuiz, setShowQuiz] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState(null);
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [score, setScore] = useState(0);
+  const [userAnswer, setUserAnswer] = useState('');
+  const [showFeedback, setShowFeedback] = useState(false);
+  const [isCorrect, setIsCorrect] = useState(false);
+  const [questions, setQuestions] = useState([]);
 
   // Math skills organized by grade (IXL-inspired)
   const mathSkills = {
@@ -81,44 +87,236 @@ const MathLearningPage = () => {
     ],
   };
 
+  // Generate questions based on skill type
+  const generateQuestions = (skill) => {
+    const questionCount = 5;
+    const newQuestions = [];
+    
+    for (let i = 0; i < questionCount; i++) {
+      let question;
+      
+      if (skill.id.includes('addition')) {
+        const a = Math.floor(Math.random() * 20) + 1;
+        const b = Math.floor(Math.random() * 20) + 1;
+        question = {
+          question: `${a} + ${b} = ?`,
+          answer: a + b,
+          type: 'addition'
+        };
+      } else if (skill.id.includes('subtraction')) {
+        const a = Math.floor(Math.random() * 20) + 10;
+        const b = Math.floor(Math.random() * 10) + 1;
+        question = {
+          question: `${a} - ${b} = ?`,
+          answer: a - b,
+          type: 'subtraction'
+        };
+      } else if (skill.id.includes('multiplication')) {
+        const a = Math.floor(Math.random() * 10) + 1;
+        const b = Math.floor(Math.random() * 10) + 1;
+        question = {
+          question: `${a} × ${b} = ?`,
+          answer: a * b,
+          type: 'multiplication'
+        };
+      } else if (skill.id.includes('division')) {
+        const b = Math.floor(Math.random() * 9) + 2;
+        const answer = Math.floor(Math.random() * 10) + 1;
+        const a = b * answer;
+        question = {
+          question: `${a} ÷ ${b} = ?`,
+          answer: answer,
+          type: 'division'
+        };
+      } else if (skill.id.includes('counting')) {
+        const start = Math.floor(Math.random() * 10) + 1;
+        const count = Math.floor(Math.random() * 5) + 3;
+        question = {
+          question: `Count from ${start}: ${start}, ${start + 1}, ${start + 2}, __, ?`,
+          answer: start + 3,
+          type: 'counting'
+        };
+      } else {
+        // Default to simple addition
+        const a = Math.floor(Math.random() * 10) + 1;
+        const b = Math.floor(Math.random() * 10) + 1;
+        question = {
+          question: `${a} + ${b} = ?`,
+          answer: a + b,
+          type: 'addition'
+        };
+      }
+      
+      newQuestions.push(question);
+    }
+    
+    return newQuestions;
+  };
+
   const startSkillPractice = (skill) => {
+    const generatedQuestions = generateQuestions(skill);
+    setQuestions(generatedQuestions);
     setSelectedSkill(skill);
+    setCurrentQuestion(0);
+    setScore(0);
+    setUserAnswer('');
+    setShowFeedback(false);
     setShowQuiz(true);
   };
 
-  const SimpleQuiz = ({ skill, onClose }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-3xl p-8 max-w-2xl w-full mx-4 shadow-2xl">
-        <div className="text-center">
-          <div className="text-6xl mb-4">{skill.icon}</div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">{skill.name}</h2>
-          <div className="bg-blue-50 rounded-2xl p-6 mb-6">
-            <p className="text-lg text-blue-800 font-semibold">🚀 Get ready to practice!</p>
-            <p className="text-blue-600 mt-2">This skill has {skill.skills} fun problems to solve!</p>
+  const checkAnswer = () => {
+    const correct = parseInt(userAnswer) === questions[currentQuestion].answer;
+    setIsCorrect(correct);
+    setShowFeedback(true);
+    if (correct) {
+      setScore(score + 1);
+    }
+  };
+
+  const nextQuestion = () => {
+    if (currentQuestion < questions.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+      setUserAnswer('');
+      setShowFeedback(false);
+    } else {
+      // Quiz completed
+      setShowQuiz(false);
+      setSelectedSkill(null);
+    }
+  };
+
+  const PlayableQuiz = ({ skill, onClose }) => {
+    if (questions.length === 0) return null;
+    
+    const currentQ = questions[currentQuestion];
+    const progress = ((currentQuestion + 1) / questions.length) * 100;
+
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-3xl p-8 max-w-2xl w-full shadow-2xl">
+          {/* Header with progress */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="text-2xl">{skill.icon}</div>
+              <div className="text-sm text-gray-600">
+                Question {currentQuestion + 1} of {questions.length}
+              </div>
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700 text-2xl"
+              >
+                ×
+              </button>
+            </div>
+            
+            {/* Progress bar */}
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <div 
+                className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+            
+            {/* Score */}
+            <div className="text-center mt-3">
+              <span className="text-lg font-bold text-green-600">Score: {score}/{currentQuestion + (showFeedback && isCorrect ? 1 : 0)}</span>
+            </div>
           </div>
-          <div className="text-4xl mb-4">🎯</div>
-          <p className="text-gray-600 mb-6">Interactive quiz coming soon! This will include step-by-step problems, hints, and instant feedback.</p>
-          <button
-            onClick={onClose}
-            className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-full text-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg"
-          >
-            ← Back to Skills
-          </button>
+
+          {/* Question */}
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6">{currentQ.question}</h2>
+            
+            {!showFeedback ? (
+              <div className="space-y-4">
+                <input
+                  type="number"
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  className="text-2xl text-center border-2 border-blue-300 rounded-xl p-4 w-32 focus:border-purple-500 focus:outline-none"
+                  placeholder="?"
+                  onKeyPress={(e) => e.key === 'Enter' && userAnswer && checkAnswer()}
+                />
+                <br />
+                <button
+                  onClick={checkAnswer}
+                  disabled={!userAnswer}
+                  className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-full text-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Check Answer ✓
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {isCorrect ? (
+                  <div className="bg-green-100 border-2 border-green-300 rounded-2xl p-6">
+                    <div className="text-4xl mb-2">🎉</div>
+                    <h3 className="text-2xl font-bold text-green-700 mb-2">Correct!</h3>
+                    <p className="text-green-600 text-lg">Great job! You got it right.</p>
+                  </div>
+                ) : (
+                  <div className="bg-red-100 border-2 border-red-300 rounded-2xl p-6">
+                    <div className="text-4xl mb-2">🤔</div>
+                    <h3 className="text-2xl font-bold text-red-700 mb-2">Not quite!</h3>
+                    <p className="text-red-600 text-lg">The correct answer is <strong>{currentQ.answer}</strong></p>
+                  </div>
+                )}
+                
+                <button
+                  onClick={nextQuestion}
+                  className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-3 rounded-full text-lg font-semibold hover:from-green-600 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg"
+                >
+                  {currentQuestion < questions.length - 1 ? 'Next Question →' : 'Finish Quiz! 🏆'}
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Encouragement */}
+          <div className="text-center text-gray-600">
+            <div className="text-2xl mb-2">💪</div>
+            <p className="text-sm">You're doing great! Keep it up!</p>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
-      {showQuiz && (
-        <SimpleQuiz 
+    <div 
+      className="min-h-screen relative"
+      style={{
+        background: `
+          linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(147, 51, 234, 0.15) 50%, rgba(236, 72, 153, 0.15) 100%),
+          url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8ZGVmcz4KICAgIDxwYXR0ZXJuIGlkPSJtYXRoRnVuIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCI+CiAgICAgIDxjaXJjbGUgY3g9IjIwIiBjeT0iMjAiIHI9IjQiIGZpbGw9InJnYmEoNTksIDEzMCwgMjQ2LCAwLjIpIi8+CiAgICAgIDx0ZXh0IHg9IjQwIiB5PSI0MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJyZ2JhKDE0NywgNTEsIDIzNCwgMC4xNSkiPis8L3RleHQ+CiAgICAgIDx0ZXh0IHg9IjcwIiB5PSI3MCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjE0IiBmaWxsPSJyZ2JhKDIzNiwgNzIsIDE1MywgMC4xNSkiPsOXPC90ZXh0PgogICAgICA8Y2lyY2xlIGN4PSI4MCIgY3k9IjMwIiByPSIzIiBmaWxsPSJyZ2JhKDU5LCAxMzAsIDI0NiwgMC4xNSkiLz4KICAgIDwvcGF0dGVybj4KICA8L2RlZnM+CiAgPHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNtYXRoRnVuKSIvPgo8L3N2Zz4=') repeat
+        `
+      }}
+    >
+      {/* Floating Math Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 text-6xl opacity-20 animate-bounce">🧮</div>
+        <div className="absolute top-40 right-20 text-5xl opacity-20 animate-pulse">📏</div>
+        <div className="absolute bottom-40 left-20 text-7xl opacity-20 animate-bounce">➕</div>
+        <div className="absolute top-60 right-40 text-4xl opacity-20 animate-pulse">🔢</div>
+        <div className="absolute bottom-20 right-10 text-6xl opacity-20 animate-bounce">📐</div>
+        <div className="absolute top-32 left-1/2 text-5xl opacity-20 animate-pulse">✖️</div>
+        <div className="absolute bottom-60 left-1/3 text-4xl opacity-20 animate-bounce">📊</div>
+      </div>
+      {showQuiz && selectedSkill && (
+        <PlayableQuiz 
           skill={selectedSkill} 
-          onClose={() => setShowQuiz(false)} 
+          onClose={() => {
+            setShowQuiz(false);
+            setSelectedSkill(null);
+            setCurrentQuestion(0);
+            setScore(0);
+            setUserAnswer('');
+            setShowFeedback(false);
+          }} 
         />
       )}
 
-      <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
         {/* Fun Header */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
