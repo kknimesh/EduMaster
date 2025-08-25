@@ -8,6 +8,7 @@ import CoursesPage from './pages/CoursesPage';
 import AssignmentsPage from './pages/AssignmentsPage';
 import MathLearningPage from './pages/MathLearningPage';
 import AdaptiveLearningPage from './pages/AdaptiveLearningPage';
+import EmailVerificationPage from './pages/EmailVerificationPage';
 import LoginModal from './components/LoginModal';
 import SignupModal from './components/SignupModal';
 import UserProfile from './components/UserProfile';
@@ -422,6 +423,7 @@ const AppContent = () => {
             <Route path="/dashboard" element={<SimpleDashboard />} />
             <Route path="/math" element={<MathLearningPage />} />
             <Route path="/adaptive" element={<AdaptiveLearningPage />} />
+            <Route path="/verify-email" element={<EmailVerificationPage />} />
             <Route path="/students" element={<StudentsPage />} />
             <Route path="/teachers" element={<TeachersPage />} />
             <Route path="/parents" element={<ParentsPage />} />

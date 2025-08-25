@@ -142,21 +142,30 @@ const SignupModal = ({ showSignup, setShowSignup, switchToLogin }) => {
     const result = await signup(formData);
     
     if (result.success) {
-      setShowSignup(false);
-      setCurrentStep(1);
-      setFormData({
-        profileType: '',
-        firstName: '',
-        lastName: '',
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        grade: '',
-        avatar: '🧒',
-        parentEmail: '',
-        students: []
-      });
+      if (result.requiresVerification) {
+        // Show verification success message instead of closing modal
+        setErrors({ 
+          submit: '', 
+          verification: result.message 
+        });
+      } else {
+        // Old flow for backwards compatibility
+        setShowSignup(false);
+        setCurrentStep(1);
+        setFormData({
+          profileType: '',
+          firstName: '',
+          lastName: '',
+          username: '',
+          email: '',
+          password: '',
+          confirmPassword: '',
+          grade: '',
+          avatar: '🧒',
+          parentEmail: '',
+          students: []
+        });
+      }
     } else {
       setErrors({ submit: result.error });
     }
@@ -560,6 +569,21 @@ const SignupModal = ({ showSignup, setShowSignup, switchToLogin }) => {
               {errors.submit && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-3">
                   <p className="text-red-600 text-sm">{errors.submit}</p>
+                </div>
+              )}
+
+              {errors.verification && (
+                <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                  <div className="flex items-start space-x-3">
+                    <div className="text-green-500 text-2xl">✅</div>
+                    <div>
+                      <h4 className="text-green-800 font-semibold mb-1">Registration Successful!</h4>
+                      <p className="text-green-700 text-sm">{errors.verification}</p>
+                      <p className="text-green-600 text-sm mt-2">
+                        <strong>Important:</strong> Check your spam folder if you don't see the email within a few minutes.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               )}
 

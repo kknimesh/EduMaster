@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { createDemoUsers } from '../utils/createDemoUsers';
+import { sendVerificationEmail } from '../services/emailService';
 
 const AuthContext = createContext();
 
@@ -22,6 +23,14 @@ export const AuthProvider = ({ children }) => {
       const existingUsers = localStorage.getItem('edumaster_users');
       if (!existingUsers) {
         createDemoUsers();
+      } else {
+        // Update existing users to have emailVerified: true for backwards compatibility
+        const users = JSON.parse(existingUsers);
+        const updatedUsers = users.map(user => ({
+          ...user,
+          emailVerified: user.emailVerified !== undefined ? user.emailVerified : true
+        }));
+        localStorage.setItem('edumaster_users', JSON.stringify(updatedUsers));
       }
 
       // Load current user
@@ -55,6 +64,9 @@ export const AuthProvider = ({ children }) => {
         throw new Error('Username already exists');
       }
 
+      // Generate email verification token
+      const verificationToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+      
       // Create new user with default data
       const newUser = {
         id: Date.now().toString(),
@@ -68,6 +80,9 @@ export const AuthProvider = ({ children }) => {
         avatar: userData.avatar || '🧒',
         students: userData.students || [], // For parent users
         createdAt: new Date().toISOString(),
+        emailVerified: false,
+        verificationToken: verificationToken,
+        verificationSentAt: new Date().toISOString(),
         progress: {
           totalXP: 0,
           level: 1,
@@ -97,12 +112,32 @@ export const AuthProvider = ({ children }) => {
       const updatedUsers = [...existingUsers, newUser];
       localStorage.setItem('edumaster_users', JSON.stringify(updatedUsers));
 
-      // Set as current user (without password for security)
-      const userForSession = { ...newUser };
-      delete userForSession.password;
-      setUser(userForSession);
-
-      return { success: true, user: userForSession };
+      // Send verification email
+      const emailResult = await sendVerificationEmail(
+        userData.email, 
+        `${userData.firstName} ${userData.lastName}`, 
+        verificationToken
+      );
+      
+      if (!emailResult.success) {
+        // If email sending fails, still create the user but show a warning
+        console.warn('Failed to send verification email:', emailResult.error);
+        return { 
+          success: true, 
+          requiresVerification: true, 
+          email: userData.email,
+          message: 'Account created successfully, but we had trouble sending the verification email. Please contact support or try logging in to resend verification.',
+          emailError: true
+        };
+      }
+      
+      // Don't set user as logged in until email is verified
+      return { 
+        success: true, 
+        requiresVerification: true, 
+        email: userData.email,
+        message: 'Please check your email and click the verification link to complete your registration.' 
+      };
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -117,6 +152,11 @@ export const AuthProvider = ({ children }) => {
 
       if (!foundUser) {
         throw new Error('Invalid username or password');
+      }
+
+      // Check if email is verified
+      if (!foundUser.emailVerified) {
+        throw new Error('Please verify your email address before logging in. Check your email for the verification link.');
       }
 
       // Update last login
@@ -261,6 +301,106 @@ export const AuthProvider = ({ children }) => {
     setUser(updatedUser);
   };
 
+  const verifyEmail = async (token) => {
+    try {
+      console.log('Attempting to verify token:', token);
+      
+      const existingUsers = getStoredUsers();
+      console.log('Total users in storage:', existingUsers.length);
+      
+      // Log all verification tokens for debugging
+      existingUsers.forEach((user, index) => {
+        console.log(`User ${index}: ${user.email}, token: ${user.verificationToken}, verified: ${user.emailVerified}`);
+      });
+
+      const userToVerify = existingUsers.find(u => u.verificationToken === token);
+      console.log('Found user to verify:', userToVerify ? userToVerify.email : 'None');
+
+      if (!userToVerify) {
+        throw new Error('Invalid or expired verification token');
+      }
+
+      // Check if already verified
+      if (userToVerify.emailVerified) {
+        return { 
+          success: true, 
+          message: 'Email already verified! You can log in now.',
+          user: userToVerify 
+        };
+      }
+
+      // Check if token is expired (24 hours)
+      const tokenAge = Date.now() - new Date(userToVerify.verificationSentAt).getTime();
+      console.log('Token age in minutes:', Math.floor(tokenAge / (1000 * 60)));
+      
+      if (tokenAge > 24 * 60 * 60 * 1000) {
+        throw new Error('Verification link has expired. Please request a new one.');
+      }
+
+      // Mark user as verified
+      userToVerify.emailVerified = true;
+      userToVerify.verificationToken = null;
+      userToVerify.verifiedAt = new Date().toISOString();
+
+      // Update users in storage
+      const updatedUsers = existingUsers.map(u => 
+        u.id === userToVerify.id ? userToVerify : u
+      );
+      localStorage.setItem('edumaster_users', JSON.stringify(updatedUsers));
+      
+      console.log('User verified successfully:', userToVerify.email);
+
+      return { 
+        success: true, 
+        message: 'Email verified successfully! You can now log in.',
+        user: userToVerify 
+      };
+    } catch (error) {
+      console.error('Verification error:', error.message);
+      return { success: false, error: error.message };
+    }
+  };
+
+  const resendVerification = async (email) => {
+    try {
+      const existingUsers = getStoredUsers();
+      const user = existingUsers.find(u => u.email === email && !u.emailVerified);
+
+      if (!user) {
+        throw new Error('User not found or already verified');
+      }
+
+      // Generate new verification token
+      const verificationToken = Math.random().toString(36).substring(2) + Date.now().toString(36);
+      user.verificationToken = verificationToken;
+      user.verificationSentAt = new Date().toISOString();
+
+      // Update users in storage
+      const updatedUsers = existingUsers.map(u => 
+        u.id === user.id ? user : u
+      );
+      localStorage.setItem('edumaster_users', JSON.stringify(updatedUsers));
+
+      // Send verification email
+      const emailResult = await sendVerificationEmail(
+        email, 
+        `${user.firstName} ${user.lastName}`, 
+        verificationToken
+      );
+
+      if (!emailResult.success) {
+        return { success: false, error: 'Failed to send verification email. Please try again.' };
+      }
+
+      return { 
+        success: true, 
+        message: 'New verification email sent! Please check your email.' 
+      };
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  };
+
   const getStoredUsers = () => {
     try {
       const users = localStorage.getItem('edumaster_users');
@@ -281,7 +421,9 @@ export const AuthProvider = ({ children }) => {
     updateUserProgress,
     saveAssessmentResult,
     addXP,
-    updateProfile
+    updateProfile,
+    verifyEmail,
+    resendVerification
   };
 
   return (

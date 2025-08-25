@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 
 const LoginModal = ({ showLogin, setShowLogin, switchToSignup }) => {
-  const { login } = useAuth();
+  const { login, resendVerification } = useAuth();
   const [credentials, setCredentials] = useState({
     username: '',
     password: ''
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showResendVerification, setShowResendVerification] = useState(false);
 
   const handleInputChange = (field, value) => {
     setCredentials(prev => ({ ...prev, [field]: value }));
@@ -46,9 +47,32 @@ const LoginModal = ({ showLogin, setShowLogin, switchToSignup }) => {
       setErrors({});
     } else {
       setErrors({ submit: result.error });
+      // Show resend verification button if error is about email verification
+      if (result.error.includes('verify your email')) {
+        setShowResendVerification(true);
+      }
     }
     
     setIsLoading(false);
+  };
+
+  const handleResendVerification = async () => {
+    // We need to find the user's email from their username
+    const users = JSON.parse(localStorage.getItem('edumaster_users') || '[]');
+    const user = users.find(u => u.username === credentials.username);
+    
+    if (user) {
+      const result = await resendVerification(user.email);
+      if (result.success) {
+        setErrors({ 
+          submit: '', 
+          verification: result.message 
+        });
+        setShowResendVerification(false);
+      } else {
+        setErrors({ submit: result.error });
+      }
+    }
   };
 
 
@@ -102,6 +126,21 @@ const LoginModal = ({ showLogin, setShowLogin, switchToSignup }) => {
           {errors.submit && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-3">
               <p className="text-red-600 text-sm">{errors.submit}</p>
+              {showResendVerification && (
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  className="mt-2 text-blue-600 hover:text-blue-800 text-sm font-semibold underline"
+                >
+                  Resend Verification Email
+                </button>
+              )}
+            </div>
+          )}
+
+          {errors.verification && (
+            <div className="bg-green-50 border border-green-200 rounded-xl p-3">
+              <p className="text-green-600 text-sm">{errors.verification}</p>
             </div>
           )}
           
