@@ -6,6 +6,10 @@ const UserProfile = ({ showProfile, setShowProfile }) => {
   const { user, updateProfile, logout } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState({});
+  const [showXPPopup, setShowXPPopup] = useState(false);
+  const [showLevelPopup, setShowLevelPopup] = useState(false);
+  const [showStreakPopup, setShowStreakPopup] = useState(false);
+  const [showBadgesPopup, setShowBadgesPopup] = useState(false);
 
   if (!showProfile || !user) return null;
 
@@ -49,6 +53,26 @@ const UserProfile = ({ showProfile, setShowProfile }) => {
   };
 
   const avatarOptions = ['🧒', '👦', '👧', '🧑', '👨', '👩', '🤖', '🦸‍♂️', '🦸‍♀️', '🧙‍♂️', '🧙‍♀️', '🎭'];
+
+  const showXPAnimation = () => {
+    setShowXPPopup(true);
+    setTimeout(() => setShowXPPopup(false), 3000);
+  };
+
+  const showLevelAnimation = () => {
+    setShowLevelPopup(true);
+    setTimeout(() => setShowLevelPopup(false), 3000);
+  };
+
+  const showStreakAnimation = () => {
+    setShowStreakPopup(true);
+    setTimeout(() => setShowStreakPopup(false), 3000);
+  };
+
+  const showBadgesAnimation = () => {
+    setShowBadgesPopup(true);
+    setTimeout(() => setShowBadgesPopup(false), 3000);
+  };
 
   return (
     <div 
@@ -192,48 +216,40 @@ const UserProfile = ({ showProfile, setShowProfile }) => {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Link 
-            to="/adaptive-learning"
+          <div 
             className="bg-gradient-to-br from-blue-100 to-blue-200 p-6 rounded-2xl hover:from-blue-200 hover:to-blue-300 transition-all duration-300 transform hover:scale-105 cursor-pointer"
-            onClick={() => setShowProfile(false)}
+            onClick={showXPAnimation}
           >
             <div className="text-3xl mb-2">⭐</div>
             <div className="text-2xl font-bold text-blue-800">{user.progress.totalXP}</div>
             <div className="text-sm text-blue-600">Total XP</div>
-            <div className="text-xs text-blue-500 mt-1 opacity-75">Click to practice</div>
-          </Link>
+            <div className="text-xs text-blue-500 mt-1 opacity-75">Click for celebration!</div>
+          </div>
           
           <div className="bg-gradient-to-br from-green-100 to-green-200 p-6 rounded-2xl hover:from-green-200 hover:to-green-300 transition-all duration-300 transform hover:scale-105 cursor-pointer"
-               onClick={() => {
-                 const levelSection = document.querySelector('.level-progress-section');
-                 if (levelSection) levelSection.scrollIntoView({ behavior: 'smooth' });
-               }}>
+               onClick={showLevelAnimation}>
             <div className="text-3xl mb-2">🏆</div>
             <div className="text-2xl font-bold text-green-800">{user.progress.level}</div>
             <div className="text-sm text-green-600">Current Level</div>
-            <div className="text-xs text-green-500 mt-1 opacity-75">Click to view progress</div>
+            <div className="text-xs text-green-500 mt-1 opacity-75">Click for level up!</div>
           </div>
           
-          <Link 
-            to="/adaptive-learning"
+          <div 
             className="bg-gradient-to-br from-orange-100 to-orange-200 p-6 rounded-2xl hover:from-orange-200 hover:to-orange-300 transition-all duration-300 transform hover:scale-105 cursor-pointer"
-            onClick={() => setShowProfile(false)}
+            onClick={showStreakAnimation}
           >
             <div className="text-3xl mb-2">🔥</div>
             <div className="text-2xl font-bold text-orange-800">{user.progress.streakDays}</div>
             <div className="text-sm text-orange-600">Day Streak</div>
-            <div className="text-xs text-orange-500 mt-1 opacity-75">Click to continue streak</div>
-          </Link>
+            <div className="text-xs text-orange-500 mt-1 opacity-75">Click for fire power!</div>
+          </div>
           
           <div className="bg-gradient-to-br from-purple-100 to-purple-200 p-6 rounded-2xl hover:from-purple-200 hover:to-purple-300 transition-all duration-300 transform hover:scale-105 cursor-pointer"
-               onClick={() => {
-                 const achievementsSection = document.querySelector('.achievements-section');
-                 if (achievementsSection) achievementsSection.scrollIntoView({ behavior: 'smooth' });
-               }}>
+               onClick={showBadgesAnimation}>
             <div className="text-3xl mb-2">🎯</div>
             <div className="text-2xl font-bold text-purple-800">{user.progress.badges?.length || 0}</div>
             <div className="text-sm text-purple-600">Badges Earned</div>
-            <div className="text-xs text-purple-500 mt-1 opacity-75">Click to view badges</div>
+            <div className="text-xs text-purple-500 mt-1 opacity-75">Click for badge party!</div>
           </div>
         </div>
 
@@ -349,6 +365,59 @@ const UserProfile = ({ showProfile, setShowProfile }) => {
           </button>
         </div>
       </div>
+
+      {/* Fun Animation Popups */}
+      {showXPPopup && (
+        <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-[60]">
+          <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 rounded-3xl shadow-2xl transform animate-bounce">
+            <div className="text-center">
+              <div className="text-8xl mb-4 animate-pulse">⭐✨🎉</div>
+              <h2 className="text-4xl font-bold mb-2">Amazing XP!</h2>
+              <p className="text-2xl font-semibold">{user.progress.totalXP} Experience Points!</p>
+              <div className="text-lg mt-2 opacity-90">You're learning like a superstar! 🌟</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showLevelPopup && (
+        <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-[60]">
+          <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-8 rounded-3xl shadow-2xl transform animate-bounce">
+            <div className="text-center">
+              <div className="text-8xl mb-4 animate-pulse">🏆👑🎖️</div>
+              <h2 className="text-4xl font-bold mb-2">Level {user.progress.level} Champion!</h2>
+              <p className="text-2xl font-semibold">You're {100 - (user.progress.totalXP % 100)} XP away from Level {user.progress.level + 1}!</p>
+              <div className="text-lg mt-2 opacity-90">Keep climbing that learning mountain! 🏔️</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showStreakPopup && (
+        <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-[60]">
+          <div className="bg-gradient-to-r from-orange-500 to-red-600 text-white p-8 rounded-3xl shadow-2xl transform animate-bounce">
+            <div className="text-center">
+              <div className="text-8xl mb-4 animate-pulse">🔥💪⚡</div>
+              <h2 className="text-4xl font-bold mb-2">{user.progress.streakDays} Day Fire Streak!</h2>
+              <p className="text-2xl font-semibold">You're on fire with consistency!</p>
+              <div className="text-lg mt-2 opacity-90">Keep the learning flame burning! 🌋</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showBadgesPopup && (
+        <div className="fixed inset-0 pointer-events-none flex items-center justify-center z-[60]">
+          <div className="bg-gradient-to-r from-purple-500 to-pink-600 text-white p-8 rounded-3xl shadow-2xl transform animate-bounce">
+            <div className="text-center">
+              <div className="text-8xl mb-4 animate-pulse">🎯🏅🎊</div>
+              <h2 className="text-4xl font-bold mb-2">Badge Collection Master!</h2>
+              <p className="text-2xl font-semibold">{user.progress.badges?.length || 0} Incredible Achievements!</p>
+              <div className="text-lg mt-2 opacity-90">You're collecting success like a champion! 🎪</div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
