@@ -13,7 +13,7 @@ const StudentsPage = () => {
 
     if (user.profileType === 'teacher') {
       // Teachers see all students from localStorage
-      const allUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      const allUsers = JSON.parse(localStorage.getItem('edumaster_users') || '[]');
       return allUsers
         .filter(u => u.profileType === 'student')
         .map(student => ({
