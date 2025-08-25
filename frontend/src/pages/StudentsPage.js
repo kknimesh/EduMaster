@@ -398,7 +398,7 @@ const StudentsPage = () => {
                         📊 View Skills
                       </button>
                       <Link 
-                        to="/adaptive-learning"
+                        to="/adaptive"
                         className="bg-gradient-to-r from-green-500 to-blue-500 text-white py-3 px-6 rounded-xl text-lg font-bold hover:from-green-600 hover:to-blue-600 transition-all transform hover:scale-105 text-center"
                       >
                         🎯 Smart Learning

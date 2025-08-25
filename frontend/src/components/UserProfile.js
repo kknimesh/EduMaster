@@ -278,7 +278,7 @@ const UserProfile = ({ showProfile, setShowProfile }) => {
               {Object.entries(user.progress.skillLevels || {}).map(([skill, level]) => (
                 <Link 
                   key={skill}
-                  to="/adaptive-learning"
+                  to="/adaptive"
                   className="bg-white p-4 rounded-xl hover:bg-blue-50 hover:border-blue-200 border-2 border-transparent transition-all duration-300 transform hover:scale-105 cursor-pointer"
                   onClick={() => setShowProfile(false)}
                 >
@@ -309,7 +309,7 @@ const UserProfile = ({ showProfile, setShowProfile }) => {
               {getRecentAchievements().map((achievement, index) => (
                 <Link
                   key={index}
-                  to="/adaptive-learning"
+                  to="/adaptive"
                   className="bg-white p-4 rounded-xl flex items-center hover:bg-gradient-to-r hover:from-purple-50 hover:to-pink-50 border-2 border-transparent hover:border-purple-200 transition-all duration-300 transform hover:scale-102 cursor-pointer"
                   onClick={() => setShowProfile(false)}
                 >
