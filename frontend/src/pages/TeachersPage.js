@@ -41,14 +41,14 @@ const TeachersPage = () => {
         <div className="absolute bottom-20 left-20 text-6xl opacity-30" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🏫</div>
         <div className="absolute top-80 left-1/3 text-7xl opacity-30" style={{animation: 'bounce 1s infinite'}}>🎓</div>
         <div className="absolute bottom-60 right-1/4 text-5xl opacity-30" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>✨</div>
-        <div className="absolute top-32 left-1/2 text-6xl opacity-30" style={{animation: 'bounce 1s infinite'}}>🎆</div>
+        <div className="absolute top-32 left-1/2 text-6xl opacity-30" style={{animation: 'bounce 1s infinite'}}>🖍️</div>
       </div>
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8 text-center">
           <h1 className="text-6xl font-black mb-3">
             <span className="inline-block bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-transparent bg-clip-text animate-pulse">
-              🎆 Amazing Teachers! 🎓
+              👩‍🏫 Amazing Teachers! 🎓
             </span>
           </h1>
           <p className="text-xl text-gray-700 font-semibold">Our superhero educators making learning magical every day!</p>
@@ -119,7 +119,7 @@ const TeachersPage = () => {
               <option value="Computer Science">Computer Science</option>
             </select>
             <button className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full font-bold hover:from-orange-600 hover:to-red-600 transition-all transform hover:scale-105 shadow-lg">
-              🎆 Add Teacher
+              ➕ Add Teacher
             </button>
           </div>
         </div>
