@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import AdaptiveActivity from '../components/AdaptiveActivity';
 import { gradeAssessments } from '../utils/gradeAssessments';
 
 const AdaptiveLearningPage = () => {
+  const { user, isAuthenticated, saveAssessmentResult, addXP } = useAuth();
   const [currentStep, setCurrentStep] = useState('welcome'); // welcome, assessment, learning, results
   const [activeActivity, setActiveActivity] = useState(null);
-  const [currentGrade, setCurrentGrade] = useState('K-1');
-  const [studentProfile, setStudentProfile] = useState(null);
+  const [currentGrade, setCurrentGrade] = useState(user?.grade || 'K-1');
+  const [studentProfile, setStudentProfile] = useState(user);
   const [assessmentProgress, setAssessmentProgress] = useState(0);
   const [currentAssessmentQuestion, setCurrentAssessmentQuestion] = useState(0);
   const [assessmentAnswers, setAssessmentAnswers] = useState([]);
   const [userAnswer, setUserAnswer] = useState('');
   const [showFeedback, setShowFeedback] = useState(false);
-  const [skillLevels, setSkillLevels] = useState({});
+  const [skillLevels, setSkillLevels] = useState(user?.progress?.skillLevels || {});
   const [learningPath, setLearningPath] = useState([]);
-  const [streakCount, setStreakCount] = useState(0);
-  const [totalXP, setTotalXP] = useState(0);
-  const [badges, setBadges] = useState([]);
+  const [streakCount, setStreakCount] = useState(user?.progress?.streakDays || 0);
+  const [totalXP, setTotalXP] = useState(user?.progress?.totalXP || 0);
+  const [badges, setBadges] = useState(user?.progress?.badges || []);
 
   // Comprehensive assessment questions across different skill areas
   const assessmentQuestions = [
@@ -217,9 +219,19 @@ const AdaptiveLearningPage = () => {
             Math Adventure Starts Here!
           </span>
         </h1>
-        <p className="text-2xl text-gray-700 font-bold mb-8">
+        <p className="text-2xl text-gray-700 font-bold mb-4">
           Let's discover your math superpowers and create a personalized learning journey just for you! 🌟
         </p>
+        
+        {!isAuthenticated && (
+          <div className="bg-gradient-to-r from-green-100 via-blue-100 to-purple-100 rounded-2xl p-4 mb-8 border-2 border-green-300">
+            <div className="text-3xl mb-2">👋</div>
+            <p className="text-green-700 font-bold text-lg mb-2">Try Our Smart Learning - Free Demo!</p>
+            <p className="text-green-600 text-sm">
+              No signup required to try our adaptive learning system. Create an account later to save your progress!
+            </p>
+          </div>
+        )}
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
           <div className="bg-blue-50 rounded-2xl p-6 border-2 border-blue-200">
@@ -451,6 +463,20 @@ const AdaptiveLearningPage = () => {
     setSkillLevels(newSkillLevels);
     setTotalXP(totalXP + results.totalXP);
     
+    // Save progress if user is authenticated
+    if (isAuthenticated && results.totalXP > 0) {
+      addXP(results.totalXP, `Completed ${results.skill} activity`);
+      
+      // Save assessment result
+      saveAssessmentResult({
+        skill: results.skill,
+        score: results.totalXP,
+        level: results.finalDifficulty || 1,
+        timeSpent: Date.now(), // You could track actual time
+        accuracy: results.accuracy
+      });
+    }
+    
     // Update learning path
     const updatedPath = generateLearningPath(newSkillLevels);
     setLearningPath(updatedPath);
@@ -473,17 +499,29 @@ const AdaptiveLearningPage = () => {
             <div className="text-8xl mb-6 animate-bounce">📊</div>
             <h1 className="text-5xl font-black mb-4">
               <span className="bg-gradient-to-r from-green-600 to-blue-600 text-transparent bg-clip-text">
-                Your Learning Journey! 
+                {isAuthenticated ? 'Your Learning Journey!' : 'Try Our Smart Learning!'} 
               </span>
             </h1>
-            <div className="flex justify-center space-x-8 mb-8">
-              <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full font-bold text-xl">
-                🏆 Total XP: {totalXP}
+            {isAuthenticated ? (
+              <div className="flex justify-center space-x-8 mb-8">
+                <div className="bg-gradient-to-r from-yellow-400 to-orange-500 text-white px-6 py-3 rounded-full font-bold text-xl">
+                  🏆 Total XP: {totalXP}
+                </div>
+                <div className="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-6 py-3 rounded-full font-bold text-xl">
+                  🎖️ Badges: {badges.length}
+                </div>
               </div>
-              <div className="bg-gradient-to-r from-purple-400 to-pink-500 text-white px-6 py-3 rounded-full font-bold text-xl">
-                🎖️ Badges: {badges.length}
+            ) : (
+              <div className="bg-gradient-to-r from-blue-100 via-purple-100 to-pink-100 rounded-2xl p-6 mb-8 border-4 border-blue-300">
+                <div className="text-4xl mb-3">🎮</div>
+                <h3 className="text-2xl font-bold text-purple-700 mb-2">Demo Mode</h3>
+                <p className="text-purple-600 mb-4">You're trying our smart learning system! Sign up to save your progress and unlock more features.</p>
+                <div className="flex justify-center space-x-4 text-sm">
+                  <div className="bg-yellow-200 text-yellow-800 px-3 py-1 rounded-full">🏆 Demo XP: {totalXP}</div>
+                  <div className="bg-purple-200 text-purple-800 px-3 py-1 rounded-full">🎖️ Demo Badges: {badges.length}</div>
+                </div>
               </div>
-            </div>
+            )}
           </div>
           
           {/* Current Skill Levels */}
@@ -533,6 +571,29 @@ const AdaptiveLearningPage = () => {
             ))}
           </div>
           
+          {/* Sign up encouragement for non-authenticated users */}
+          {!isAuthenticated && (
+            <div className="bg-gradient-to-r from-yellow-200 via-orange-200 to-pink-200 rounded-2xl p-8 mb-8 border-4 border-yellow-400">
+              <div className="text-center">
+                <div className="text-6xl mb-4">🚀</div>
+                <h3 className="text-3xl font-bold text-orange-700 mb-4">Ready to Save Your Progress?</h3>
+                <p className="text-orange-600 mb-6 text-lg">
+                  Create a free account to save your learning progress, earn badges, and unlock personalized learning paths!
+                </p>
+                <div className="flex flex-wrap justify-center gap-4 mb-6">
+                  <div className="bg-white/70 rounded-full px-4 py-2 text-sm font-bold text-orange-800">🏆 Save Your XP</div>
+                  <div className="bg-white/70 rounded-full px-4 py-2 text-sm font-bold text-orange-800">🎖️ Earn Badges</div>
+                  <div className="bg-white/70 rounded-full px-4 py-2 text-sm font-bold text-orange-800">📊 Track Progress</div>
+                  <div className="bg-white/70 rounded-full px-4 py-2 text-sm font-bold text-orange-800">🎮 Unlock Activities</div>
+                </div>
+                <div className="space-y-3">
+                  <p className="text-orange-700 font-bold">Join thousands of students already learning with EduMaster!</p>
+                  <p className="text-sm text-orange-600">Quick signup with Google or create your own account</p>
+                </div>
+              </div>
+            </div>
+          )}
+          
           <div className="text-center mt-8">
             <button
               onClick={() => setCurrentStep('welcome')}
@@ -545,6 +606,19 @@ const AdaptiveLearningPage = () => {
       </div>
     </div>
   );
+
+  // Initialize default values for non-authenticated users
+  if (!isAuthenticated && (!skillLevels || Object.keys(skillLevels).length === 0)) {
+    // Set default skill levels for demo mode
+    setSkillLevels({
+      addition: 1,
+      subtraction: 1,
+      multiplication: 1,
+      division: 1,
+      fractions: 1,
+      algebra: 1
+    });
+  }
 
   // Main render
   return (

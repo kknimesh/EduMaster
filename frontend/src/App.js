@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import StudentsPage from './pages/StudentsPage';
 import TeachersPage from './pages/TeachersPage';
 import ParentsPage from './pages/ParentsPage';
@@ -7,6 +9,9 @@ import CoursesPage from './pages/CoursesPage';
 import AssignmentsPage from './pages/AssignmentsPage';
 import MathLearningPage from './pages/MathLearningPage';
 import AdaptiveLearningPage from './pages/AdaptiveLearningPage';
+import LoginModal from './components/LoginModal';
+import SignupModal from './components/SignupModal';
+import UserProfile from './components/UserProfile';
 import './App.css';
 
 // EduMaster Landing Page
@@ -29,211 +34,211 @@ const SimpleDashboard = () => (
       `
     }}
   >
-    {/* Magical Floating Learning Elements */}
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <div className="absolute top-20 left-10 text-7xl opacity-40" style={{animation: 'bounce 2s infinite'}}>📚</div>
-      <div className="absolute top-40 right-20 text-6xl opacity-40" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>✏️</div>
-      <div className="absolute bottom-40 left-20 text-8xl opacity-40" style={{animation: 'bounce 2.5s infinite'}}>🧮</div>
-      <div className="absolute top-60 left-1/2 text-6xl opacity-40" style={{animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🔍</div>
-      <div className="absolute bottom-20 right-10 text-7xl opacity-40" style={{animation: 'bounce 1.8s infinite'}}>📖</div>
-      <div className="absolute top-32 right-1/3 text-6xl opacity-40" style={{animation: 'pulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🧗‍♂️</div>
-      <div className="absolute bottom-60 left-1/4 text-7xl opacity-40" style={{animation: 'bounce 2.3s infinite'}}>🌈</div>
-      <div className="absolute top-80 right-1/2 text-5xl opacity-40" style={{animation: 'pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🎨</div>
-      <div className="absolute bottom-32 right-1/4 text-8xl opacity-40" style={{animation: 'bounce 2.1s infinite'}}>🚀</div>
-      <div className="absolute top-48 left-1/3 text-6xl opacity-40" style={{animation: 'pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🎪</div>
-      <div className="absolute top-16 left-1/2 text-5xl opacity-40" style={{animation: 'bounce 1.7s infinite'}}>🎭</div>
-      <div className="absolute bottom-80 right-1/3 text-6xl opacity-40" style={{animation: 'pulse 2.1s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🔬</div>
-      <div className="absolute top-72 left-20 text-7xl opacity-40" style={{animation: 'bounce 2.6s infinite'}}>💡</div>
-      <div className="absolute bottom-16 left-1/3 text-5xl opacity-40" style={{animation: 'pulse 1.9s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🎓</div>
-      <div className="absolute top-24 right-10 text-6xl opacity-40" style={{animation: 'bounce 2.2s infinite'}}>🛴</div>
+    {/* Magical Floating Learning Elements - Hidden on mobile for better performance */}
+    <div className="absolute inset-0 overflow-hidden pointer-events-none hidden sm:block">
+      <div className="absolute top-20 left-10 text-4xl sm:text-6xl lg:text-7xl opacity-40" style={{animation: 'bounce 2s infinite'}}>📚</div>
+      <div className="absolute top-40 right-20 text-3xl sm:text-5xl lg:text-6xl opacity-40" style={{animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>✏️</div>
+      <div className="absolute bottom-40 left-20 text-4xl sm:text-7xl lg:text-8xl opacity-40" style={{animation: 'bounce 2.5s infinite'}}>🧮</div>
+      <div className="absolute top-60 left-1/2 text-3xl sm:text-5xl lg:text-6xl opacity-40" style={{animation: 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🔍</div>
+      <div className="absolute bottom-20 right-10 text-4xl sm:text-6xl lg:text-7xl opacity-40" style={{animation: 'bounce 1.8s infinite'}}>📖</div>
+      <div className="absolute top-32 right-1/3 text-3xl sm:text-5xl lg:text-6xl opacity-40" style={{animation: 'pulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🧗‍♂️</div>
+      <div className="absolute bottom-60 left-1/4 text-4xl sm:text-6xl lg:text-7xl opacity-40" style={{animation: 'bounce 2.3s infinite'}}>🌈</div>
+      <div className="absolute top-80 right-1/2 text-3xl sm:text-4xl lg:text-5xl opacity-40" style={{animation: 'pulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🎨</div>
+      <div className="absolute bottom-32 right-1/4 text-4xl sm:text-7xl lg:text-8xl opacity-40" style={{animation: 'bounce 2.1s infinite'}}>🚀</div>
+      <div className="absolute top-48 left-1/3 text-3xl sm:text-5xl lg:text-6xl opacity-40" style={{animation: 'pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🎪</div>
+      <div className="absolute top-16 left-1/2 text-3xl sm:text-4xl lg:text-5xl opacity-40" style={{animation: 'bounce 1.7s infinite'}}>🎭</div>
+      <div className="absolute bottom-80 right-1/3 text-3xl sm:text-5xl lg:text-6xl opacity-40" style={{animation: 'pulse 2.1s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🔬</div>
+      <div className="absolute top-72 left-20 text-4xl sm:text-6xl lg:text-7xl opacity-40" style={{animation: 'bounce 2.6s infinite'}}>💡</div>
+      <div className="absolute bottom-16 left-1/3 text-3xl sm:text-4xl lg:text-5xl opacity-40" style={{animation: 'pulse 1.9s cubic-bezier(0.4, 0, 0.6, 1) infinite'}}>🎓</div>
+      <div className="absolute top-24 right-10 text-3xl sm:text-5xl lg:text-6xl opacity-40" style={{animation: 'bounce 2.2s infinite'}}>🛴</div>
     </div>
 
-    <div className="relative z-10 max-w-7xl mx-auto px-4 py-12">
+    <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
       {/* Hero Section */}
-      <div className="text-center mb-16">
-        <div className="mb-8 text-center">
-          <div className="text-8xl mb-6">📚🎓</div>
-          <h1 className="text-8xl font-black mb-6">
+      <div className="text-center mb-12 sm:mb-16">
+        <div className="mb-6 sm:mb-8 text-center">
+          <div className="text-6xl sm:text-7xl lg:text-8xl mb-4 sm:mb-6">📚🎓</div>
+          <h1 className="text-4xl sm:text-6xl lg:text-8xl font-black mb-4 sm:mb-6 px-2">
             <span className="inline-block bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-transparent bg-clip-text animate-pulse">
               Hey Superstar!
             </span>
           </h1>
-          <h2 className="text-5xl font-black mb-6">
+          <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black mb-4 sm:mb-6 px-2">
             <span className="bg-gradient-to-r from-green-500 via-yellow-500 to-orange-500 text-transparent bg-clip-text">
               Welcome to EduMaster! 🎪
             </span>
           </h2>
-          <p className="text-3xl text-gray-800 font-black mb-8 max-w-4xl mx-auto">
+          <p className="text-lg sm:text-xl lg:text-3xl text-gray-800 font-black mb-6 sm:mb-8 max-w-4xl mx-auto px-4">
             🌟 Ready for the most FUN learning adventure ever? 🚀
           </p>
-          <p className="text-xl text-gray-700 font-bold mb-8 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg lg:text-xl text-gray-700 font-bold mb-6 sm:mb-8 max-w-3xl mx-auto px-4">
             Play games, solve puzzles, and become the smartest kid in your class! 🧠✨
           </p>
           
           {/* Learning Activity Emojis */}
-          <div className="flex justify-center gap-6 mb-8">
-            <span className="text-5xl">📚</span>
-            <span className="text-5xl">✏️</span>
-            <span className="text-5xl">🧮</span>
-            <span className="text-5xl">🔍</span>
-            <span className="text-5xl">💡</span>
-            <span className="text-5xl">🛴</span>
-            <span className="text-5xl">🎭</span>
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 mb-6 sm:mb-8">
+            <span className="text-3xl sm:text-4xl lg:text-5xl">📚</span>
+            <span className="text-3xl sm:text-4xl lg:text-5xl">✏️</span>
+            <span className="text-3xl sm:text-4xl lg:text-5xl">🧮</span>
+            <span className="text-3xl sm:text-4xl lg:text-5xl">🔍</span>
+            <span className="text-3xl sm:text-4xl lg:text-5xl">💡</span>
+            <span className="text-3xl sm:text-4xl lg:text-5xl">🛴</span>
+            <span className="text-3xl sm:text-4xl lg:text-5xl">🎭</span>
           </div>
           
           {/* Fun Callout Box */}
-          <div className="bg-gradient-to-r from-yellow-100 via-pink-100 to-purple-100 rounded-3xl p-8 border-4 border-rainbow-gradient max-w-4xl mx-auto mb-8">
-            <div className="text-6xl mb-4">📚✏️🎪</div>
-            <h3 className="text-3xl font-black text-purple-700 mb-4">Learning is Like Playing! 🎮</h3>
-            <p className="text-xl text-purple-600 font-bold">
+          <div className="bg-gradient-to-r from-yellow-100 via-pink-100 to-purple-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border-4 border-rainbow-gradient max-w-4xl mx-auto mb-6 sm:mb-8">
+            <div className="text-4xl sm:text-5xl lg:text-6xl mb-3 sm:mb-4">📚✏️🎪</div>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-purple-700 mb-3 sm:mb-4">Learning is Like Playing! 🎮</h3>
+            <p className="text-sm sm:text-lg lg:text-xl text-purple-600 font-bold">
               Open your book of knowledge and write your own success story! Every lesson is a fun adventure! 📖✨
             </p>
           </div>
         </div>
 
         {/* Fun Achievement Stats */}
-        <div className="mb-12">
-          <h3 className="text-3xl font-black text-center mb-8">
+        <div className="mb-8 sm:mb-12">
+          <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-center mb-6 sm:mb-8 px-4">
             <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text">
               🏆 Look What Kids Are Doing! 🎉
             </span>
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-gradient-to-br from-blue-400 to-blue-600 text-white rounded-3xl p-8 shadow-2xl hover:scale-110 transition-transform cursor-pointer">
-              <div className="text-7xl mb-4">👨‍👩‍👧‍👦</div>
-              <div className="text-5xl font-black mb-2">12</div>
-              <div className="text-xl font-bold">Families Learning Together!</div>
-              <div className="text-sm opacity-90 mt-2">Parents love watching kids grow! 🌱</div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+            <div className="bg-gradient-to-br from-blue-400 to-blue-600 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl hover:scale-105 sm:hover:scale-110 transition-transform cursor-pointer">
+              <div className="text-4xl sm:text-6xl lg:text-7xl mb-2 sm:mb-4">👨‍👩‍👧‍👦</div>
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-black mb-1 sm:mb-2">12</div>
+              <div className="text-base sm:text-lg lg:text-xl font-bold">Families Learning Together!</div>
+              <div className="text-xs sm:text-sm opacity-90 mt-1 sm:mt-2">Parents love watching kids grow! 🌱</div>
             </div>
-            <div className="bg-gradient-to-br from-purple-400 to-purple-600 text-white rounded-3xl p-8 shadow-2xl hover:scale-110 transition-transform cursor-pointer">
-              <div className="text-7xl mb-4">🧠</div>
-              <div className="text-5xl font-black mb-2">247</div>
-              <div className="text-xl font-bold">Puzzles Solved Today!</div>
-              <div className="text-sm opacity-90 mt-2">Every answer makes you smarter! 💪</div>
+            <div className="bg-gradient-to-br from-purple-400 to-purple-600 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl hover:scale-105 sm:hover:scale-110 transition-transform cursor-pointer">
+              <div className="text-4xl sm:text-6xl lg:text-7xl mb-2 sm:mb-4">🧠</div>
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-black mb-1 sm:mb-2">247</div>
+              <div className="text-base sm:text-lg lg:text-xl font-bold">Puzzles Solved Today!</div>
+              <div className="text-xs sm:text-sm opacity-90 mt-1 sm:mt-2">Every answer makes you smarter! 💪</div>
             </div>
-            <div className="bg-gradient-to-br from-pink-400 to-pink-600 text-white rounded-3xl p-8 shadow-2xl hover:scale-110 transition-transform cursor-pointer">
-              <div className="text-7xl mb-4">🏆</div>
-              <div className="text-5xl font-black mb-2">89</div>
-              <div className="text-xl font-bold">Badges Earned!</div>
-              <div className="text-sm opacity-90 mt-2">Collect them all like Pokemon! 🎮</div>
+            <div className="bg-gradient-to-br from-pink-400 to-pink-600 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl hover:scale-105 sm:hover:scale-110 transition-transform cursor-pointer">
+              <div className="text-4xl sm:text-6xl lg:text-7xl mb-2 sm:mb-4">🏆</div>
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-black mb-1 sm:mb-2">89</div>
+              <div className="text-base sm:text-lg lg:text-xl font-bold">Badges Earned!</div>
+              <div className="text-xs sm:text-sm opacity-90 mt-1 sm:mt-2">Collect them all like Pokemon! 🎮</div>
             </div>
           </div>
         </div>
       </div>
       
       {/* Learning Areas */}
-      <div className="mb-16">
-        <h2 className="text-5xl font-black text-center mb-4">
+      <div className="mb-12 sm:mb-16">
+        <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-center mb-3 sm:mb-4 px-4">
           <span className="bg-gradient-to-r from-green-500 via-blue-500 to-purple-500 text-transparent bg-clip-text">
             📚 Choose Your Adventure! 🎮
           </span>
         </h2>
-        <p className="text-xl text-gray-700 font-bold text-center mb-12">Pick any subject to start your learning journey!</p>
+        <p className="text-base sm:text-lg lg:text-xl text-gray-700 font-bold text-center mb-8 sm:mb-12 px-4">Pick any subject to start your learning journey!</p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
           <Link to="/adaptive" className="group block">
-            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-3 border-pink-300 hover:border-pink-500 transform hover:scale-110 transition-all duration-300 hover:rotate-1">
-              <div className="text-7xl mb-4 text-center">🎯</div>
-              <h3 className="text-2xl font-black text-pink-600 text-center mb-3">Smart Learning</h3>
-              <p className="text-gray-700 text-center mb-4 font-semibold">AI finds your perfect level and creates a magical learning path just for you!</p>
+            <div className="bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl shadow-2xl border-3 border-pink-300 hover:border-pink-500 transform hover:scale-105 lg:hover:scale-110 transition-all duration-300 hover:rotate-1">
+              <div className="text-4xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4 text-center">🎯</div>
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-pink-600 text-center mb-2 sm:mb-3">Smart Learning</h3>
+              <p className="text-sm sm:text-base text-gray-700 text-center mb-3 sm:mb-4 font-semibold">AI finds your perfect level and creates a magical learning path just for you!</p>
               <div className="text-center">
-                <span className="bg-gradient-to-r from-pink-400 to-pink-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg">🧠 AI Powered</span>
+                <span className="bg-gradient-to-r from-pink-400 to-pink-600 text-white px-3 sm:px-4 lg:px-5 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg">🧠 AI Powered</span>
               </div>
             </div>
           </Link>
           
           <Link to="/math" className="group block">
-            <div className="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-3 border-blue-300 hover:border-blue-500 transform hover:scale-110 transition-all duration-300 hover:rotate-1">
-              <div className="text-7xl mb-4 text-center">🧮</div>
-              <h3 className="text-2xl font-black text-blue-600 text-center mb-3">Math Adventure</h3>
-              <p className="text-gray-700 text-center mb-4 font-semibold">Solve puzzles, play number games, and become a math superhero!</p>
+            <div className="bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl shadow-2xl border-3 border-blue-300 hover:border-blue-500 transform hover:scale-105 lg:hover:scale-110 transition-all duration-300 hover:rotate-1">
+              <div className="text-4xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4 text-center">🧮</div>
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-blue-600 text-center mb-2 sm:mb-3">Math Adventure</h3>
+              <p className="text-sm sm:text-base text-gray-700 text-center mb-3 sm:mb-4 font-semibold">Solve puzzles, play number games, and become a math superhero!</p>
               <div className="text-center">
-                <span className="bg-gradient-to-r from-blue-400 to-blue-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg">🏆 1,000+ Games</span>
+                <span className="bg-gradient-to-r from-blue-400 to-blue-600 text-white px-3 sm:px-4 lg:px-5 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg">🏆 1,000+ Games</span>
               </div>
             </div>
           </Link>
           
-          <div className="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-3 border-green-300 hover:border-green-500 transform hover:scale-110 transition-all duration-300 cursor-pointer hover:rotate-1">
-            <div className="text-7xl mb-4 text-center">📖</div>
-            <h3 className="text-2xl font-black text-green-600 text-center mb-3">Reading Quest</h3>
-            <p className="text-gray-700 text-center mb-4 font-semibold">Join exciting stories, meet amazing characters, and unlock reading superpowers!</p>
+          <div className="bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl shadow-2xl border-3 border-green-300 hover:border-green-500 transform hover:scale-105 lg:hover:scale-110 transition-all duration-300 cursor-pointer hover:rotate-1">
+            <div className="text-4xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4 text-center">📖</div>
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-green-600 text-center mb-2 sm:mb-3">Reading Quest</h3>
+            <p className="text-sm sm:text-base text-gray-700 text-center mb-3 sm:mb-4 font-semibold">Join exciting stories, meet amazing characters, and unlock reading superpowers!</p>
             <div className="text-center">
-              <span className="bg-gradient-to-r from-green-400 to-green-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg">🎨 Coming Soon</span>
+              <span className="bg-gradient-to-r from-green-400 to-green-600 text-white px-3 sm:px-4 lg:px-5 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg">🎨 Coming Soon</span>
             </div>
           </div>
           
-          <div className="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-3 border-purple-300 hover:border-purple-500 transform hover:scale-110 transition-all duration-300 cursor-pointer hover:rotate-1">
-            <div className="text-7xl mb-4 text-center">🔬</div>
-            <h3 className="text-2xl font-black text-purple-600 text-center mb-3">Science Lab</h3>
-            <p className="text-gray-700 text-center mb-4 font-semibold">Mix potions, explore space, and discover how the world works!</p>
+          <div className="bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl shadow-2xl border-3 border-purple-300 hover:border-purple-500 transform hover:scale-105 lg:hover:scale-110 transition-all duration-300 cursor-pointer hover:rotate-1">
+            <div className="text-4xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4 text-center">🔬</div>
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-purple-600 text-center mb-2 sm:mb-3">Science Lab</h3>
+            <p className="text-sm sm:text-base text-gray-700 text-center mb-3 sm:mb-4 font-semibold">Mix potions, explore space, and discover how the world works!</p>
             <div className="text-center">
-              <span className="bg-gradient-to-r from-purple-400 to-purple-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg">🧪 Coming Soon</span>
+              <span className="bg-gradient-to-r from-purple-400 to-purple-600 text-white px-3 sm:px-4 lg:px-5 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg">🧪 Coming Soon</span>
             </div>
           </div>
           
-          <div className="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-3 border-yellow-300 hover:border-yellow-500 transform hover:scale-110 transition-all duration-300 cursor-pointer hover:rotate-1">
-            <div className="text-7xl mb-4 text-center">🎨</div>
-            <h3 className="text-2xl font-black text-yellow-600 text-center mb-3">Art Studio</h3>
-            <p className="text-gray-700 text-center mb-4 font-semibold">Paint masterpieces, create digital art, and express your creativity!</p>
+          <div className="bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl shadow-2xl border-3 border-yellow-300 hover:border-yellow-500 transform hover:scale-105 lg:hover:scale-110 transition-all duration-300 cursor-pointer hover:rotate-1">
+            <div className="text-4xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4 text-center">🎨</div>
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-yellow-600 text-center mb-2 sm:mb-3">Art Studio</h3>
+            <p className="text-sm sm:text-base text-gray-700 text-center mb-3 sm:mb-4 font-semibold">Paint masterpieces, create digital art, and express your creativity!</p>
             <div className="text-center">
-              <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg">🌈 Coming Soon</span>
+              <span className="bg-gradient-to-r from-yellow-400 to-yellow-600 text-white px-3 sm:px-4 lg:px-5 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg">🌈 Coming Soon</span>
             </div>
           </div>
           
-          <div className="bg-white/95 backdrop-blur-sm p-8 rounded-3xl shadow-2xl border-3 border-indigo-300 hover:border-indigo-500 transform hover:scale-110 transition-all duration-300 cursor-pointer hover:rotate-1">
-            <div className="text-7xl mb-4 text-center">🕹️</div>
-            <h3 className="text-2xl font-black text-indigo-600 text-center mb-3">Coding Fun</h3>
-            <p className="text-gray-700 text-center mb-4 font-semibold">Build games, create apps, and learn to speak computer language!</p>
+          <div className="bg-white/95 backdrop-blur-sm p-4 sm:p-6 lg:p-8 rounded-2xl sm:rounded-3xl shadow-2xl border-3 border-indigo-300 hover:border-indigo-500 transform hover:scale-105 lg:hover:scale-110 transition-all duration-300 cursor-pointer hover:rotate-1">
+            <div className="text-4xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4 text-center">🕹️</div>
+            <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-indigo-600 text-center mb-2 sm:mb-3">Coding Fun</h3>
+            <p className="text-sm sm:text-base text-gray-700 text-center mb-3 sm:mb-4 font-semibold">Build games, create apps, and learn to speak computer language!</p>
             <div className="text-center">
-              <span className="bg-gradient-to-r from-indigo-400 to-indigo-600 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg">🤖 Coming Soon</span>
+              <span className="bg-gradient-to-r from-indigo-400 to-indigo-600 text-white px-3 sm:px-4 lg:px-5 py-1 sm:py-2 rounded-full text-xs sm:text-sm font-bold shadow-lg">🤖 Coming Soon</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Get Started Section */}
-      <div className="bg-gradient-to-br from-yellow-200 via-orange-200 to-pink-200 p-12 rounded-3xl shadow-2xl border-4 border-yellow-400">
+      <div className="bg-gradient-to-br from-yellow-200 via-orange-200 to-pink-200 p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl shadow-2xl border-4 border-yellow-400">
         <div className="text-center">
-          <div className="text-8xl mb-6">📖✏️🏪</div>
-          <h2 className="text-6xl font-black mb-6">
+          <div className="text-5xl sm:text-7xl lg:text-8xl mb-4 sm:mb-6">📖✏️🏪</div>
+          <h2 className="text-3xl sm:text-4xl lg:text-6xl font-black mb-4 sm:mb-6 px-2">
             <span className="bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 text-transparent bg-clip-text">
               Let's Start Your Adventure! 🚀
             </span>
           </h2>
-          <p className="text-2xl text-gray-800 font-black mb-10">Pick what sounds most exciting to you!</p>
+          <p className="text-lg sm:text-xl lg:text-2xl text-gray-800 font-black mb-6 sm:mb-8 lg:mb-10 px-4">Pick what sounds most exciting to you!</p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10">
-            <div className="text-center bg-gradient-to-br from-blue-400 to-purple-500 text-white rounded-3xl p-8 border-4 border-blue-300 hover:scale-110 transition-transform shadow-2xl">
-              <div className="text-8xl mb-6">👦👧</div>
-              <h3 className="text-4xl font-black mb-4">I'm a Kid!</h3>
-              <p className="text-xl font-bold mb-6 opacity-90">I want to read amazing stories and write my own adventures!</p>
-              <Link to="/adaptive" className="bg-white text-blue-600 px-10 py-4 rounded-full text-xl font-black hover:bg-blue-50 transition-all inline-block transform hover:scale-110 shadow-lg">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 mb-6 sm:mb-8 lg:mb-10">
+            <div className="text-center bg-gradient-to-br from-blue-400 to-purple-500 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border-4 border-blue-300 hover:scale-105 lg:hover:scale-110 transition-transform shadow-2xl">
+              <div className="text-5xl sm:text-7xl lg:text-8xl mb-4 sm:mb-6">👦👧</div>
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black mb-3 sm:mb-4">I'm a Kid!</h3>
+              <p className="text-sm sm:text-lg lg:text-xl font-bold mb-4 sm:mb-6 opacity-90">I want to read amazing stories and write my own adventures!</p>
+              <Link to="/adaptive" className="bg-white text-blue-600 px-6 sm:px-8 lg:px-10 py-2 sm:py-3 lg:py-4 rounded-full text-sm sm:text-lg lg:text-xl font-black hover:bg-blue-50 transition-all inline-block transform hover:scale-105 lg:hover:scale-110 shadow-lg">
                 📖 Let's Read & Learn!
               </Link>
             </div>
             
-            <div className="text-center bg-gradient-to-br from-green-400 to-teal-500 text-white rounded-3xl p-8 border-4 border-green-300 hover:scale-110 transition-transform shadow-2xl">
-              <div className="text-8xl mb-6">👩‍🏫</div>
-              <h3 className="text-4xl font-black mb-4">I'm a Grown-Up!</h3>
-              <p className="text-xl font-bold mb-6 opacity-90">I want to help kids learn and track their amazing progress!</p>
-              <Link to="/teachers" className="bg-white text-green-600 px-10 py-4 rounded-full text-xl font-black hover:bg-green-50 transition-all inline-block transform hover:scale-110 shadow-lg">
+            <div className="text-center bg-gradient-to-br from-green-400 to-teal-500 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border-4 border-green-300 hover:scale-105 lg:hover:scale-110 transition-transform shadow-2xl">
+              <div className="text-5xl sm:text-7xl lg:text-8xl mb-4 sm:mb-6">👩‍🏫</div>
+              <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black mb-3 sm:mb-4">I'm a Grown-Up!</h3>
+              <p className="text-sm sm:text-lg lg:text-xl font-bold mb-4 sm:mb-6 opacity-90">I want to help kids learn and track their amazing progress!</p>
+              <Link to="/teachers" className="bg-white text-green-600 px-6 sm:px-8 lg:px-10 py-2 sm:py-3 lg:py-4 rounded-full text-sm sm:text-lg lg:text-xl font-black hover:bg-green-50 transition-all inline-block transform hover:scale-105 lg:hover:scale-110 shadow-lg">
                 🏆 Help Kids Learn!
               </Link>
             </div>
           </div>
           
           {/* Super Fun Fact */}
-          <div className="bg-gradient-to-r from-purple-300 via-pink-300 to-yellow-300 rounded-3xl p-8 border-4 border-purple-400 hover:scale-105 transition-transform">
-            <div className="text-6xl mb-4">🤩</div>
-            <h3 className="text-3xl font-black text-purple-700 mb-3">Secret Superpower! 🧿</h3>
-            <p className="text-xl text-purple-600 font-black">
+          <div className="bg-gradient-to-r from-purple-300 via-pink-300 to-yellow-300 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border-4 border-purple-400 hover:scale-105 transition-transform">
+            <div className="text-4xl sm:text-5xl lg:text-6xl mb-3 sm:mb-4">🤩</div>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-purple-700 mb-2 sm:mb-3">Secret Superpower! 🧿</h3>
+            <p className="text-sm sm:text-lg lg:text-xl text-purple-600 font-black px-2">
               Kids who learn with EduMaster become 3x SMARTER and have 100% more FUN than boring old textbooks! 💪📚
             </p>
-            <div className="mt-4 flex justify-center gap-3">
-              <span className="text-3xl">🧠</span>
-              <span className="text-3xl">✨</span>
-              <span className="text-3xl">🏆</span>
-              <span className="text-3xl">🎉</span>
+            <div className="mt-3 sm:mt-4 flex justify-center gap-2 sm:gap-3">
+              <span className="text-2xl sm:text-3xl">🧠</span>
+              <span className="text-2xl sm:text-3xl">✨</span>
+              <span className="text-2xl sm:text-3xl">🏆</span>
+              <span className="text-2xl sm:text-3xl">🎉</span>
             </div>
           </div>
         </div>
@@ -242,70 +247,96 @@ const SimpleDashboard = () => (
   </div>
 );
 
-// Enhanced header with mobile navigation and login
-const SimpleHeader = ({ showLogin, setShowLogin, isLoggedIn, user, handleLogout }) => {
+// Enhanced header with mobile navigation and authentication
+const SimpleHeader = () => {
+  const { user, isAuthenticated, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+  const [showProfile, setShowProfile] = React.useState(false);
+  const [showLogin, setShowLogin] = React.useState(false);
+  const [showSignup, setShowSignup] = React.useState(false);
+
+  const switchToSignup = () => {
+    setShowLogin(false);
+    setShowSignup(true);
+  };
+
+  const switchToLogin = () => {
+    setShowSignup(false);
+    setShowLogin(true);
+  };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center">
-            <Link to="/" className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">📚✏️ EduMaster</Link>
-            <nav className="hidden md:flex space-x-6 ml-10">
-              <Link to="/dashboard" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-blue-50 transition-all">🏠 Home</Link>
-              <Link to="/math" className="text-gray-600 hover:text-purple-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-purple-50 transition-all">🧮 Math Fun</Link>
-              <Link to="/adaptive" className="text-gray-600 hover:text-pink-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-pink-50 transition-all">🎯 Smart Learning</Link>
-              <Link to="/students" className="text-gray-600 hover:text-green-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-green-50 transition-all">👥 Students</Link>
-              <Link to="/teachers" className="text-gray-600 hover:text-yellow-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-yellow-50 transition-all">👩‍🏫 Teachers</Link>
-              <Link to="/parents" className="text-gray-600 hover:text-pink-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-pink-50 transition-all">👨‍👩‍👧‍👦 Parents</Link>
-            </nav>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {/* User Login/Profile Section */}
-            {isLoggedIn ? (
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-sm font-bold">{user?.username?.charAt(0).toUpperCase()}</span>
-                  </div>
-                  <div className="hidden md:block">
-                    <span className="text-sm font-semibold text-gray-700">{user?.username}</span>
-                    <div className="text-xs text-gray-500">{user?.type}</div>
-                  </div>
+    <>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <Link to="/" className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">📚✏️ EduMaster</Link>
+              <nav className="hidden md:flex space-x-6 ml-10">
+                <Link to="/dashboard" className="text-gray-600 hover:text-blue-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-blue-50 transition-all">🏠 Home</Link>
+                <Link to="/math" className="text-gray-600 hover:text-purple-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-purple-50 transition-all">🧮 Math Fun</Link>
+                <Link to="/adaptive" className="text-gray-600 hover:text-pink-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-pink-50 transition-all">🎯 Smart Learning</Link>
+                <Link to="/students" className="text-gray-600 hover:text-green-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-green-50 transition-all">👥 Students</Link>
+                <Link to="/teachers" className="text-gray-600 hover:text-yellow-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-yellow-50 transition-all">👩‍🏫 Teachers</Link>
+                <Link to="/parents" className="text-gray-600 hover:text-pink-600 px-3 py-2 text-sm font-semibold rounded-full hover:bg-pink-50 transition-all">👨‍👩‍👧‍👦 Parents</Link>
+              </nav>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              {/* User Profile/Login Section */}
+              {isAuthenticated ? (
+                <div className="flex items-center space-x-3">
+                  <button
+                    onClick={() => setShowProfile(true)}
+                    className="flex items-center space-x-2 hover:bg-gray-100 rounded-full px-3 py-2 transition-all"
+                  >
+                    <div className="text-2xl">{user?.avatar || '🧒'}</div>
+                    <div className="hidden md:block text-left">
+                      <div className="text-sm font-semibold text-gray-700">{user?.firstName} {user?.lastName}</div>
+                      <div className="text-xs text-gray-500 capitalize">
+                        Level {user?.progress?.level || 1} • {user?.progress?.totalXP || 0} XP
+                      </div>
+                    </div>
+                  </button>
+                  <button
+                    onClick={logout}
+                    className="text-sm text-gray-600 hover:text-red-600 px-3 py-1 rounded-full hover:bg-red-50 transition-all"
+                  >
+                    Logout
+                  </button>
                 </div>
-                <button
-                  onClick={handleLogout}
-                  className="text-sm text-gray-600 hover:text-red-600 px-3 py-1 rounded-full hover:bg-red-50 transition-all"
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowLogin(true)}
-                className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full text-sm font-semibold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-md"
-              >
-                Login
-              </button>
-            )}
+              ) : (
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => setShowLogin(true)}
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-4 py-2 rounded-full text-sm font-semibold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-md"
+                  >
+                    Login
+                  </button>
+                  <button
+                    onClick={() => setShowSignup(true)}
+                    className="border-2 border-blue-500 text-blue-500 px-4 py-2 rounded-full text-sm font-semibold hover:bg-blue-50 transition-all"
+                  >
+                    Sign Up
+                  </button>
+                </div>
+              )}
 
-            {/* Mobile menu button */}
-            <button
-              className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                {mobileMenuOpen ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                )}
-              </svg>
-            </button>
+              {/* Mobile menu button */}
+              <button
+                className="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  {mobileMenuOpen ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  )}
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
         
         {/* Mobile menu */}
         {mobileMenuOpen && (
@@ -358,100 +389,34 @@ const SimpleHeader = ({ showLogin, setShowLogin, isLoggedIn, user, handleLogout 
         )}
       </div>
     </header>
+
+    {/* Authentication Modals */}
+    <LoginModal 
+      showLogin={showLogin}
+      setShowLogin={setShowLogin}
+      switchToSignup={switchToSignup}
+    />
+    
+    <SignupModal 
+      showSignup={showSignup}
+      setShowSignup={setShowSignup}
+      switchToLogin={switchToLogin}
+    />
+    
+    <UserProfile 
+      showProfile={showProfile}
+      setShowProfile={setShowProfile}
+    />
+  </>
   );
 };
 
-// Login Modal Component
-const LoginModal = ({ showLogin, setShowLogin, handleLogin, loginData, setLoginData }) => (
-  showLogin && (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl">
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome to EduMaster! 🎓</h2>
-          <p className="text-gray-600">Sign in to continue your learning journey</p>
-        </div>
-        
-        <form onSubmit={handleLogin} className="space-y-4">
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Username</label>
-            <input
-              type="text"
-              value={loginData.username}
-              onChange={(e) => setLoginData({...loginData, username: e.target.value})}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
-              placeholder="Enter your username"
-              required
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
-            <input
-              type="password"
-              value={loginData.password}
-              onChange={(e) => setLoginData({...loginData, password: e.target.value})}
-              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-purple-500 focus:outline-none transition-all"
-              placeholder="Enter your password"
-              required
-            />
-          </div>
-          
-          <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={() => setShowLogin(false)}
-              className="flex-1 px-4 py-3 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-md"
-            >
-              Sign In
-            </button>
-          </div>
-        </form>
-        
-        <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Demo: Use any username and password to login</p>
-        </div>
-      </div>
-    </div>
-  )
-);
-
-function App() {
-  const [showLogin, setShowLogin] = React.useState(false);
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const [user, setUser] = React.useState(null);
-  const [loginData, setLoginData] = React.useState({ username: '', password: '' });
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (loginData.username && loginData.password) {
-      setUser({ username: loginData.username, type: 'Student' });
-      setIsLoggedIn(true);
-      setShowLogin(false);
-      setLoginData({ username: '', password: '' });
-    }
-  };
-
-  const handleLogout = () => {
-    setUser(null);
-    setIsLoggedIn(false);
-  };
-
+// Main App Component
+const AppContent = () => {
   return (
     <Router>
       <div className="App min-h-screen bg-gray-50">
-        <SimpleHeader 
-          showLogin={showLogin}
-          setShowLogin={setShowLogin}
-          isLoggedIn={isLoggedIn}
-          user={user}
-          handleLogout={handleLogout}
-        />
+        <SimpleHeader />
         <main className="pt-16">
           <Routes>
             <Route path="/" element={<SimpleDashboard />} />
@@ -465,16 +430,18 @@ function App() {
             <Route path="/assignments" element={<AssignmentsPage />} />
           </Routes>
         </main>
-        
-        <LoginModal 
-          showLogin={showLogin}
-          setShowLogin={setShowLogin}
-          handleLogin={handleLogin}
-          loginData={loginData}
-          setLoginData={setLoginData}
-        />
       </div>
     </Router>
+  );
+};
+
+function App() {
+  return (
+    <GoogleOAuthProvider clientId="your-google-client-id-here">
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </GoogleOAuthProvider>
   );
 }
 
