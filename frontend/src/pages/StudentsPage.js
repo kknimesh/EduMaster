@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 const StudentsPage = () => {
   const { user, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [animations, setAnimations] = useState({});
 
   // Get students data based on user role
   const getStudentsData = () => {
@@ -124,6 +125,14 @@ const StudentsPage = () => {
     if (level >= 3) return 'text-blue-600 bg-blue-100';
     if (level >= 2) return 'text-yellow-600 bg-yellow-100';
     return 'text-gray-600 bg-gray-100';
+  };
+
+  const showAnimation = (studentId, type, data) => {
+    const key = `${studentId}-${type}`;
+    setAnimations(prev => ({ ...prev, [key]: { type, data, show: true } }));
+    setTimeout(() => {
+      setAnimations(prev => ({ ...prev, [key]: { ...prev[key], show: false } }));
+    }, 3000);
   };
 
   // Show login prompt if not authenticated
@@ -285,7 +294,10 @@ const StudentsPage = () => {
                         <p className="text-gray-600">Grade {student.grade} • Level {student.level}</p>
                         <p className="text-sm text-gray-500">{student.email}</p>
                       </div>
-                      <div className="text-right">
+                      <div 
+                        className="text-right cursor-pointer hover:bg-blue-50 rounded-lg p-2 transition-all transform hover:scale-105"
+                        onClick={() => showAnimation(student.id, 'xp', { xp: student.totalXP, name: student.name })}
+                      >
                         <div className="text-3xl font-bold text-blue-600">{student.totalXP}</div>
                         <div className="text-xs text-gray-500">XP Points</div>
                       </div>
@@ -293,19 +305,31 @@ const StudentsPage = () => {
 
                     {/* Progress Stats */}
                     <div className="grid grid-cols-2 gap-4 mb-6">
-                      <div className="text-center bg-green-50 rounded-xl p-3">
+                      <div 
+                        className="text-center bg-green-50 rounded-xl p-3 hover:bg-green-100 transition-all cursor-pointer transform hover:scale-105"
+                        onClick={() => showAnimation(student.id, 'streak', { days: student.streakDays, name: student.name })}
+                      >
                         <div className="text-xl font-bold text-green-600">{student.streakDays}</div>
                         <div className="text-xs text-green-600">Day Streak</div>
                       </div>
-                      <div className="text-center bg-blue-50 rounded-xl p-3">
+                      <div 
+                        className="text-center bg-blue-50 rounded-xl p-3 hover:bg-blue-100 transition-all cursor-pointer transform hover:scale-105"
+                        onClick={() => showAnimation(student.id, 'assessments', { count: student.completedLessons, name: student.name })}
+                      >
                         <div className="text-xl font-bold text-blue-600">{student.completedLessons}</div>
                         <div className="text-xs text-blue-600">Assessments</div>
                       </div>
-                      <div className="text-center bg-purple-50 rounded-xl p-3">
+                      <div 
+                        className="text-center bg-purple-50 rounded-xl p-3 hover:bg-purple-100 transition-all cursor-pointer transform hover:scale-105"
+                        onClick={() => showAnimation(student.id, 'badges', { count: student.badges.length, name: student.name })}
+                      >
                         <div className="text-xl font-bold text-purple-600">{student.badges.length}</div>
                         <div className="text-xs text-purple-600">Badges</div>
                       </div>
-                      <div className="text-center bg-orange-50 rounded-xl p-3">
+                      <div 
+                        className="text-center bg-orange-50 rounded-xl p-3 hover:bg-orange-100 transition-all cursor-pointer transform hover:scale-105"
+                        onClick={() => showAnimation(student.id, 'time', { time: student.timeSpent, name: student.name })}
+                      >
                         <div className="text-xl font-bold text-orange-600">{student.timeSpent}</div>
                         <div className="text-xs text-orange-600">Time</div>
                       </div>
@@ -552,6 +576,68 @@ const StudentsPage = () => {
           </div>
         )}
       </div>
+
+      {/* Animation Popups */}
+      {Object.entries(animations).map(([key, animation]) => 
+        animation.show && (
+          <div key={key} className="fixed inset-0 pointer-events-none flex items-center justify-center z-[60]">
+            {animation.type === 'xp' && (
+              <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-8 rounded-3xl shadow-2xl transform animate-bounce">
+                <div className="text-center">
+                  <div className="text-8xl mb-4 animate-pulse">⭐✨🎉</div>
+                  <h2 className="text-4xl font-bold mb-2">{animation.data.name}'s XP!</h2>
+                  <p className="text-2xl font-semibold">{animation.data.xp} Experience Points!</p>
+                  <div className="text-lg mt-2 opacity-90">What an amazing learner! 🌟</div>
+                </div>
+              </div>
+            )}
+            
+            {animation.type === 'streak' && (
+              <div className="bg-gradient-to-r from-orange-500 to-red-600 text-white p-8 rounded-3xl shadow-2xl transform animate-bounce">
+                <div className="text-center">
+                  <div className="text-8xl mb-4 animate-pulse">🔥💪⚡</div>
+                  <h2 className="text-4xl font-bold mb-2">{animation.data.name}'s Streak!</h2>
+                  <p className="text-2xl font-semibold">{animation.data.days} Days of Learning!</p>
+                  <div className="text-lg mt-2 opacity-90">Consistency champion! 🏆</div>
+                </div>
+              </div>
+            )}
+            
+            {animation.type === 'badges' && (
+              <div className="bg-gradient-to-r from-purple-500 to-pink-600 text-white p-8 rounded-3xl shadow-2xl transform animate-bounce">
+                <div className="text-center">
+                  <div className="text-8xl mb-4 animate-pulse">🎯🏅🎊</div>
+                  <h2 className="text-4xl font-bold mb-2">{animation.data.name}'s Badges!</h2>
+                  <p className="text-2xl font-semibold">{animation.data.count} Amazing Achievements!</p>
+                  <div className="text-lg mt-2 opacity-90">Badge collection superstar! 🌟</div>
+                </div>
+              </div>
+            )}
+            
+            {animation.type === 'assessments' && (
+              <div className="bg-gradient-to-r from-blue-500 to-cyan-600 text-white p-8 rounded-3xl shadow-2xl transform animate-bounce">
+                <div className="text-center">
+                  <div className="text-8xl mb-4 animate-pulse">📚🎓✏️</div>
+                  <h2 className="text-4xl font-bold mb-2">{animation.data.name}'s Progress!</h2>
+                  <p className="text-2xl font-semibold">{animation.data.count} Assessments Completed!</p>
+                  <div className="text-lg mt-2 opacity-90">Learning machine! 🚀</div>
+                </div>
+              </div>
+            )}
+            
+            {animation.type === 'time' && (
+              <div className="bg-gradient-to-r from-green-500 to-emerald-600 text-white p-8 rounded-3xl shadow-2xl transform animate-bounce">
+                <div className="text-center">
+                  <div className="text-8xl mb-4 animate-pulse">⏰💎🌟</div>
+                  <h2 className="text-4xl font-bold mb-2">{animation.data.name}'s Journey!</h2>
+                  <p className="text-2xl font-semibold">{animation.data.time} of Learning Time!</p>
+                  <div className="text-lg mt-2 opacity-90">Time well invested! 💪</div>
+                </div>
+              </div>
+            )}
+          </div>
+        )
+      )}
     </div>
   );
 };
