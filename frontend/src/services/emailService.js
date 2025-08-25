@@ -1,58 +1,33 @@
 import emailjs from '@emailjs/browser';
 
-// EmailJS configuration
-const EMAILJS_SERVICE_ID = process.env.REACT_APP_EMAILJS_SERVICE_ID || 'service_edumaster';
-const EMAILJS_TEMPLATE_ID = process.env.REACT_APP_EMAILJS_TEMPLATE_ID || 'template_verification';
-const EMAILJS_PUBLIC_KEY = process.env.REACT_APP_EMAILJS_PUBLIC_KEY || 'your_public_key_here';
+// EmailJS configuration - hardcoded for production since env vars aren't loading
+const EMAILJS_SERVICE_ID = 'service_rpae4fb';
+const EMAILJS_TEMPLATE_ID = 'template_84mbn1q';
+const EMAILJS_PUBLIC_KEY = 'n_pQSQpbXHpgPO6ly';
 
-// Check if EmailJS is properly configured
-const isEmailConfigured = () => {
-  return EMAILJS_SERVICE_ID !== 'service_edumaster' && 
-         EMAILJS_TEMPLATE_ID !== 'template_verification' && 
-         EMAILJS_PUBLIC_KEY !== 'your_public_key_here' &&
-         EMAILJS_PUBLIC_KEY && 
-         EMAILJS_SERVICE_ID && 
-         EMAILJS_TEMPLATE_ID;
-};
-
-// Initialize EmailJS only if configured
-if (isEmailConfigured()) {
-  emailjs.init(EMAILJS_PUBLIC_KEY);
-}
+// Initialize EmailJS with the public key
+emailjs.init(EMAILJS_PUBLIC_KEY);
+console.log('EmailJS initialized with credentials');
 
 export const sendVerificationEmail = async (userEmail, userName, verificationToken) => {
   try {
-    // Check if EmailJS is configured
-    if (!isEmailConfigured()) {
-      console.warn('EmailJS not configured. Please set up EmailJS credentials in .env file.');
-      console.log('Setup guide available at: EMAIL_SETUP.md');
-      console.log(`Verification link for ${userEmail}: ${window.location.origin}/verify-email?token=${verificationToken}`);
-      return { 
-        success: false, 
-        error: 'Email service not configured. Please contact administrator.' 
-      };
-    }
-
+    console.log('Sending verification email to:', userEmail);
+    
     const verificationLink = `${window.location.origin}/verify-email?token=${verificationToken}`;
     
     const templateParams = {
-      // Try multiple possible recipient field names
+      // Standard EmailJS fields
       to_email: userEmail,
-      user_email: userEmail,
-      email: userEmail,
-      recipient: userEmail,
-      
-      // Name fields
       to_name: userName,
-      user_name: userName,
-      name: userName,
+      from_name: 'EduMaster Team',
       
-      // Template content
+      // Custom template fields
       verification_link: verificationLink,
-      app_name: 'EduMaster',
-      from_name: 'EduMaster Team'
+      app_name: 'EduMaster'
     };
 
+    console.log('Attempting to send email with params:', templateParams);
+    
     const response = await emailjs.send(
       EMAILJS_SERVICE_ID,
       EMAILJS_TEMPLATE_ID,
@@ -63,6 +38,13 @@ export const sendVerificationEmail = async (userEmail, userName, verificationTok
     return { success: true, messageId: response.text };
   } catch (error) {
     console.error('Failed to send verification email:', error);
+    console.error('Error details:', {
+      message: error.message,
+      text: error.text,
+      status: error.status,
+      name: error.name,
+      stack: error.stack
+    });
     
     // Provide helpful error messages
     let errorMessage = 'Failed to send email';
@@ -72,6 +54,10 @@ export const sendVerificationEmail = async (userEmail, userName, verificationTok
       errorMessage = 'Email template error. Please contact support.';
     } else if (error.text?.includes('service')) {
       errorMessage = 'Email service unavailable. Please contact support.';
+    } else if (error.text?.includes('recipient')) {
+      errorMessage = 'Email recipient configuration error. Please contact support.';
+    } else {
+      errorMessage = `Email service error: ${error.message || error.text || 'Unknown error'}`;
     }
     
     return { success: false, error: errorMessage };

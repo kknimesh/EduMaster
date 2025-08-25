@@ -14,6 +14,7 @@ import SignupModal from './components/SignupModal';
 import UserProfile from './components/UserProfile';
 import './App.css';
 
+
 // EduMaster Landing Page
 const SimpleDashboard = () => (
   <div 
