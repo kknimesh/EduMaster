@@ -303,20 +303,21 @@ export const AuthProvider = ({ children }) => {
 
   const verifyEmail = async (token) => {
     try {
-      console.log('Attempting to verify token:', token);
-      
       const existingUsers = getStoredUsers();
-      console.log('Total users in storage:', existingUsers.length);
       
-      // Log all verification tokens for debugging
-      existingUsers.forEach((user, index) => {
-        console.log(`User ${index}: ${user.email}, token: ${user.verificationToken}, verified: ${user.emailVerified}`);
-      });
-
+      // Find user with matching token
       const userToVerify = existingUsers.find(u => u.verificationToken === token);
-      console.log('Found user to verify:', userToVerify ? userToVerify.email : 'None');
-
+      
       if (!userToVerify) {
+        // If no user found, check if the token might be for an already verified user
+        const verifiedUser = existingUsers.find(u => u.emailVerified && !u.verificationToken);
+        if (verifiedUser) {
+          return { 
+            success: true, 
+            message: 'Email already verified! You can log in now.',
+            user: verifiedUser 
+          };
+        }
         throw new Error('Invalid or expired verification token');
       }
 
@@ -331,7 +332,6 @@ export const AuthProvider = ({ children }) => {
 
       // Check if token is expired (24 hours)
       const tokenAge = Date.now() - new Date(userToVerify.verificationSentAt).getTime();
-      console.log('Token age in minutes:', Math.floor(tokenAge / (1000 * 60)));
       
       if (tokenAge > 24 * 60 * 60 * 1000) {
         throw new Error('Verification link has expired. Please request a new one.');
@@ -347,8 +347,6 @@ export const AuthProvider = ({ children }) => {
         u.id === userToVerify.id ? userToVerify : u
       );
       localStorage.setItem('edumaster_users', JSON.stringify(updatedUsers));
-      
-      console.log('User verified successfully:', userToVerify.email);
 
       return { 
         success: true, 
@@ -356,7 +354,6 @@ export const AuthProvider = ({ children }) => {
         user: userToVerify 
       };
     } catch (error) {
-      console.error('Verification error:', error.message);
       return { success: false, error: error.message };
     }
   };

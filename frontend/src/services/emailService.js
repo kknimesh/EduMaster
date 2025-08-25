@@ -7,26 +7,22 @@ const EMAILJS_PUBLIC_KEY = 'n_pQSQpbXHpgPO6ly';
 
 // Initialize EmailJS with the public key
 emailjs.init(EMAILJS_PUBLIC_KEY);
-console.log('EmailJS initialized with credentials');
 
 export const sendVerificationEmail = async (userEmail, userName, verificationToken) => {
   try {
-    console.log('Sending verification email to:', userEmail);
-    
     const verificationLink = `${window.location.origin}/verify-email?token=${verificationToken}`;
     
     const templateParams = {
-      // Standard EmailJS fields
-      to_email: userEmail,
+      // Match your EmailJS template exactly - it expects {{email}} not {{to_email}}
+      email: userEmail,  // This matches {{email}} in your template
       to_name: userName,
       from_name: 'EduMaster Team',
       
-      // Custom template fields
+      // Custom fields for the email content
       verification_link: verificationLink,
-      app_name: 'EduMaster'
+      app_name: 'EduMaster',
+      user_name: userName
     };
-
-    console.log('Attempting to send email with params:', templateParams);
     
     const response = await emailjs.send(
       EMAILJS_SERVICE_ID,
@@ -34,17 +30,9 @@ export const sendVerificationEmail = async (userEmail, userName, verificationTok
       templateParams
     );
 
-    console.log('Verification email sent successfully:', response);
     return { success: true, messageId: response.text };
   } catch (error) {
     console.error('Failed to send verification email:', error);
-    console.error('Error details:', {
-      message: error.message,
-      text: error.text,
-      status: error.status,
-      name: error.name,
-      stack: error.stack
-    });
     
     // Provide helpful error messages
     let errorMessage = 'Failed to send email';

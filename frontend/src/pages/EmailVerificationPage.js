@@ -11,10 +11,6 @@ const EmailVerificationPage = () => {
   const navigate = useNavigate();
 
   const token = searchParams.get('token');
-  
-  // Debug token extraction
-  console.log('URL token parameter:', token);
-  console.log('Full URL search params:', searchParams.toString());
 
   useEffect(() => {
     const handleVerification = async () => {
