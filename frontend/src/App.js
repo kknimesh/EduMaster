@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import StudentsPage from './pages/StudentsPage';
 import TeachersPage from './pages/TeachersPage';
@@ -437,11 +436,9 @@ const AppContent = () => {
 
 function App() {
   return (
-    <GoogleOAuthProvider clientId="your-google-client-id-here">
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-    </GoogleOAuthProvider>
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 

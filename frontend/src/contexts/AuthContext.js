@@ -46,72 +46,6 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  const signupWithGoogle = async (googleUserData) => {
-    try {
-      // Check if user already exists
-      const existingUsers = getStoredUsers();
-      const existingUser = existingUsers.find(u => u.email === googleUserData.email);
-      
-      if (existingUser) {
-        // User exists, log them in
-        const userForSession = { ...existingUser };
-        delete userForSession.password;
-        setUser(userForSession);
-        return { success: true, user: userForSession };
-      }
-
-      // Create new user with Google data
-      const newUser = {
-        id: Date.now().toString(),
-        username: googleUserData.email.split('@')[0], // Use email prefix as username
-        email: googleUserData.email,
-        password: 'google_auth', // Placeholder for Google auth users
-        profileType: googleUserData.profileType,
-        grade: googleUserData.profileType === 'student' ? '3' : null, // Default grade
-        firstName: googleUserData.firstName,
-        lastName: googleUserData.lastName,
-        avatar: googleUserData.avatar,
-        createdAt: new Date().toISOString(),
-        progress: {
-          totalXP: 0,
-          level: 1,
-          badges: [],
-          streakDays: 0,
-          lastLoginDate: new Date().toISOString(),
-          completedAssessments: {},
-          skillLevels: {
-            addition: 1,
-            subtraction: 1,
-            multiplication: 1,
-            division: 1,
-            fractions: 1,
-            algebra: 1
-          },
-          activityHistory: [],
-          achievements: []
-        },
-        preferences: {
-          theme: 'default',
-          soundEnabled: true,
-          difficultyPreference: 'adaptive'
-        },
-        isGoogleUser: true
-      };
-
-      // Save to stored users
-      const updatedUsers = [...existingUsers, newUser];
-      localStorage.setItem('edumaster_users', JSON.stringify(updatedUsers));
-
-      // Set as current user (without password for security)
-      const userForSession = { ...newUser };
-      delete userForSession.password;
-      setUser(userForSession);
-
-      return { success: true, user: userForSession };
-    } catch (error) {
-      return { success: false, error: error.message };
-    }
-  };
 
   const signup = async (userData) => {
     try {
@@ -342,7 +276,6 @@ export const AuthProvider = ({ children }) => {
     isLoading,
     isAuthenticated: !!user,
     signup,
-    signupWithGoogle,
     login,
     logout,
     updateUserProgress,
