@@ -10,6 +10,15 @@ const MathLearningPage = () => {
   const [showFeedback, setShowFeedback] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [questions, setQuestions] = useState([]);
+  const [streak, setStreak] = useState(0);
+  const [totalXP, setTotalXP] = useState(0);
+  const [achievements, setAchievements] = useState([]);
+  const [powerUps, setPowerUps] = useState({ hints: 3, timeFreeze: 1, doubleXP: 1 });
+  const [showAchievement, setShowAchievement] = useState(null);
+  const [currentXP, setCurrentXP] = useState(0);
+  const [showSpeedRound, setShowSpeedRound] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [speedRoundScore, setSpeedRoundScore] = useState(0);
 
   // Reset to main page when component mounts (when navigating to /math)
   useEffect(() => {
@@ -23,6 +32,85 @@ const MathLearningPage = () => {
     setIsCorrect(false);
     setQuestions([]);
   }, []);
+
+  // Achievement system
+  const checkAchievements = (newStreak, newXP) => {
+    const newAchievements = [];
+    
+    if (newStreak === 5 && !achievements.includes('streak5')) {
+      newAchievements.push({ id: 'streak5', name: 'Hot Streak!', desc: '5 correct in a row', icon: '🔥' });
+    }
+    if (newStreak === 10 && !achievements.includes('streak10')) {
+      newAchievements.push({ id: 'streak10', name: 'Unstoppable!', desc: '10 correct in a row', icon: '⚡' });
+    }
+    if (newXP >= 100 && !achievements.includes('xp100')) {
+      newAchievements.push({ id: 'xp100', name: 'XP Master!', desc: 'Earned 100 XP', icon: '🏆' });
+    }
+    if (score >= 5 && !achievements.includes('perfect')) {
+      newAchievements.push({ id: 'perfect', name: 'Perfect Score!', desc: 'All questions correct', icon: '⭐' });
+    }
+    
+    if (newAchievements.length > 0) {
+      setAchievements(prev => [...prev, ...newAchievements.map(a => a.id)]);
+      setShowAchievement(newAchievements[0]);
+      setTimeout(() => setShowAchievement(null), 3000);
+    }
+  };
+
+  // XP and level calculation
+  const calculateXP = (isCorrect, currentStreak) => {
+    if (!isCorrect) return 0;
+    let xp = 10; // Base XP
+    if (currentStreak >= 5) xp += 5; // Streak bonus
+    if (currentStreak >= 10) xp += 10; // Super streak bonus
+    return xp;
+  };
+
+  const getLevel = (xp) => Math.floor(xp / 50) + 1;
+
+  // Speed Round functions
+  const startSpeedRound = () => {
+    setShowSpeedRound(true);
+    setTimeLeft(60);
+    setSpeedRoundScore(0);
+    // Generate quick math questions
+    const speedQuestions = [];
+    for (let i = 0; i < 30; i++) {
+      const operators = ['+', '-', '×'];
+      const op = operators[Math.floor(Math.random() * operators.length)];
+      const a = Math.floor(Math.random() * 12) + 1;
+      const b = Math.floor(Math.random() * 12) + 1;
+      let answer;
+      
+      if (op === '+') {
+        answer = a + b;
+      } else if (op === '-') {
+        answer = Math.max(a, b) - Math.min(a, b);
+      } else {
+        answer = a * b;
+      }
+      
+      speedQuestions.push({
+        question: op === '-' ? `${Math.max(a, b)} ${op} ${Math.min(a, b)}` : `${a} ${op} ${b}`,
+        answer: answer,
+        type: 'speed'
+      });
+    }
+    setQuestions(speedQuestions);
+    setCurrentQuestion(0);
+    setUserAnswer('');
+    
+    // Start countdown timer
+    const timer = setInterval(() => {
+      setTimeLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+  };
 
   // Math skills organized by grade (IXL-inspired)
   const mathSkills = {
@@ -626,8 +714,22 @@ const MathLearningPage = () => {
     
     setIsCorrect(correct);
     setShowFeedback(true);
+    
     if (correct) {
-      setScore(score + 1);
+      const newScore = score + 1;
+      const newStreak = streak + 1;
+      const earnedXP = calculateXP(true, newStreak);
+      const newTotalXP = totalXP + earnedXP;
+      
+      setScore(newScore);
+      setStreak(newStreak);
+      setTotalXP(newTotalXP);
+      setCurrentXP(earnedXP);
+      
+      // Check for achievements
+      checkAchievements(newStreak, newTotalXP);
+    } else {
+      setStreak(0); // Reset streak on wrong answer
     }
   };
 
@@ -641,6 +743,92 @@ const MathLearningPage = () => {
       setShowQuiz(false);
       setSelectedSkill(null);
     }
+  };
+
+  // Achievement Modal Component
+  const AchievementModal = ({ achievement, onClose }) => {
+    if (!achievement) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl transform animate-bounce">
+          <div className="text-center">
+            <div className="text-8xl mb-4">{achievement.icon}</div>
+            <h2 className="text-3xl font-bold text-yellow-600 mb-2">{achievement.name}</h2>
+            <p className="text-lg text-gray-600 mb-6">{achievement.desc}</p>
+            <button
+              onClick={onClose}
+              className="bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-8 py-3 rounded-full text-lg font-semibold hover:from-yellow-600 hover:to-orange-600 transition-all transform hover:scale-105 shadow-lg"
+            >
+              Awesome! 🎉
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Speed Round Component
+  const SpeedRoundModal = ({ onClose }) => {
+    if (!showSpeedRound) return null;
+    
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="bg-gradient-to-br from-yellow-400 to-red-500 rounded-3xl p-8 max-w-2xl w-full shadow-2xl text-white">
+          <div className="text-center">
+            <h2 className="text-4xl font-bold mb-4">⚡ SPEED ROUND! ⚡</h2>
+            <div className="text-6xl font-bold mb-4">{timeLeft}s</div>
+            <p className="text-xl mb-6">Answer as many as you can in 60 seconds!</p>
+            
+            {questions.length > 0 && currentQuestion < questions.length ? (
+              <div className="bg-white rounded-2xl p-6 text-gray-800 mb-6">
+                <h3 className="text-2xl font-bold mb-4">{questions[currentQuestion].question}</h3>
+                <input
+                  type="text"
+                  value={userAnswer}
+                  onChange={(e) => setUserAnswer(e.target.value)}
+                  className="text-2xl text-center border-4 border-yellow-400 rounded-xl p-4 w-32 focus:border-red-500 focus:outline-none font-bold"
+                  placeholder="?"
+                  autoFocus
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter' && userAnswer) {
+                      const correct = parseFloat(userAnswer.trim()) === questions[currentQuestion].answer;
+                      if (correct) {
+                        setSpeedRoundScore(speedRoundScore + 1);
+                        setTotalXP(totalXP + 15); // Bonus XP for speed
+                      }
+                      setCurrentQuestion(currentQuestion + 1);
+                      setUserAnswer('');
+                    }
+                  }}
+                />
+              </div>
+            ) : (
+              <div className="bg-white rounded-2xl p-6 text-gray-800 mb-6">
+                <h3 className="text-3xl font-bold text-green-600 mb-2">Time's Up!</h3>
+                <p className="text-xl">You answered <strong>{speedRoundScore}</strong> questions correctly!</p>
+                <p className="text-lg text-gray-600">+{speedRoundScore * 15} bonus XP earned!</p>
+              </div>
+            )}
+            
+            <div className="flex justify-center space-x-4">
+              <div className="bg-white bg-opacity-20 rounded-full px-6 py-3">
+                <span className="font-bold">🏆 Score: {speedRoundScore}</span>
+              </div>
+              <button
+                onClick={() => {
+                  setShowSpeedRound(false);
+                  onClose();
+                }}
+                className="bg-white text-red-600 px-6 py-3 rounded-full font-bold hover:bg-gray-100 transition-all"
+              >
+                Exit Speed Round
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   const PlayableQuiz = ({ skill, onClose }) => {
@@ -675,9 +863,25 @@ const MathLearningPage = () => {
               ></div>
             </div>
             
-            {/* Score */}
-            <div className="text-center mt-3">
-              <span className="text-lg font-bold text-green-600">Score: {score}/{currentQuestion + (showFeedback && isCorrect ? 1 : 0)}</span>
+            {/* Gamification Stats */}
+            <div className="text-center mt-3 space-y-2">
+              <div className="flex justify-center space-x-4">
+                <span className="text-lg font-bold text-green-600">Score: {score}/{currentQuestion + (showFeedback && isCorrect ? 1 : 0)}</span>
+                <span className="text-lg font-bold text-blue-600">🔥 Streak: {streak}</span>
+                <span className="text-lg font-bold text-purple-600">✨ XP: {totalXP}</span>
+                <span className="text-lg font-bold text-orange-600">📊 Level: {getLevel(totalXP)}</span>
+              </div>
+              <div className="flex justify-center space-x-2">
+                <div className="bg-yellow-100 px-3 py-1 rounded-full border border-yellow-300">
+                  <span className="text-sm text-yellow-700">💡 Hints: {powerUps.hints}</span>
+                </div>
+                <div className="bg-blue-100 px-3 py-1 rounded-full border border-blue-300">
+                  <span className="text-sm text-blue-700">❄️ Time Freeze: {powerUps.timeFreeze}</span>
+                </div>
+                <div className="bg-green-100 px-3 py-1 rounded-full border border-green-300">
+                  <span className="text-sm text-green-700">⚡ Double XP: {powerUps.doubleXP}</span>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -697,13 +901,53 @@ const MathLearningPage = () => {
                   onKeyPress={(e) => e.key === 'Enter' && userAnswer && checkAnswer()}
                 />
                 <br />
-                <button
-                  onClick={checkAnswer}
-                  disabled={!userAnswer}
-                  className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-full text-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Check Answer ✓
-                </button>
+                <div className="space-y-3">
+                  <button
+                    onClick={checkAnswer}
+                    disabled={!userAnswer}
+                    className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-full text-lg font-semibold hover:from-blue-600 hover:to-purple-600 transition-all transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Check Answer ✓
+                  </button>
+                  
+                  {/* Power-ups */}
+                  <div className="flex justify-center space-x-2">
+                    <button
+                      onClick={() => {
+                        if (powerUps.hints > 0) {
+                          setPowerUps(prev => ({ ...prev, hints: prev.hints - 1 }));
+                          // Show hint logic
+                          const hints = {
+                            'addition': 'Try breaking the numbers into smaller parts!',
+                            'subtraction': 'Count backwards or use addition to check!',
+                            'multiplication': 'Think of it as repeated addition!',
+                            'division': 'How many times does the smaller number fit?',
+                            'default': 'Take your time and think step by step!'
+                          };
+                          const hint = hints[questions[currentQuestion].type] || hints.default;
+                          alert(`💡 Hint: ${hint}`);
+                        }
+                      }}
+                      disabled={powerUps.hints === 0}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-full text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                      💡 Hint
+                    </button>
+                    
+                    <button
+                      onClick={() => {
+                        if (powerUps.doubleXP > 0) {
+                          setPowerUps(prev => ({ ...prev, doubleXP: prev.doubleXP - 1 }));
+                          // Double XP will be applied in checkAnswer
+                        }
+                      }}
+                      disabled={powerUps.doubleXP === 0}
+                      className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-full text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                      ⚡ Double XP
+                    </button>
+                  </div>
+                </div>
               </div>
             ) : (
               <div className="space-y-6">
@@ -712,6 +956,12 @@ const MathLearningPage = () => {
                     <div className="text-4xl mb-2">🎉</div>
                     <h3 className="text-2xl font-bold text-green-700 mb-2">Correct!</h3>
                     <p className="text-green-600 text-lg">Great job! You got it right.</p>
+                    {currentXP > 0 && (
+                      <div className="mt-3 bg-white rounded-lg p-3 border border-green-300">
+                        <p className="text-sm font-semibold text-green-700">+{currentXP} XP earned! 🌟</p>
+                        {streak >= 5 && <p className="text-sm text-orange-600">🔥 Hot streak bonus!</p>}
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div className="bg-red-100 border-2 border-red-300 rounded-2xl p-6">
@@ -774,6 +1024,25 @@ const MathLearningPage = () => {
           }} 
         />
       )}
+      
+      {showAchievement && (
+        <AchievementModal 
+          achievement={showAchievement} 
+          onClose={() => setShowAchievement(null)} 
+        />
+      )}
+      
+      {showSpeedRound && (
+        <SpeedRoundModal 
+          onClose={() => {
+            setShowSpeedRound(false);
+            setTimeLeft(60);
+            setSpeedRoundScore(0);
+            setCurrentQuestion(0);
+            setUserAnswer('');
+          }} 
+        />
+      )}
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 py-8">
         {/* Fun Header */}
@@ -782,19 +1051,39 @@ const MathLearningPage = () => {
             🌟 Math Adventure Zone! 🌟
           </h1>
           <p className="text-xl text-gray-700 mb-6">Choose your grade and start your math journey!</p>
-          <div className="flex justify-center space-x-4">
+          <div className="flex justify-center space-x-4 mb-6">
             <div className="bg-white rounded-full px-6 py-3 shadow-lg border-2 border-yellow-300">
               <span className="text-2xl">🏆</span>
-              <span className="ml-2 font-bold text-yellow-600">Level Up!</span>
+              <span className="ml-2 font-bold text-yellow-600">Level {getLevel(totalXP)}</span>
             </div>
             <div className="bg-white rounded-full px-6 py-3 shadow-lg border-2 border-green-300">
               <span className="text-2xl">⭐</span>
-              <span className="ml-2 font-bold text-green-600">Earn Stars!</span>
+              <span className="ml-2 font-bold text-green-600">{totalXP} XP</span>
             </div>
             <div className="bg-white rounded-full px-6 py-3 shadow-lg border-2 border-pink-300">
-              <span className="text-2xl">🎮</span>
-              <span className="ml-2 font-bold text-pink-600">Have Fun!</span>
+              <span className="text-2xl">🔥</span>
+              <span className="ml-2 font-bold text-pink-600">Streak: {streak}</span>
             </div>
+          </div>
+          
+          {/* Game Modes */}
+          <div className="flex justify-center space-x-4">
+            <button
+              onClick={startSpeedRound}
+              className="bg-gradient-to-r from-red-500 to-yellow-500 text-white px-6 py-3 rounded-full font-bold text-lg hover:from-red-600 hover:to-yellow-600 transition-all transform hover:scale-105 shadow-lg"
+            >
+              ⚡ Speed Round Challenge!
+            </button>
+            <button
+              onClick={() => {
+                // Reset power-ups as a daily bonus
+                setPowerUps({ hints: 3, timeFreeze: 1, doubleXP: 1 });
+                alert('🎁 Daily power-ups refreshed! Hints: 3, Time Freeze: 1, Double XP: 1');
+              }}
+              className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 py-3 rounded-full font-bold text-lg hover:from-purple-600 hover:to-blue-600 transition-all transform hover:scale-105 shadow-lg"
+            >
+              🎁 Daily Power-ups
+            </button>
           </div>
         </div>
 
@@ -851,11 +1140,15 @@ const MathLearningPage = () => {
               {mathSkills[selectedGrade].map((skill) => (
                 <div
                   key={skill.id}
-                  className={`${skill.color} rounded-2xl p-6 border-2 cursor-pointer transform hover:scale-105 transition-all duration-300 hover:shadow-xl`}
+                  className={`${skill.color} rounded-2xl p-6 border-2 cursor-pointer transform hover:scale-105 transition-all duration-300 hover:shadow-xl relative overflow-hidden`}
                   onClick={() => startSkillPractice(skill)}
                 >
+                  {/* Animated background elements */}
+                  <div className="absolute top-2 right-2 text-2xl opacity-30 animate-pulse">🌟</div>
+                  <div className="absolute bottom-2 left-2 text-xl opacity-20 animate-bounce">✨</div>
+                  
                   <div className="flex items-center justify-between mb-4">
-                    <div className="text-4xl">{skill.icon}</div>
+                    <div className="text-4xl animate-bounce">{skill.icon}</div>
                     <div className="bg-white rounded-full px-4 py-2 shadow-md">
                       <span className="text-sm font-bold text-gray-700">{skill.skills} problems</span>
                     </div>
@@ -865,22 +1158,112 @@ const MathLearningPage = () => {
                   
                   <div className="flex items-center justify-between">
                     <div className="flex space-x-1">
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} className="text-yellow-400 text-lg">
-                          {i < 3 ? '⭐' : '☆'}
-                        </span>
-                      ))}
+                      {[...Array(5)].map((_, i) => {
+                        const progress = Math.min(achievements.length + Math.floor(totalXP / 50), 5);
+                        return (
+                          <span key={i} className="text-yellow-400 text-lg">
+                            {i < progress ? '⭐' : '☆'}
+                          </span>
+                        );
+                      })}
                     </div>
-                    <button className="bg-white text-gray-700 px-4 py-2 rounded-full font-semibold hover:bg-gray-50 transition-colors shadow-md">
-                      Start Practice →
-                    </button>
+                    <div className="flex flex-col items-end space-y-1">
+                      <button className="bg-white text-gray-700 px-4 py-2 rounded-full font-semibold hover:bg-gray-50 transition-colors shadow-md text-sm">
+                        Start Practice →
+                      </button>
+                      <div className="text-xs text-gray-600 bg-white bg-opacity-70 px-2 py-1 rounded-full">
+                        +{Math.floor(Math.random() * 20 + 10)} XP
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Progress bar for this skill */}
+                  <div className="mt-4 w-full bg-white bg-opacity-50 rounded-full h-2">
+                    <div 
+                      className="bg-gradient-to-r from-yellow-400 to-orange-500 h-2 rounded-full transition-all duration-300"
+                      style={{ width: `${Math.min((achievements.length + Math.floor(totalXP / 100)) * 20, 100)}%` }}
+                    ></div>
                   </div>
                 </div>
               ))}
             </div>
 
+            {/* Fun Math Games Section */}
+            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Math Race Game */}
+              <div className="bg-gradient-to-br from-red-400 to-pink-500 rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-all cursor-pointer"
+                   onClick={() => {
+                     alert('🏁 Math Race coming soon! Race against time to solve problems!');
+                   }}>
+                <div className="text-center">
+                  <div className="text-4xl mb-3">🏁</div>
+                  <h3 className="text-xl font-bold mb-2">Math Race</h3>
+                  <p className="text-sm opacity-90">Race against the clock!</p>
+                </div>
+              </div>
+              
+              {/* Math Puzzle Game */}
+              <div className="bg-gradient-to-br from-purple-400 to-blue-500 rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-all cursor-pointer"
+                   onClick={() => {
+                     alert('🧩 Math Puzzles coming soon! Solve number mysteries and brain teasers!');
+                   }}>
+                <div className="text-center">
+                  <div className="text-4xl mb-3">🧩</div>
+                  <h3 className="text-xl font-bold mb-2">Math Puzzles</h3>
+                  <p className="text-sm opacity-90">Solve number mysteries!</p>
+                </div>
+              </div>
+              
+              {/* Math Builder Game */}
+              <div className="bg-gradient-to-br from-green-400 to-teal-500 rounded-2xl p-6 text-white shadow-lg transform hover:scale-105 transition-all cursor-pointer"
+                   onClick={() => {
+                     alert('🏭 Math Builder coming soon! Build your math city by solving problems!');
+                   }}>
+                <div className="text-center">
+                  <div className="text-4xl mb-3">🏭</div>
+                  <h3 className="text-xl font-bold mb-2">Math Builder</h3>
+                  <p className="text-sm opacity-90">Build your math city!</p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Achievements Showcase */}
+            <div className="mt-8 bg-gradient-to-r from-yellow-100 to-orange-100 rounded-2xl p-8 border-4 border-yellow-300">
+              <div className="text-center mb-6">
+                <h3 className="text-2xl font-bold text-gray-800 mb-2">🏆 Your Achievements</h3>
+                <p className="text-gray-600">Unlock more by solving problems!</p>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* Achievement badges */}
+                <div className={`text-center p-4 rounded-xl ${achievements.includes('streak5') ? 'bg-orange-200 border-2 border-orange-400' : 'bg-gray-100 border-2 border-gray-300 opacity-50'}`}>
+                  <div className="text-3xl mb-2">🔥</div>
+                  <p className="text-sm font-bold">Hot Streak</p>
+                  <p className="text-xs text-gray-600">5 in a row</p>
+                </div>
+                
+                <div className={`text-center p-4 rounded-xl ${achievements.includes('xp100') ? 'bg-purple-200 border-2 border-purple-400' : 'bg-gray-100 border-2 border-gray-300 opacity-50'}`}>
+                  <div className="text-3xl mb-2">🏆</div>
+                  <p className="text-sm font-bold">XP Master</p>
+                  <p className="text-xs text-gray-600">100+ XP</p>
+                </div>
+                
+                <div className={`text-center p-4 rounded-xl ${achievements.includes('perfect') ? 'bg-green-200 border-2 border-green-400' : 'bg-gray-100 border-2 border-gray-300 opacity-50'}`}>
+                  <div className="text-3xl mb-2">⭐</div>
+                  <p className="text-sm font-bold">Perfect Score</p>
+                  <p className="text-xs text-gray-600">All correct</p>
+                </div>
+                
+                <div className={`text-center p-4 rounded-xl ${achievements.includes('streak10') ? 'bg-yellow-200 border-2 border-yellow-400' : 'bg-gray-100 border-2 border-gray-300 opacity-50'}`}>
+                  <div className="text-3xl mb-2">⚡</div>
+                  <p className="text-sm font-bold">Unstoppable</p>
+                  <p className="text-xs text-gray-600">10 in a row</p>
+                </div>
+              </div>
+            </div>
+            
             {/* Encouraging Message */}
-            <div className="mt-12 text-center bg-white rounded-2xl p-8 shadow-lg border-4 border-yellow-300">
+            <div className="mt-8 text-center bg-white rounded-2xl p-8 shadow-lg border-4 border-blue-300">
               <div className="text-4xl mb-4">🎉</div>
               <h3 className="text-2xl font-bold text-gray-800 mb-2">You're doing amazing!</h3>
               <p className="text-gray-600 text-lg">Every problem you solve makes you smarter and stronger at math!</p>

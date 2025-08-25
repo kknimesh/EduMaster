@@ -89,10 +89,10 @@ const SimpleDashboard = () => (
           
           {/* Fun Callout Box */}
           <div className="bg-gradient-to-r from-yellow-100 via-pink-100 to-purple-100 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border-4 border-rainbow-gradient max-w-4xl mx-auto mb-6 sm:mb-8">
-            <div className="text-4xl sm:text-5xl lg:text-6xl mb-3 sm:mb-4">📚✏️🎪</div>
-            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-purple-700 mb-3 sm:mb-4">Learning is Like Playing! 🎮</h3>
+            <div className="text-4xl sm:text-5xl lg:text-6xl mb-3 sm:mb-4">🎮🚀🎯</div>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-purple-700 mb-3 sm:mb-4">Learning Through Epic Games! 🎮</h3>
             <p className="text-sm sm:text-lg lg:text-xl text-purple-600 font-bold">
-              Open your book of knowledge and write your own success story! Every lesson is a fun adventure! 📖✨
+              Race cars, solve mysteries, cook with fractions, and build towers! Math has never been this FUN! 🏁🕵️‍♂️👨‍🍳🏗️
             </p>
           </div>
         </div>
@@ -101,27 +101,27 @@ const SimpleDashboard = () => (
         <div className="mb-8 sm:mb-12">
           <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-center mb-6 sm:mb-8 px-4">
             <span className="bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text">
-              🏆 Look What Kids Are Doing! 🎉
+              🏆 Join Our Learning Community! 🎉
             </span>
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             <div className="bg-gradient-to-br from-blue-400 to-blue-600 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl hover:scale-105 sm:hover:scale-110 transition-transform cursor-pointer">
-              <div className="text-4xl sm:text-6xl lg:text-7xl mb-2 sm:mb-4">👨‍👩‍👧‍👦</div>
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-black mb-1 sm:mb-2">12</div>
-              <div className="text-base sm:text-lg lg:text-xl font-bold">Families Learning Together!</div>
-              <div className="text-xs sm:text-sm opacity-90 mt-1 sm:mt-2">Parents love watching kids grow! 🌱</div>
+              <div className="text-4xl sm:text-6xl lg:text-7xl mb-2 sm:mb-4">🎮</div>
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-black mb-1 sm:mb-2">6</div>
+              <div className="text-base sm:text-lg lg:text-xl font-bold">Epic Math Games!</div>
+              <div className="text-xs sm:text-sm opacity-90 mt-1 sm:mt-2">Race, cook, build, and solve mysteries! 🏁🍕🏰</div>
             </div>
             <div className="bg-gradient-to-br from-purple-400 to-purple-600 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl hover:scale-105 sm:hover:scale-110 transition-transform cursor-pointer">
-              <div className="text-4xl sm:text-6xl lg:text-7xl mb-2 sm:mb-4">🧠</div>
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-black mb-1 sm:mb-2">247</div>
-              <div className="text-base sm:text-lg lg:text-xl font-bold">Puzzles Solved Today!</div>
-              <div className="text-xs sm:text-sm opacity-90 mt-1 sm:mt-2">Every answer makes you smarter! 💪</div>
+              <div className="text-4xl sm:text-6xl lg:text-7xl mb-2 sm:mb-4">🚀</div>
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-black mb-1 sm:mb-2">100+</div>
+              <div className="text-base sm:text-lg lg:text-xl font-bold">Skills to Master!</div>
+              <div className="text-xs sm:text-sm opacity-90 mt-1 sm:mt-2">From basic math to advanced algebra! 🏆✨</div>
             </div>
             <div className="bg-gradient-to-br from-pink-400 to-pink-600 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl hover:scale-105 sm:hover:scale-110 transition-transform cursor-pointer">
-              <div className="text-4xl sm:text-6xl lg:text-7xl mb-2 sm:mb-4">🏆</div>
-              <div className="text-3xl sm:text-4xl lg:text-5xl font-black mb-1 sm:mb-2">89</div>
-              <div className="text-base sm:text-lg lg:text-xl font-bold">Badges Earned!</div>
-              <div className="text-xs sm:text-sm opacity-90 mt-1 sm:mt-2">Collect them all like Pokemon! 🎮</div>
+              <div className="text-4xl sm:text-6xl lg:text-7xl mb-2 sm:mb-4">🎆</div>
+              <div className="text-3xl sm:text-4xl lg:text-5xl font-black mb-1 sm:mb-2">20+</div>
+              <div className="text-base sm:text-lg lg:text-xl font-bold">Achievements to Earn!</div>
+              <div className="text-xs sm:text-sm opacity-90 mt-1 sm:mt-2">Detective badges, chef hats, builder crowns! 🔍👨‍🍳👷</div>
             </div>
           </div>
         </div>
@@ -197,6 +197,147 @@ const SimpleDashboard = () => (
         </div>
       </div>
 
+      {/* Featured Math Games Section */}
+      <div className="mb-12 sm:mb-16">
+        <h2 className="text-2xl sm:text-3xl lg:text-5xl font-black text-center mb-3 sm:mb-4 px-4">
+          <span className="bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 text-transparent bg-clip-text">
+            🎮 Featured Math Games! 🎆
+          </span>
+        </h2>
+        <p className="text-base sm:text-lg lg:text-xl text-gray-700 font-bold text-center mb-8 sm:mb-12 px-4">
+          Jump into exciting math adventures and level up your skills!
+        </p>
+        
+        {/* Games Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-8 sm:mb-12">
+          {/* Number Race */}
+          <div className="bg-gradient-to-br from-red-400 to-yellow-500 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl transform hover:scale-105 lg:hover:scale-110 transition-all duration-300 cursor-pointer relative overflow-hidden">
+            <div className="absolute top-2 right-2 text-2xl opacity-30">✨</div>
+            <div className="text-5xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4 text-center animate-bounce">🏁</div>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-center mb-2 sm:mb-3">Number Race</h3>
+            <p className="text-sm sm:text-base lg:text-lg text-center mb-3 sm:mb-4 opacity-90">
+              Race against time! Solve math problems as fast as you can!
+            </p>
+            <div className="flex justify-center space-x-2 mb-3 sm:mb-4">
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🎯 Easy</div>
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">⚡ Speed</div>
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🏆 50 XP</div>
+            </div>
+            <div className="text-center">
+              <span className="text-sm sm:text-base font-bold opacity-75">🏆 New & Exciting!</span>
+            </div>
+          </div>
+
+          {/* Math Quest Adventure */}
+          <div className="bg-gradient-to-br from-purple-400 to-blue-500 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl transform hover:scale-105 lg:hover:scale-110 transition-all duration-300 cursor-pointer relative overflow-hidden">
+            <div className="absolute top-2 right-2 text-2xl opacity-30">🎆</div>
+            <div className="text-5xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4 text-center animate-pulse">🗺️</div>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-center mb-2 sm:mb-3">Math Quest</h3>
+            <p className="text-sm sm:text-base lg:text-lg text-center mb-3 sm:mb-4 opacity-90">
+              Epic adventure through magical lands solving puzzles!
+            </p>
+            <div className="flex justify-center space-x-2 mb-3 sm:mb-4">
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🎯 Medium</div>
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🗺️ Adventure</div>
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🏆 75 XP</div>
+            </div>
+            <div className="text-center">
+              <span className="text-sm sm:text-base font-bold opacity-75">🎆 Epic Adventure!</span>
+            </div>
+          </div>
+
+          {/* Fraction Chef */}
+          <div className="bg-gradient-to-br from-orange-400 to-red-500 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl transform hover:scale-105 lg:hover:scale-110 transition-all duration-300 cursor-pointer relative overflow-hidden">
+            <div className="absolute top-2 right-2 text-2xl opacity-30">🌟</div>
+            <div className="text-5xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4 text-center animate-bounce">🍕</div>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-center mb-2 sm:mb-3">Fraction Chef</h3>
+            <p className="text-sm sm:text-base lg:text-lg text-center mb-3 sm:mb-4 opacity-90">
+              Cook delicious meals while mastering fractions!
+            </p>
+            <div className="flex justify-center space-x-2 mb-3 sm:mb-4">
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🎯 Medium</div>
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🍳 Cooking</div>
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🏆 65 XP</div>
+            </div>
+            <div className="text-center">
+              <span className="text-sm sm:text-base font-bold opacity-75">🍳 Deliciously Fun!</span>
+            </div>
+          </div>
+
+          {/* Times Table Tower */}
+          <div className="bg-gradient-to-br from-yellow-400 to-orange-500 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl transform hover:scale-105 lg:hover:scale-110 transition-all duration-300 cursor-pointer relative overflow-hidden">
+            <div className="absolute top-2 right-2 text-2xl opacity-30">✨</div>
+            <div className="text-5xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4 text-center animate-bounce">🏰</div>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-center mb-2 sm:mb-3">Tower Builder</h3>
+            <p className="text-sm sm:text-base lg:text-lg text-center mb-3 sm:mb-4 opacity-90">
+              Build the tallest tower with multiplication magic!
+            </p>
+            <div className="flex justify-center space-x-2 mb-3 sm:mb-4">
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🎯 Easy</div>
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🏗️ Building</div>
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🏆 45 XP</div>
+            </div>
+            <div className="text-center">
+              <span className="text-sm sm:text-base font-bold opacity-75">🏰 Build & Learn!</span>
+            </div>
+          </div>
+
+          {/* Geometry City Builder */}
+          <div className="bg-gradient-to-br from-green-400 to-teal-500 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl transform hover:scale-105 lg:hover:scale-110 transition-all duration-300 cursor-pointer relative overflow-hidden">
+            <div className="absolute top-2 right-2 text-2xl opacity-30">🎆</div>
+            <div className="text-5xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4 text-center animate-pulse">🏗️</div>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-center mb-2 sm:mb-3">City Builder</h3>
+            <p className="text-sm sm:text-base lg:text-lg text-center mb-3 sm:mb-4 opacity-90">
+              Design your dream city with geometric shapes!
+            </p>
+            <div className="flex justify-center space-x-2 mb-3 sm:mb-4">
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🎯 Hard</div>
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🏗️ Building</div>
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🏆 100 XP</div>
+            </div>
+            <div className="text-center">
+              <span className="text-sm sm:text-base font-bold opacity-75">🏙️ Creative Geometry!</span>
+            </div>
+          </div>
+
+          {/* Algebra Detective */}
+          <div className="bg-gradient-to-br from-indigo-400 to-purple-500 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 shadow-2xl transform hover:scale-105 lg:hover:scale-110 transition-all duration-300 cursor-pointer relative overflow-hidden">
+            <div className="absolute top-2 right-2 text-2xl opacity-30">🌟</div>
+            <div className="text-5xl sm:text-6xl lg:text-7xl mb-3 sm:mb-4 text-center animate-bounce">🔍</div>
+            <h3 className="text-xl sm:text-2xl lg:text-3xl font-black text-center mb-2 sm:mb-3">Detective</h3>
+            <p className="text-sm sm:text-base lg:text-lg text-center mb-3 sm:mb-4 opacity-90">
+              Solve mysterious cases with algebraic clues!
+            </p>
+            <div className="flex justify-center space-x-2 mb-3 sm:mb-4">
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🎯 Hard</div>
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🕵️‍♂️ Mystery</div>
+              <div className="bg-white/20 rounded-full px-2 sm:px-3 py-1 text-xs sm:text-sm font-bold">🏆 90 XP</div>
+            </div>
+            <div className="text-center">
+              <span className="text-sm sm:text-base font-bold opacity-75">🔍 Solve Mysteries!</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Play Now Button */}
+        <div className="text-center">
+          <Link 
+            to="/adaptive" 
+            className="inline-block bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white px-8 sm:px-12 lg:px-16 py-4 sm:py-6 lg:py-8 rounded-full text-xl sm:text-2xl lg:text-3xl font-black hover:from-pink-600 hover:via-red-600 hover:to-yellow-600 transition-all transform hover:scale-110 shadow-2xl animate-pulse"
+          >
+            🎮 PLAY NOW! 🚀
+          </Link>
+          <p className="text-sm sm:text-base lg:text-lg text-gray-600 font-bold mt-3 sm:mt-4">
+            🎆 Click to start your math gaming adventure!
+          </p>
+          <div className="flex justify-center space-x-2 sm:space-x-4 mt-2 sm:mt-3">
+            <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs sm:text-sm font-bold">✅ Free Forever</span>
+            <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs sm:text-sm font-bold">🏆 Earn XP & Badges</span>
+            <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs sm:text-sm font-bold">🎮 6 Epic Games</span>
+          </div>
+        </div>
+      </div>
+
       {/* Get Started Section */}
       <div className="bg-gradient-to-br from-yellow-200 via-orange-200 to-pink-200 p-6 sm:p-8 lg:p-12 rounded-2xl sm:rounded-3xl shadow-2xl border-4 border-yellow-400">
         <div className="text-center">
@@ -206,7 +347,7 @@ const SimpleDashboard = () => (
               Let's Start Your Adventure! 🚀
             </span>
           </h2>
-          <p className="text-lg sm:text-xl lg:text-2xl text-gray-800 font-black mb-6 sm:mb-8 lg:mb-10 px-4">Pick what sounds most exciting to you!</p>
+          <p className="text-lg sm:text-xl lg:text-2xl text-gray-800 font-black mb-6 sm:mb-8 lg:mb-10 px-4">Ready to become a learning champion? Pick your path!</p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 mb-6 sm:mb-8 lg:mb-10">
             <div className="text-center bg-gradient-to-br from-blue-400 to-purple-500 text-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 border-4 border-blue-300 hover:scale-105 lg:hover:scale-110 transition-transform shadow-2xl">
